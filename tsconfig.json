@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "resolveJsonModule": true,
+        "target": "es2018",
+        "module": "commonjs",
+        "outDir": "dist",
+		"sourceMap": true,
+		"jsx": "react",
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true
+    }
+}

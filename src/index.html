@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<link href="./css/main.min.css" rel="stylesheet">
+	</head>
+
+	<script>
+		// package hack because webpack doesn't have an easy way to exclude packages from being required
+		function require(input) {
+			if(input == "perf_hooks") {
+				return { 
+					performance: performance
+				}
+			}
+		}
+	</script>
+
+	<body>
+		<div id="mainMenu">
+		</div>
+		
+		<div id="canvasContainer">
+		</div>
+
+		<div id="reactContainer">
+		</div>
+
+		<div id="minimapContainer">
+		</div>
+	</body>
+</html>
