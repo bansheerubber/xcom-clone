@@ -1,21 +1,23 @@
-import * as PIXI from "pixi.js"
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 import Game from "../game/game";
-import { Keybind, KeybindModifier } from "../game/keybinds";
-import { RGBColor } from "../helpers/color";
-import Range from "../helpers/range";
-import Vector from "../helpers/vector";
+import {
+	Keybind,
+	KeybindModifier
+} from "../game/keybinds";
+import {
+	RGBColor
+} from "../helpers/color";
 import Vector3d from "../helpers/vector3d";
 import ImageResource from "../render/imageResource";
-import Sprite from "../render/sprite";
-import SpriteSheet from "../render/spriteSheet";
 import ControllableCamera from "./controllableCamera";
 import Stage from "./stage";
-import Tile from "./tile";
-import TileChunk from "./tileChunk";
-import TileGroup from "./tileGroup";
+import MainUI from "./ui/main";
 
 export default async function(game: Game) {
 	if(game.isClient) {
+		ReactDOM.render(<MainUI />, document.getElementById("reactContainer"))
+		
 		ImageResource.queueImage("./data/sprites/spritesheet test.json")
 		.queueImage("./data/egg.png")
 		.loadImages().then(() => {

@@ -54,10 +54,10 @@ export default class GameRenderer {
 
 		this.shadowMasks.filters = [new ShadowMapGenerator(this.game)] // add shadow map generation filter to shadowmasks
 
-        document.getElementById("canvasContainer").appendChild(this.pixiApp.view)
-        this.pixiApp.view.id = "canvas"
-        this.pixiApp.view.onselect = function() {
-            return false
+		document.getElementById("canvasContainer").appendChild(this.pixiApp.view)
+		this.pixiApp.view.id = "canvas"
+		this.pixiApp.view.onselect = function() {
+			return false
 		}
 		this.pixiApp.stop() // don't automatically render
 	}
