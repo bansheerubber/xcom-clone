@@ -3,8 +3,12 @@ import Sprite from "./sprite";
 import Game from "../game/game";
 
 export default class SpriteSheet extends Sprite {
+	public static textureProperties = {}
+	
+	
 	public spritesheet: PIXI.Spritesheet
 	protected _sheetIndex: number = 0
+	private source: string
 
 
 	
@@ -16,8 +20,10 @@ export default class SpriteSheet extends Sprite {
 				this.spritesheet = resource
 			}
 			else {
-				this.spritesheet = PIXI.Loader.shared.resources[resource].spritesheet
+				this.spritesheet = PIXI.Loader.shared.resources[resource].spritesheet			
 			}
+			this.source = (this.spritesheet.baseTexture.resource as any).url
+
 			this.sheetIndex = 0
 		}
 		catch(error) {
@@ -29,7 +35,11 @@ export default class SpriteSheet extends Sprite {
 		this._sheetIndex = sheetIndex
 
 		if(this.spritesheet.textures) {
-			let properties = Object.getOwnPropertyNames(this.spritesheet.textures)
+			if(!SpriteSheet.textureProperties[this.source]) {
+				SpriteSheet.textureProperties[this.source] = Object.getOwnPropertyNames(this.spritesheet.textures)
+			}
+			let properties = SpriteSheet.textureProperties[this.source]
+
 			sheetIndex = sheetIndex % properties.length
 			this.texture = this.spritesheet.textures[properties[sheetIndex]]
 		}

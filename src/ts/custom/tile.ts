@@ -1,5 +1,6 @@
 import GameObject from "../game/gameObject";
 import { RGBColor } from "../helpers/color";
+import Range from "../helpers/range";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import SpriteSheet from "../render/spriteSheet";
@@ -23,6 +24,7 @@ export default class Tile extends GameObject {
 		})
 
 		this.sprite = new SpriteSheet(this.game, "./data/sprites/spritesheet test.json", this.game.renderer.isomap)
+		this.sprite.isVisible = false
 		this.sprite.sheetIndex = 13
 	}
 
@@ -50,5 +52,6 @@ export default class Tile extends GameObject {
 
 	public setChunk(chunk: TileChunk) {
 		this.chunk = chunk
+		this.sprite.isVisible = true
 	}
 }

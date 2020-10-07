@@ -18,15 +18,14 @@ export default async function(game: Game) {
 		.queueImage("./data/egg.png")
 		.loadImages().then(() => {
 			console.log("loaded images")
-
+			
 			let stage = new Stage(game)
 
-			let max = 449
+			let max = 149
 			for(let x = 0; x <= max; x++) {
 				for(let y = 0; y <= max; y++) {
-					let count = Range.getRandomInt(1, 2)
-					for(let z = 0; z < count; z++) {
-						stage.createTile(new Vector3d(x, y, z))
+					for(let z = 0; z <= 1; z++) {
+						stage.createTile(Vector3d.getTempVector(0).set(x, y, z))
 					}
 				}
 			}

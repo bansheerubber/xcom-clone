@@ -27,13 +27,15 @@ export default class TileChunk extends GameObject {
 	private color: RGBColor
 	private minBoundary: Vector
 	private maxBoundary: Vector
+	private highestZ: number = 0
+	private shouldRecalcBounds: boolean = false
 	
 	
 	
 	constructor(game: Game, position: Vector3d) {
 		super(game)
 
-		this.position = position
+		this.position = position.clone()
 
 		if(TileChunk.DEBUG) {
 			this.graphics = new PIXI.Graphics()
@@ -41,18 +43,7 @@ export default class TileChunk extends GameObject {
 			this.game.renderer.debug.addChild(this.graphics)
 		}
 
-		this.minBoundary = new Vector(
-			this.position.x * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2
-				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2 - (0.5 * Tile.TILE_SIZE),
-			(this.position.x + 2) * TileChunk.CHUNK_SIZE * -Tile.TILE_SIZE / 4
-				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 4 + TileChunk.CHUNK_SIZE / 4 * Tile.TILE_SIZE
-		)
-		this.maxBoundary = new Vector(
-			(this.position.x + 2) * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2
-				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2 + (0.5 * Tile.TILE_SIZE),
-			this.position.x * TileChunk.CHUNK_SIZE * -Tile.TILE_SIZE / 4
-				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 4 + (TileChunk.CHUNK_SIZE + 4) / 4 * Tile.TILE_SIZE
-		)
+		this.recalcBoundary()
 
 		this.game.renderer.isomap.addChild(this.container)
 		this.container.zIndex = -this.position.x + this.position.y + this.position.z
@@ -63,6 +54,11 @@ export default class TileChunk extends GameObject {
 
 	public tick(deltaTime: number) {
 		super.tick(deltaTime)
+
+		if(this.shouldRecalcBounds) {
+			this.shouldRecalcBounds = false
+			this.recalcBoundary()
+		}
 
 		let isOnScreen = this.game.renderer.camera.showsBox(this.minBoundary, this.maxBoundary.x - this.minBoundary.x, this.maxBoundary.y - this.minBoundary.y)
 		if(isOnScreen && !this.isVisible) {
@@ -93,11 +89,34 @@ export default class TileChunk extends GameObject {
 		this.container.sortDirty = true
 		this.container.sortChildren()
 		this.container.cacheAsBitmap = true
+
+		let zPosition = tile.getPosition().z
+		if(zPosition > this.highestZ) {
+			this.highestZ = zPosition
+			this.shouldRecalcBounds = true
+		}
 	}
 
 	public remove(tile: Tile) {
 		this.tiles.delete(tile)
 		tile.setContainer(null)
 		tile.setChunk(null)
+	}
+
+	private recalcBoundary() {
+		this.minBoundary = new Vector(
+			this.position.x * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2
+				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2 - (0.5 * Tile.TILE_SIZE),
+			(this.position.x + 2) * TileChunk.CHUNK_SIZE * -Tile.TILE_SIZE / 4
+				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 4 + TileChunk.CHUNK_SIZE / 4 * Tile.TILE_SIZE
+				- Tile.TILE_SIZE / 2 * this.highestZ
+		)
+
+		this.maxBoundary = new Vector(
+			(this.position.x + 2) * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2
+				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2 + (0.5 * Tile.TILE_SIZE),
+			this.position.x * TileChunk.CHUNK_SIZE * -Tile.TILE_SIZE / 4
+				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 4 + (TileChunk.CHUNK_SIZE + 4) / 4 * Tile.TILE_SIZE
+		)
 	}
 }

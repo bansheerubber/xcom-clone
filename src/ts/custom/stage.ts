@@ -11,7 +11,7 @@ export default class Stage extends GameObject {
 	
 	
 	public createTile(position: Vector3d): Tile {
-		let chunkPosition = position.clone().mul(1 / TileChunk.CHUNK_SIZE).foreach(Math.floor)
+		let chunkPosition = Vector3d.getTempVector(100).copy(position).mul(1 / TileChunk.CHUNK_SIZE).foreach(Math.floor)
 		if(!this.chunkMap[chunkPosition.unique2d()]) {
 			this.chunkMap[chunkPosition.unique2d()] = new TileChunk(this.game, chunkPosition)
 		}
