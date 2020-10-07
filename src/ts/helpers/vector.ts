@@ -1,14 +1,10 @@
 import Matter = require("matter-js");
 import { networkClass } from "../network/networkDecorators";
 
-type callback = (x: number, y: number) => void
-
 @networkClass()
 export default class Vector {
 	public x: number
 	public y: number
-
-	public onModified: callback
 
 	private matterVector: Matter.Vector
 
@@ -20,6 +16,17 @@ export default class Vector {
 		this.x = x
 		this.y = y
 	}
+
+	/**
+	 * perform an operation on the x and y components
+	 * @param call operation performed
+	 */
+	public foreach(call: (input: number) => number): Vector {
+		this.x = call(this.x)
+		this.y = call(this.y)
+		return this
+	}
+
 
 	/**
 	 * adds the input vector to this one

@@ -14,7 +14,7 @@ export default class Sprite extends RenderObject implements Physical {
 	public cameras: Camera[] = []
 	public chunk: SpriteChunk
 	
-	private container: PIXI.Container
+	private _container: PIXI.Container
 	private _scale: Vector = new Vector(1, 1)
 	private _position: Vector = new Vector(0, 0)
 
@@ -38,14 +38,29 @@ export default class Sprite extends RenderObject implements Physical {
 			this.sprite = PIXI.Sprite.from(resource)
 		}
 
-		this.sprite.anchor.x = 0.5
-		this.sprite.anchor.y = 0.5
+		this.sprite.anchor.x = 0
+		this.sprite.anchor.y = 0
 
-		this.container = customContainer
 		let chunkSet = this.game.renderer.chunks.get(customContainer)
-		if(chunkSet === undefined) {
-			customContainer.addChild(this.sprite)
+		this.container = customContainer
+
+		this.setPosition(this._position)
+	}
+
+	set container(value: PIXI.Container) {
+		if(this._container) {
+			this._container.removeChild(this.sprite)
 		}
+		
+		this._container = value
+
+		if(!this.chunk && this._container) {
+			this._container.addChild(this.sprite)	
+		}
+	}
+
+	get container(): PIXI.Container {
+		return this._container
 	}
 
 	public setPosition(position: Vector): void {
@@ -93,6 +108,14 @@ export default class Sprite extends RenderObject implements Physical {
 
 	get rotation(): number {
 		return this.sprite.rotation
+	}
+
+	set zIndex(value: number) {
+		this.sprite.zIndex = value
+	}
+
+	get zIndex(): number {
+		return this.sprite.zIndex
 	}
 
 	set texture(resource: string | PIXI.Texture) {

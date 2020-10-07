@@ -2,7 +2,6 @@ import * as PIXI from "pixi.js"
 import Game from "../game/game";
 import Camera from "./camera";
 import RenderObject from "./renderObject";
-import SpriteChunk from "./spriteChunk";
 import SpriteChunkSet from "./spriteChunkSet";
 import ShadowLight, { ShadowMapGenerator } from "./lights/shadowLight";
 
@@ -12,7 +11,7 @@ export default class GameRenderer {
 	public objects: RenderObject[] = []
 
 	public dynamic: PIXI.Container = new PIXI.Container() // moves with a camera
-	public hex: PIXI.Container = new PIXI.Container() // hex map
+	public isomap: PIXI.Container = new PIXI.Container() // hex map
 	public shadowMasks: PIXI.Container = new PIXI.Container() // contains all the masks used to make the shadow sprites
 	public shadows: PIXI.Container = new PIXI.Container() // contains all the shadow sprites
 	public static: PIXI.Container = new PIXI.Container() // does not move with a camera
@@ -32,10 +31,10 @@ export default class GameRenderer {
 		this.game = game
 
 		PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
-		PIXI.settings.ROUND_PIXELS = true
+		PIXI.settings.ROUND_PIXELS = false
 
-        // setup the pixi application
-        this.pixiApp = new PIXI.Application({
+    // setup the pixi application
+    this.pixiApp = new PIXI.Application({
 			width: document.getElementById("canvasContainer").clientWidth,
 			height: document.getElementById("canvasContainer").clientHeight,
 			backgroundColor: 0x333333,
@@ -44,7 +43,7 @@ export default class GameRenderer {
 			antialias: true,
 		})
 		
-		this.pixiApp.stage.addChild(this.hex)
+		this.pixiApp.stage.addChild(this.isomap)
 		this.pixiApp.stage.addChild(this.shadows)
 		this.pixiApp.stage.addChild(this.dynamic)
 		this.pixiApp.stage.addChild(this.static)
@@ -52,7 +51,6 @@ export default class GameRenderer {
 
 		this.chunks.set(this.dynamic, new SpriteChunkSet(this.dynamic))
 		this.chunks.set(this.shadowMasks, new SpriteChunkSet(this.shadowMasks))
-		this.chunks.set(this.hex, new SpriteChunkSet(this.hex, true))
 
 		this.shadowMasks.filters = [new ShadowMapGenerator(this.game)] // add shadow map generation filter to shadowmasks
 
@@ -101,13 +99,13 @@ export default class GameRenderer {
 		this.debug.rotation = rotation
 
 
-		this.hex.pivot.x = x
-		this.hex.pivot.y = y
+		this.isomap.pivot.x = x
+		this.isomap.pivot.y = y
 
-		this.hex.scale.x = zoom
-		this.hex.scale.y = zoom
+		this.isomap.scale.x = zoom
+		this.isomap.scale.y = zoom
 
-		this.hex.rotation = rotation
+		this.isomap.rotation = rotation
 
 		
 		this.shadowMasks.pivot.x = x
