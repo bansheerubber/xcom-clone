@@ -42,6 +42,19 @@ export default class Vector3d {
 	}
 
 	/**
+	 * adds together the supplied components to this vector
+	 * @param x 
+	 * @param y 
+	 * @param z 
+	 */
+	public $add(x: number, y: number, z: number): Vector3d {
+		this.x += x
+		this.y += y
+		this.z += z
+		return this
+	}
+
+	/**
 	 * subtract the input vector from this one
 	 * @param vector
 	 */
@@ -171,6 +184,22 @@ export default class Vector3d {
 	 */
 	public unique2d(): number {
 		return ((this.x + this.y) * (this.x + this.y + 1)) / 2 + this.y
+	}
+
+	/**
+	 * maps our x, y, and z coordinates to a unique number
+	 */
+	public unique(): number {
+		let unique2d = this.unique2d()
+		return ((unique2d + this.z) * (unique2d + this.z + 1)) / 2 + this.z
+	}
+
+	/**
+	 * returns true if the vectors share the same unique number
+	 * @param vector
+	 */
+	public equals(vector: Vector3d): boolean {
+		return this.unique() == vector.unique()
 	}
 
 	/**

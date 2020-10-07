@@ -29,6 +29,7 @@ export default class TileChunk extends GameObject {
 	private maxBoundary: Vector
 	private highestZ: number = 0
 	private shouldRecalcBounds: boolean = false
+	private forceUpdate: number = 0
 	
 	
 	
@@ -58,6 +59,15 @@ export default class TileChunk extends GameObject {
 		if(this.shouldRecalcBounds) {
 			this.shouldRecalcBounds = false
 			this.recalcBoundary()
+		}
+
+		if(this.forceUpdate == 2) {
+			this.container.cacheAsBitmap = false
+			this.forceUpdate = 1
+		}
+		else if(this.forceUpdate == 1) {
+			this.container.cacheAsBitmap = true
+			this.forceUpdate = 0
 		}
 
 		let isOnScreen = this.game.renderer.camera.showsBox(this.minBoundary, this.maxBoundary.x - this.minBoundary.x, this.maxBoundary.y - this.minBoundary.y)
@@ -95,12 +105,23 @@ export default class TileChunk extends GameObject {
 			this.highestZ = zPosition
 			this.shouldRecalcBounds = true
 		}
+
+		this.update()
 	}
 
 	public remove(tile: Tile) {
 		this.tiles.delete(tile)
 		tile.setContainer(null)
 		tile.setChunk(null)
+
+		this.update()
+	}
+
+	/**
+	 * update our cached bitmap if there's a change
+	 */
+	public update() {
+		this.forceUpdate = 2
 	}
 
 	private recalcBoundary() {
