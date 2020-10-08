@@ -82,11 +82,19 @@ export default class BinaryFileReader {
 	}
 	
 	/**
-	 * reads a 32 bit number from our bytes
+	 * reads a 32-bit number from our bytes
 	 */
-	public readInt(): number {
+	public readInt32(): number {
 		this.byteIndex += 4
 		return this.bytes[this.byteIndex - 4] << 24 | this.bytes[this.byteIndex - 3] << 16 | this.bytes[this.byteIndex - 2] << 8 | this.bytes[this.byteIndex - 1]
+	}
+
+	/**
+	 * reads a 16-bit number from our bytes
+	 */
+	public readInt16(): number {
+		this.byteIndex += 2
+		return this.bytes[this.byteIndex - 2] << 8 | this.bytes[this.byteIndex - 1]
 	}
 	
 	/**
@@ -112,7 +120,7 @@ export default class BinaryFileReader {
 	 * reads the first int, and treats that as a string length. reads that amount bytes forwards to construct a string
 	 */
 	public readString(): string {
-		let length = this.readInt()
+		let length = this.readInt16()
 		let output = ""
 		for(let i = 0; i < length; i++) {
 			output += this.readChar()
