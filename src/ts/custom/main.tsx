@@ -23,21 +23,7 @@ export default async function(game: Game) {
 			console.log("loaded images")
 			
 			let stage = new Stage(game)
-
-			let max = 149
-			for(let x = 0; x <= max; x++) {
-				for(let y = 0; y <= max; y++) {
-					let count = 0
-					for(let z = 0; z <= count; z++) {
-						let color = new RGBColor(1, 1, 1)
-						if(x % 2 == y % 2) {
-							color = new RGBColor(0.8, 0.8, 0.8)
-						}
-						
-						stage.createTile(Vector3d.getTempVector(0).set(x, y, z))
-					}
-				}
-			}
+			stage.load("./data/stage.egg")
 
 			game.renderer.camera = new ControllableCamera(game)
 

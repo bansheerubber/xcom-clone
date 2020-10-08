@@ -7,8 +7,14 @@
 	z-index: 100000;
 	background-color: #444;
 	display: flex;
-	flex-wrap: wrap;
+	flex-direction: column;
+}
+
+.tile-scroll {
+	display: flex;
 	overflow: auto;
+	height: 100%;
+	flex-wrap: wrap;
 	align-content: flex-start;
 	box-sizing: border-box;
 	padding-bottom: 30px;

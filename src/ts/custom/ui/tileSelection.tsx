@@ -46,14 +46,17 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 
 		new Keybind("mouse0", KeybindModifier.NONE, "Select Tile").down((event: MouseEvent) => {
 			let vector = this.props.stage.mouseToTileSpace(event.x, event.y)
-			vector.z = this.ghostTile.getPosition().z
-			this.ghostTile.setPosition(vector)
 
-			if(this.spaceHeldDown) {
-				plantTile()
-			}
-			else if(this.deleteHeldDown) {
-				deleteTile()
+			if(vector) {
+				vector.z = this.ghostTile.getPosition().z
+				this.ghostTile.setPosition(vector)
+
+				if(this.spaceHeldDown) {
+					plantTile()
+				}
+				else if(this.deleteHeldDown) {
+					deleteTile()
+				}
 			}
 		})
 
@@ -173,7 +176,10 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		}
 
 		return <div className="tile-selection">
-			{elements}
+			<div className="tile-scroll">
+				{elements}
+			</div>
+			<button onClick={() => this.props.stage.save()}>Save Stage</button>
 		</div>
 	}
 }

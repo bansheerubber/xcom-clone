@@ -14,7 +14,7 @@ export default class BinaryFileWriter {
 
 	/**
 	 * saves the file based on if we're the client or not
-	 * @param compressionLevel
+	 * @param compressionLevel 0-9
 	 */
 	public saveFile(compressionLevel: number): void {
 		if(fs) {
@@ -32,6 +32,8 @@ export default class BinaryFileWriter {
 			saveAs(new Blob([save], {
 				type: "application/octet-stream"
 			}), this.fileName.substring(this.fileName.lastIndexOf("/") + 1, this.fileName.length));
+
+			delete this.bytes // free up bytes
 		}
 	}
 

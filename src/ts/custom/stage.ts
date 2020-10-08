@@ -1,4 +1,6 @@
 import GameObject from "../game/gameObject";
+import BinaryFileReader from "../helpers/binaryFileReader";
+import BinaryFileWriter from "../helpers/binaryFileWriter";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Tile from "./tile";
@@ -62,6 +64,18 @@ export default class Stage extends GameObject {
 			}
 			
 			this.chunkMap[chunkPosition.unique2d()].add(tile)
+		}
+
+		if(tile.getPosition().x + 1 > this.maxPosition.x) {
+			this.maxPosition.x = tile.getPosition().x + 1
+		}
+
+		if(tile.getPosition().y + 1 > this.maxPosition.y) {
+			this.maxPosition.y = tile.getPosition().y + 1
+		}
+
+		if(tile.getPosition().z + 1 > this.maxPosition.z) {
+			this.maxPosition.z = tile.getPosition().z + 1
 		}
 	}
 
@@ -128,6 +142,55 @@ export default class Stage extends GameObject {
 		}
 		else {
 			this.selectTile(null)
+		}
+	}
+
+	public save() {
+		let file = new BinaryFileWriter("stage.egg")
+		file.writeInt16(this.maxPosition.x)
+		file.writeInt16(this.maxPosition.y)
+		file.writeInt16(this.maxPosition.z)
+		
+		let max2dIndex = this.maxPosition.x * this.maxPosition.y
+		let maxIndex = this.maxPosition.x * this.maxPosition.y * this.maxPosition.z
+		for(let i = 0; i < maxIndex; i++) {
+			let position = Vector3d.getTempVector(97).set(
+				i % this.maxPosition.x,
+				Math.floor(i / this.maxPosition.x) % this.maxPosition.y,
+				Math.floor(i / max2dIndex)
+			)
+
+			let type = 2**16 - 1
+			if(this.tileMap[0][position.unique()]) {
+				type = this.tileMap[0][position.unique()].type
+			}
+			file.writeInt16(type)
+		}
+
+		file.saveFile(9)
+	}
+
+	public async load(fileName: string) {
+		let file = new BinaryFileReader(fileName)
+		await file.readFile()
+
+		let maxX = file.readInt16()
+		let maxY = file.readInt16()
+		let maxZ = file.readInt16()
+
+		let max2dIndex = maxX * maxY
+		let maxIndex = maxX * maxY * maxZ
+		for(let i = 0; i < maxIndex; i++) {
+			let position = Vector3d.getTempVector(97).set(
+				i % maxX,
+				Math.floor(i / maxX) % maxY,
+				Math.floor(i / max2dIndex)
+			)
+
+			let type = file.readInt16()
+			if(type != 2**16 - 1) {
+				this.createTile(position, type)
+			}
 		}
 	}
 }
