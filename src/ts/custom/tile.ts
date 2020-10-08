@@ -1,3 +1,4 @@
+import * as PIXI from "pixi.js"
 import GameObject from "../game/gameObject";
 import GameObjectOptions from "../game/gameObjectOptions";
 import { RGBColor } from "../helpers/color";
@@ -65,6 +66,14 @@ export default class Tile extends GameObject {
 	
 	get type(): number {
 		return this.sprite.sheetIndex
+	}
+
+	set blendMode(blend: PIXI.BLEND_MODES) {
+		this.sprite.blendMode = blend
+	}
+
+	get blendMode(): PIXI.BLEND_MODES {
+		return this.sprite.blendMode
 	}
 
 	public setPosition(vector: Vector3d) {
@@ -149,7 +158,7 @@ export default class Tile extends GameObject {
 			return null
 		}
 		else {
-			return this.stage.tileMap[0][Vector3d.getTempVector(99).unique()]
+			return this.stage.tileMap[5][Vector3d.getTempVector(99).unique()]
 		}
 	}
 

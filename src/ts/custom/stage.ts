@@ -29,7 +29,7 @@ export default class Stage extends GameObject {
 
 	
 	
-	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = 0, tileClass: typeof Tile = Tile): Tile {
+	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = 5, tileClass: typeof Tile = Tile): Tile {
 		if(!this.tileMap[layer]) {
 			this.tileMap[layer] = {}
 		}
@@ -91,7 +91,7 @@ export default class Stage extends GameObject {
 
 		if(this.selectedTile) {
 			this.selectedTile.select()
-			this.selectedTileOutline = this.createTile(this.selectedTile.getPosition(), 273, 1)
+			this.selectedTileOutline = this.createTile(this.selectedTile.getPosition(), 273, 6)
 		}
 	}
 
@@ -122,8 +122,8 @@ export default class Stage extends GameObject {
 
 		let index = vector.unique()
 
-		if(this.tileMap[0][index]) {
-			return this.tileMap[0][index]
+		if(this.tileMap[5][index]) {
+			return this.tileMap[5][index]
 		}
 		else {
 			return null
@@ -161,8 +161,8 @@ export default class Stage extends GameObject {
 			)
 
 			let type = 2**16 - 1
-			if(this.tileMap[0][position.unique()]) {
-				type = this.tileMap[0][position.unique()].type
+			if(this.tileMap[5][position.unique()]) {
+				type = this.tileMap[5][position.unique()].type
 			}
 			file.writeInt16(type)
 		}

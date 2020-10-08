@@ -25,7 +25,7 @@ export default class GhostTile extends Tile {
 		this.outlines.clear()
 
 		for(let z = 0; z <= this.getPosition().z; z++) {
-			this.outlines.add(this.stage.createTile(Vector3d.getTempVector(98).set(this.getPosition().x, this.getPosition().y, z), 268, 2))
+			this.outlines.add(this.stage.createTile(Vector3d.getTempVector(98).set(this.getPosition().x, this.getPosition().y, z), 268, 11))
 		}
 	}
 

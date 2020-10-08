@@ -24,7 +24,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 	constructor(props) {
 		super(props)
 
-		this.ghostTile = this.props.stage.createTile(Vector3d.getTempVector(0).set(5, 5, 1), 83, 1, GhostTile) as GhostTile
+		this.ghostTile = this.props.stage.createTile(Vector3d.getTempVector(0).set(5, 5, 1), 83, 10, GhostTile) as GhostTile
 		this.ghostTile.opacity = 0.8
 
 		let limit = (input: number) => {
@@ -41,7 +41,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		}
 
 		let deleteTile = () => {
-			this.props.stage.tileMap[0][this.ghostTile.getPosition().unique()]?.destroy()
+			this.props.stage.tileMap[5][this.ghostTile.getPosition().unique()]?.destroy()
 		}
 
 		new Keybind("mouse0", KeybindModifier.NONE, "Select Tile").down((event: MouseEvent) => {
@@ -147,9 +147,9 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 
 	render(): JSX.Element {
 		let elements = []
-		let spriteSheetSize = 1984
+		let spriteSheetSize = 2048
 		let spriteSize = 64
-		let maxCount = 277
+		let maxCount = 280
 
 		for(let i = 0; i <= maxCount; i++) {
 			let x = i % (spriteSheetSize / spriteSize)
