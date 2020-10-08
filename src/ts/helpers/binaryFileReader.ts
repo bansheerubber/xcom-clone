@@ -100,8 +100,6 @@ export default class BinaryFileReader {
 		}
 		return array
 	}
-	
-	// reads a character from our bytes array
 
 	/**
 	 * @return a character from our bytes array

@@ -1,4 +1,5 @@
 import GameObject from "../game/gameObject";
+import GameObjectOptions from "../game/gameObjectOptions";
 import { RGBColor } from "../helpers/color";
 import Range from "../helpers/range";
 import Vector from "../helpers/vector";
@@ -17,20 +18,20 @@ enum TILE_ADJACENT {
 export default class Tile extends GameObject {
 	public static TILE_SIZE: number = 64
 
-	private chunk: TileChunk
-	public sprite: SpriteSheet
+	protected chunk: TileChunk
+	protected sprite: SpriteSheet
 	/**
 	 * the position of our tile in tilespace
 	 */
-	private position: Vector3d = new Vector3d(0, 0, 0)
-	private oldTint: RGBColor
-	private layer: number
-	private stage: Stage
+	protected position: Vector3d = new Vector3d(0, 0, 0)
+	protected oldTint: RGBColor
+	protected stage: Stage
+	public readonly layer: number
 
 
 
-	constructor(game, stage: Stage, spriteIndex: number = 13, layer: number = 0) {
-		super(game, {
+	constructor(game, stage: Stage, spriteIndex: number = 13, layer: number = 0, optionsOverride?: GameObjectOptions) {
+		super(game, optionsOverride ? optionsOverride : {
 			canTick: false,
 		})
 
@@ -42,7 +43,35 @@ export default class Tile extends GameObject {
 		this.sprite.sheetIndex = spriteIndex
 	}
 
+	set tint(tint: RGBColor) {
+		this.sprite.tint = tint
+	}
+
+	get tint(): RGBColor {
+		return this.sprite.tint
+	}
+
+	set opacity(opacity: number) {
+		this.sprite.opacity = opacity
+	}
+
+	get opacity(): number {
+		return this.sprite.opacity
+	}
+
+	set type(type: number) {
+		this.sprite.sheetIndex = type
+	}
+	
+	get type(): number {
+		return this.sprite.sheetIndex
+	}
+
 	public setPosition(vector: Vector3d) {
+		if(this.stage.tileMap[this.layer][this.getPosition().unique()] == this) {
+			delete this.stage.tileMap[this.layer][this.getPosition().unique()] // clear last position in tilemap
+		}
+		
 		this.position.copy(vector)
 
 		let spritePosition = this.sprite.getPosition()
@@ -54,10 +83,15 @@ export default class Tile extends GameObject {
 
 		let tint = (30 - this.position.z) / 30
 		this.sprite.tint = new RGBColor(tint, tint, tint)
+
+		this.stage.updateTile(this)
+		if(this.chunk) {
+			this.chunk.update()
+		}
 	}
 
 	public getPosition(): Vector3d {
-		return this.position
+		return this.position.clone()
 	}
 	
 	public setContainer(container) {
@@ -67,6 +101,10 @@ export default class Tile extends GameObject {
 	public setChunk(chunk: TileChunk) {
 		this.chunk = chunk
 		this.sprite.isVisible = true
+	}
+
+	public getChunk(): TileChunk {
+		return this.chunk
 	}
 
 	public unselect() {
@@ -117,7 +155,13 @@ export default class Tile extends GameObject {
 
 	public destroy() {
 		super.destroy()
-		this.chunk.remove(this)
-		this.sprite.destroy()
+		this.chunk?.remove(this)
+		this.chunk = null
+		this.sprite?.destroy()
+		this.sprite = null
+
+		if(this.stage.tileMap[this.layer][this.getPosition().unique()]) {
+			delete this.stage.tileMap[this.layer][this.getPosition().unique()]
+		}
 	}
 }

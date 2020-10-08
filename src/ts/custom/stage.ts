@@ -23,38 +23,61 @@ export default class Stage extends GameObject {
 
 	private selectedTile: Tile
 	private selectedTileOutline: Tile
+	private maxPosition: Vector3d = new Vector3d(0, 0, 0)
 
 	
 	
-	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = 0): Tile {
-		let chunkPosition = Vector3d.getTempVector(100).copy(position).mul(1 / TileChunk.CHUNK_SIZE).foreach(Math.floor)
+	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = 0, tileClass: typeof Tile = Tile): Tile {
+		if(!this.tileMap[layer]) {
+			this.tileMap[layer] = {}
+		}
+		
+		let tile = new tileClass(this.game, this, spriteIndex, layer)
+		tile.setPosition(position.clone())
+		return tile
+	}
+
+	public updateTile(tile: Tile) {
+		let chunkPosition = Vector3d.getTempVector(100).copy(tile.getPosition()).mul(1 / TileChunk.CHUNK_SIZE).foreach(Math.floor)
 		if(!this.chunkMap[chunkPosition.unique2d()]) {
 			this.chunkMap[chunkPosition.unique2d()] = new TileChunk(this.game, chunkPosition)
 		}
 
-		if(!this.tileMap[layer]) {
-			this.tileMap[layer] = {}
+		if(!this.tileMap[tile.layer]) {
+			this.tileMap[tile.layer] = {}
 		}
 
-		let tile = new Tile(this.game, this, spriteIndex, layer)
-		tile.setPosition(position.clone())
-		this.tileMap[layer][position.unique()] = tile
-		this.chunkMap[chunkPosition.unique2d()].add(tile)
-		return tile
+		if(
+			this.tileMap[tile.layer][tile.getPosition().unique()]
+			&& this.tileMap[tile.layer][tile.getPosition().unique()] != tile
+		) {
+			this.tileMap[tile.layer][tile.getPosition().unique()].destroy()
+		}
+		
+		this.tileMap[tile.layer][tile.getPosition().unique()] = tile
+
+		if(this.chunkMap[chunkPosition.unique2d()] != tile.getChunk()) {
+			if(tile.getChunk()) {
+				tile.getChunk().remove(tile)
+			}
+			
+			this.chunkMap[chunkPosition.unique2d()].add(tile)
+		}
 	}
 
 	public selectTile(tile: Tile) {
 		if(this.selectedTile) {
 			this.selectedTile.unselect()
 			this.selectedTile = null
-			this.selectedTileOutline.destroy()
+			this.selectedTileOutline?.destroy()
+			this.selectedTileOutline = null
 		}
 
 		this.selectedTile = tile
 
 		if(this.selectedTile) {
 			this.selectedTile.select()
-			this.selectedTileOutline = this.createTile(this.selectedTile.getPosition(), 286, 1)
+			this.selectedTileOutline = this.createTile(this.selectedTile.getPosition(), 273, 1)
 		}
 	}
 

@@ -11,13 +11,12 @@ import {
 import Vector3d from "../helpers/vector3d";
 import ImageResource from "../render/imageResource";
 import ControllableCamera from "./controllableCamera";
+import GhostTile from "./ghostTile";
 import Stage from "./stage";
 import MainUI from "./ui/main";
 
 export default async function(game: Game) {
 	if(game.isClient) {
-		ReactDOM.render(<MainUI />, document.getElementById("reactContainer"))
-		
 		ImageResource.queueImage("./data/sprites/spritesheet test.json")
 		.queueImage("./data/egg.png")
 		.loadImages().then(() => {
@@ -35,16 +34,14 @@ export default async function(game: Game) {
 							color = new RGBColor(0.8, 0.8, 0.8)
 						}
 						
-						stage.createTile(Vector3d.getTempVector(0).set(x, y, z)).sprite.tint = color
+						stage.createTile(Vector3d.getTempVector(0).set(x, y, z))
 					}
 				}
 			}
 
 			game.renderer.camera = new ControllableCamera(game)
 
-			new Keybind("mouse0", KeybindModifier.NONE, "Select Tile").down((event: MouseEvent) => {
-				stage.selectTileUnderMouse(event.x, event.y)
-			})
+			ReactDOM.render(<MainUI game={game} stage={stage} />, document.getElementById("reactContainer"))
 		})
 	}
 }

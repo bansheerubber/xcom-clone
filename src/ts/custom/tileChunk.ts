@@ -66,27 +66,29 @@ export default class TileChunk extends GameObject {
 			this.forceUpdate = 1
 		}
 		else if(this.forceUpdate == 1) {
-			this.container.cacheAsBitmap = true
+			this.container.cacheAsBitmap = false
 			this.forceUpdate = 0
 		}
 
-		let isOnScreen = this.game.renderer.camera.showsBox(this.minBoundary, this.maxBoundary.x - this.minBoundary.x, this.maxBoundary.y - this.minBoundary.y)
-		if(isOnScreen && !this.isVisible) {
-			this.isVisible = true
-			this.container.visible = true
-		}
-		else if(!isOnScreen && this.isVisible) {
-			this.isVisible = false
-			this.container.visible = false
-		}
+		if(this.game.renderer.camera) {
+			let isOnScreen = this.game.renderer.camera.showsBox(this.minBoundary, this.maxBoundary.x - this.minBoundary.x, this.maxBoundary.y - this.minBoundary.y)
+			if(isOnScreen && !this.isVisible) {
+				this.isVisible = true
+				this.container.visible = true
+			}
+			else if(!isOnScreen && this.isVisible) {
+				this.isVisible = false
+				this.container.visible = false
+			}
 
-		if(this.graphics) { 
-			this.graphics.clear()
+			if(this.graphics) { 
+				this.graphics.clear()
 
-			this.graphics.lineStyle(5 / this.game.renderer.camera.zoom, this.color.toHex())
-			this.graphics.beginFill(0x000000, 0)
-			this.graphics.drawRect(this.minBoundary.x, this.minBoundary.y, this.maxBoundary.x - this.minBoundary.x, this.maxBoundary.y - this.minBoundary.y)
-			this.graphics.endFill()
+				this.graphics.lineStyle(5 / this.game.renderer.camera.zoom, this.color.toHex())
+				this.graphics.beginFill(0x000000, 0)
+				this.graphics.drawRect(this.minBoundary.x, this.minBoundary.y, this.maxBoundary.x - this.minBoundary.x, this.maxBoundary.y - this.minBoundary.y)
+				this.graphics.endFill()
+			}
 		}
 	}
 
