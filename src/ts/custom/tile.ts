@@ -1,11 +1,14 @@
 import * as PIXI from "pixi.js"
 import GameObject from "../game/gameObject";
 import GameObjectOptions from "../game/gameObjectOptions";
+import BinaryFileReader from "../helpers/binaryFileReader";
+import BinaryFileWriter from "../helpers/binaryFileWriter";
 import { RGBColor } from "../helpers/color";
 import Range from "../helpers/range";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import SpriteSheet from "../render/spriteSheet";
+import Serializable from "./serializable";
 import Stage from "./stage";
 import TileChunk from "./tileChunk";
 import TileLighting from "./tileLighting";
@@ -17,7 +20,7 @@ enum TILE_ADJACENT {
 	WEST = 3,
 }
 
-export default class Tile extends GameObject {
+export default class Tile extends GameObject implements Serializable {
 	public static TILE_SIZE: number = 64
 
 	protected chunk: TileChunk
@@ -72,6 +75,7 @@ export default class Tile extends GameObject {
 
 	set type(type: number) {
 		this.sprite.sheetIndex = type
+		this.chunk.update()
 	}
 	
 	get type(): number {
@@ -192,6 +196,18 @@ export default class Tile extends GameObject {
 		}
 		else {
 			return this.stage.tileMap[this.stage.defaultLayer][Vector3d.getTempVector(99).unique()]
+		}
+	}
+
+	public serialize(file: BinaryFileWriter, mode: number) {
+		if(mode == 0) {
+			file.writeInt16(this.type)
+		}
+	}
+
+	public read(file: BinaryFileReader, mode: number) {
+		if(mode == 0) {
+			this.type = file.readInt16()
 		}
 	}
 

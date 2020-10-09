@@ -20,7 +20,7 @@ export default async function(game: Game) {
 			
 			let stage = new Stage(game);
 			stage.load("./data/stage.egg").then(() => {
-				new TileLighting(game, stage, new Vector3d(2, 2, 1), 5, new RGBColor(0.4, 0.2, 0))
+				
 			});
 
 			game.renderer.camera = new ControllableCamera(game)

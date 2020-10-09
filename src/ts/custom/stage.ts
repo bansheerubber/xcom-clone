@@ -1,3 +1,4 @@
+import { textChangeRangeIsUnchanged } from "typescript";
 import GameObject from "../game/gameObject";
 import BinaryFileReader from "../helpers/binaryFileReader";
 import BinaryFileWriter from "../helpers/binaryFileWriter";
@@ -6,6 +7,11 @@ import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Tile from "./tile";
 import TileChunk from "./tileChunk";
+import TileLighting from "./tileLighting";
+
+enum StageSaveFile {
+	BLANK_TILE = 2**16 - 1
+}
 
 export default class Stage extends GameObject {
 	/**
@@ -23,6 +29,11 @@ export default class Stage extends GameObject {
 			[uniqueIndex: number]: Tile
 		}
 	} = {}
+
+	/**
+	 * all of the lights
+	 */
+	public lights: Set<TileLighting> = new Set()
 
 	private selectedTile: Tile
 	private selectedTileOutline: Tile
@@ -161,6 +172,7 @@ export default class Stage extends GameObject {
 		file.writeInt16(this.maxPosition.y)
 		file.writeInt16(this.maxPosition.z)
 		
+		// write tiles to file
 		let max2dIndex = this.maxPosition.x * this.maxPosition.y
 		let maxIndex = this.maxPosition.x * this.maxPosition.y * this.maxPosition.z
 		for(let i = 0; i < maxIndex; i++) {
@@ -170,11 +182,18 @@ export default class Stage extends GameObject {
 				Math.floor(i / max2dIndex)
 			)
 
-			let type = 2**16 - 1
 			if(this.tileMap[this.defaultLayer][position.unique()]) {
-				type = this.tileMap[this.defaultLayer][position.unique()].type
+				this.tileMap[this.defaultLayer][position.unique()].serialize(file, 0)
 			}
-			file.writeInt16(type)
+			else {
+				file.writeInt16(StageSaveFile.BLANK_TILE)
+			}
+		}
+
+		// write lights to file
+		file.writeInt16(this.lights.size)
+		for(let light of this.lights) {
+			light.serialize(file)
 		}
 
 		file.saveFile(9)
@@ -188,6 +207,7 @@ export default class Stage extends GameObject {
 		let maxY = file.readInt16()
 		let maxZ = file.readInt16()
 
+		// read tiles
 		let max2dIndex = maxX * maxY
 		let maxIndex = maxX * maxY * maxZ
 		for(let i = 0; i < maxIndex; i++) {
@@ -201,6 +221,13 @@ export default class Stage extends GameObject {
 			if(type != 2**16 - 1) {
 				this.createTile(position, type)
 			}
+		}
+
+		// read lights
+		let lightCount = file.readInt16()
+		let tempColor = new RGBColor(0, 0, 0)
+		for(let i = 0; i < lightCount; i++) {
+			new TileLighting(this.game, this, new Vector3d(0, 0, 0), 0, tempColor).read(file)
 		}
 	}
 }

@@ -2,13 +2,16 @@ import { Vector } from "matter-js";
 import * as PIXI from "pixi.js"
 import { Vector3 } from "three";
 import GameObject from "../game/gameObject";
+import BinaryFileReader from "../helpers/binaryFileReader";
+import BinaryFileWriter from "../helpers/binaryFileWriter";
 import { RGBColor } from "../helpers/color";
 import Vector3d from "../helpers/vector3d";
+import Serializable from "./serializable";
 import Stage from "./stage";
 import Tile from "./tile";
 import TileChunk from "./tileChunk";
 
-export default class TileLighting extends GameObject {
+export default class TileLighting extends GameObject implements Serializable {
 	public stage: Stage
 	protected _position: Vector3d
 	protected _radius: number
@@ -35,10 +38,11 @@ export default class TileLighting extends GameObject {
 
 		this.calculateChunks()
 		this.drawLight()
+		this.stage.lights.add(this)
 	}
 
 	public drawLight() {
-		for(let tile of this.affectedTiles.values()) {
+		for(let tile of this.affectedTiles) {
 			tile.removeLight(this)
 		}
 		this.affectedTiles.clear()
@@ -105,5 +109,39 @@ export default class TileLighting extends GameObject {
 
 	get color(): RGBColor {
 		return this._color
+	}
+
+	public serialize(file: BinaryFileWriter) {
+		file.writeInt16(this.position.x)
+		file.writeInt16(this.position.y)
+		file.writeInt16(this.position.z)
+		file.writeInt16(this.radius)
+
+		let color = this.color.toHex()
+		file.writeByte((color & 0xFF0000) >> 16)
+		file.writeByte((color & 0x00FF00) >> 8)
+		file.writeByte(color & 0x0000FF)
+	}
+
+	public read(file: BinaryFileReader) {
+		this.position = this.position.set(file.readInt16(), file.readInt16(), file.readInt16())
+		this.radius = file.readInt16()
+		this.color = RGBColor.from((file.readByte() << 16) | (file.readByte() << 8) | file.readByte())
+	}
+
+	public destroy() {
+		super.destroy()
+		
+		for(let chunk of this.chunks) {
+			chunk.removeLight(this)
+		}
+		delete this.chunks
+
+		for(let tile of this.affectedTiles) {
+			tile.removeLight(this)
+		}
+		delete this.affectedTiles
+
+		this.stage.lights.delete(this)
 	}
 }
