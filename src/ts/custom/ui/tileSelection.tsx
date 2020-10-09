@@ -2,6 +2,7 @@ import * as React from "react"
 import Game from "../../game/game"
 import { Keybind, KeybindModifier } from "../../game/keybinds"
 import Vector3d from "../../helpers/vector3d"
+import WebFileReader from "../../helpers/webFileReader"
 import GhostTile from "../ghostTile"
 import Stage from "../stage"
 
@@ -12,6 +13,28 @@ interface TileSelectionProps {
 
 interface TileSelectionState {
 	selectedId: number
+	frames: {
+		[name: string]: {
+			frame: {
+				x: number,
+				y: number,
+				w: number,
+				h: number,
+			}
+			rotated: boolean
+			trimmed: boolean
+			spriteSourceSize: {
+				x: number,
+				y: number,
+				w: number,
+				h: number,
+			}
+			sourceSize: {
+				w: number,
+				h: number,
+			}
+		}
+	}
 }
 
 export default class TileSelection extends React.Component<TileSelectionProps, TileSelectionState> {
@@ -26,6 +49,12 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 
 		this.ghostTile = this.props.stage.createTile(Vector3d.getTempVector(0).set(5, 5, 1), 83, 10, GhostTile) as GhostTile
 		this.ghostTile.opacity = 0.8
+
+		new WebFileReader("./data/sprites/spritesheet test.json").readFile().then((json: string) => {
+			this.setState({
+				frames: JSON.parse(json).frames
+			})
+		})
 
 		let limit = (input: number) => {
 			if(input < 0) {
@@ -141,38 +170,41 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		this.state = {
-			selectedId: -1
+			selectedId: -1,
+			frames: null,
 		}
 	}
 
 	render(): JSX.Element {
 		let elements = []
-		let spriteSheetSize = 2048
+		let spriteSheetSize = 990
 		let spriteSize = 64
 		let maxCount = 280
 
-		for(let i = 0; i <= maxCount; i++) {
-			let x = i % (spriteSheetSize / spriteSize)
-			let y = Math.floor(i * spriteSize / spriteSheetSize)
-
-			elements.push(<div className="tile-preview" id={`${i}`} key={i} onClick={(event) => {
-				let id = parseInt(event.currentTarget.id)
-				if(id != this.state.selectedId) {
-					this.setState({
-						selectedId: id,
-					})
-					this.ghostTile.type = id
-				}
-				else {
-					this.setState({
-						selectedId: -1,
-					})
-				}		
-			}} style={{
-				backgroundPositionX: -x * spriteSize,
-				backgroundPositionY: -y * spriteSize,
-				backgroundColor: this.state.selectedId == i ? "#FFFF00" : null
-			}}>{i}</div>)
+		if(this.state.frames) {
+			let index = 0
+			for(let name in this.state.frames) {
+				let frame = this.state.frames[name]
+				elements.push(<div className="tile-preview" id={`${index}`} key={index} onClick={(event) => {
+					let id = parseInt(event.currentTarget.id)
+					if(id != this.state.selectedId) {
+						this.setState({
+							selectedId: id,
+						})
+						this.ghostTile.type = id
+					}
+					else {
+						this.setState({
+							selectedId: -1,
+						})
+					}		
+				}} style={{
+					backgroundPositionX: -frame.frame.x,
+					backgroundPositionY: -frame.frame.y,
+					backgroundColor: this.state.selectedId == index ? "#FFFF00" : null
+				}}>{index}</div>)
+				index++
+			}
 		}
 
 		return <div className="tile-selection">
