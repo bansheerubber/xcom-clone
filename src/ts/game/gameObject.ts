@@ -7,6 +7,7 @@ export default abstract class GameObject {
 	public game: Game
 	public gameObjectOptions: GameObjectOptions
 	public isDestroyed: boolean = false
+	protected _onTick: (deltaTime: number) => void = null
 
 
 
@@ -21,7 +22,17 @@ export default abstract class GameObject {
 	 * @param deltaTime seconds
 	 */
 	public tick(deltaTime: number) {
-		
+		if(this._onTick) {
+			this._onTick(deltaTime)
+		}
+	}
+
+	/**
+	 * defines a callback that is called every tick
+	 * @param callback 
+	 */
+	public onTick(callback: (deltaTime: number) => void) {
+		this._onTick = callback
 	}
 
 	/**

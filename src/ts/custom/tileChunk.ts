@@ -6,6 +6,11 @@ import Range from "../helpers/range";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Tile from "./tile";
+import TileLighting from "./tileLighting";
+
+export enum TileChunkUpdate {
+	NO_LIGHTS = 1
+}
 
 export default class TileChunk extends GameObject {
 	/**
@@ -22,6 +27,7 @@ export default class TileChunk extends GameObject {
 	public isVisible: boolean = true
 
 	private tiles: Set<Tile> = new Set()
+	private lights: Set<TileLighting> = new Set()
 	private container: PIXI.Container = new PIXI.Container()
 	private graphics: PIXI.Graphics
 	private color: RGBColor
@@ -119,11 +125,34 @@ export default class TileChunk extends GameObject {
 		this.update()
 	}
 
+	public addLight(light: TileLighting) {
+		this.lights.add(light)
+	}
+
+	public removeLight(light: TileLighting) {
+		this.lights.delete(light)
+	}
+
+	/**
+	 * convert the input position into chunk space
+	 * @param position 
+	 */
+	public static tileToChunkSpace(position: Vector3d) {
+		return Vector3d.getTempVector(100).copy(position).mul(1 / TileChunk.CHUNK_SIZE).foreach(Math.floor).clone()
+	}
+
 	/**
 	 * update our cached bitmap if there's a change
 	 */
-	public update() {
+	public update(updateBitmask: TileChunkUpdate = 0) {
 		this.forceUpdate = 2
+
+		// draw all lights on update
+		if((updateBitmask & TileChunkUpdate.NO_LIGHTS) == 0) {
+			for(let light of this.lights) {
+				light.drawLight() // TODO this is called an insane amount of times
+			}
+		}
 	}
 
 	private recalcBoundary() {

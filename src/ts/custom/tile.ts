@@ -100,13 +100,17 @@ export default class Tile extends GameObject {
 		this.sprite.setPosition(spritePosition)
 		this.sprite.zIndex = -this.position.x + this.position.y + this.position.z + this.layer / 50
 
-		let tint = (30 - this.position.z) / 30
-		this.sprite.tint = new RGBColor(tint, tint, tint)
-
+		let oldChunk = this.chunk
 		this.stage.updateTile(this)
 		if(this.chunk) {
 			this.chunk.update()
 		}
+		
+		if(oldChunk && this.chunk != oldChunk) {
+			oldChunk.update()
+		}
+
+		this.calculateLighting()
 	}
 
 	public getPosition(): Vector3d {
@@ -145,9 +149,10 @@ export default class Tile extends GameObject {
 	}
 
 	protected calculateLighting() {
-		let additive = 0x000000
+		let fog = this.position.z / 100
+		let additive = new RGBColor(fog, fog, fog).toHex()
 		for(let light of this.lights) {
-			additive += light.color.clone().mul(1 - light.position.dist(this.position) / light.radius).toHex()
+			additive += light.color.clone().mul(Math.max(0, 1 - light.position.dist(this.position) / light.radius)).toHex()
 		}
 		this.additive = RGBColor.from(additive)
 	}

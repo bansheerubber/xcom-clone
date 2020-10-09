@@ -42,7 +42,7 @@ export default class Stage extends GameObject {
 	}
 
 	public updateTile(tile: Tile) {
-		let chunkPosition = Vector3d.getTempVector(100).copy(tile.getPosition()).mul(1 / TileChunk.CHUNK_SIZE).foreach(Math.floor)
+		let chunkPosition = TileChunk.tileToChunkSpace(tile.getPosition())
 		if(!this.chunkMap[chunkPosition.unique2d()]) {
 			this.chunkMap[chunkPosition.unique2d()] = new TileChunk(this.game, chunkPosition)
 		}
@@ -83,6 +83,10 @@ export default class Stage extends GameObject {
 
 	public getMapTile(vector: Vector3d): Tile {
 		return this.tileMap[this.defaultLayer][vector.unique()]
+	}
+
+	public getChunk(vector: Vector3d): TileChunk {
+		return this.chunkMap[vector.unique2d()]
 	}
 
 	public selectTile(tile: Tile) {

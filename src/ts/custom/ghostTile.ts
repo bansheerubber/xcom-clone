@@ -2,6 +2,7 @@ import GameObjectOptions from "../game/gameObjectOptions";
 import Vector3d from "../helpers/vector3d";
 import Stage from "./stage";
 import Tile from "./tile";
+import { TileChunkUpdate } from "./tileChunk";
 
 export default class GhostTile extends Tile {
 	private opacityDirection: number = -1
@@ -41,6 +42,6 @@ export default class GhostTile extends Tile {
 
 		this.opacity += this.opacityDirection * deltaTime
 
-		this.chunk.update()
+		this.chunk.update(TileChunkUpdate.NO_LIGHTS)
 	}
 }
