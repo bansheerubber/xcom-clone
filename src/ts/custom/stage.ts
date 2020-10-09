@@ -1,6 +1,7 @@
 import GameObject from "../game/gameObject";
 import BinaryFileReader from "../helpers/binaryFileReader";
 import BinaryFileWriter from "../helpers/binaryFileWriter";
+import { RGBColor } from "../helpers/color";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Tile from "./tile";
@@ -26,10 +27,11 @@ export default class Stage extends GameObject {
 	private selectedTile: Tile
 	private selectedTileOutline: Tile
 	private maxPosition: Vector3d = new Vector3d(0, 0, 0)
+	public readonly defaultLayer: number = 5;
 
 	
 	
-	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = 5, tileClass: typeof Tile = Tile): Tile {
+	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = this.defaultLayer, tileClass: typeof Tile = Tile): Tile {
 		if(!this.tileMap[layer]) {
 			this.tileMap[layer] = {}
 		}
@@ -79,6 +81,10 @@ export default class Stage extends GameObject {
 		}
 	}
 
+	public getMapTile(vector: Vector3d): Tile {
+		return this.tileMap[this.defaultLayer][vector.unique()]
+	}
+
 	public selectTile(tile: Tile) {
 		if(this.selectedTile) {
 			this.selectedTile.unselect()
@@ -122,8 +128,8 @@ export default class Stage extends GameObject {
 
 		let index = vector.unique()
 
-		if(this.tileMap[5][index]) {
-			return this.tileMap[5][index]
+		if(this.tileMap[this.defaultLayer][index]) {
+			return this.tileMap[this.defaultLayer][index]
 		}
 		else {
 			return null
@@ -161,8 +167,8 @@ export default class Stage extends GameObject {
 			)
 
 			let type = 2**16 - 1
-			if(this.tileMap[5][position.unique()]) {
-				type = this.tileMap[5][position.unique()].type
+			if(this.tileMap[this.defaultLayer][position.unique()]) {
+				type = this.tileMap[this.defaultLayer][position.unique()].type
 			}
 			file.writeInt16(type)
 		}

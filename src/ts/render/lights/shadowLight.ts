@@ -27,7 +27,7 @@ export class ShadowMapGenerator extends PIXI.Filter {
 		this.game = game
 	}
 
-	public apply(filterManager: PIXI.systems.FilterSystem, input: PIXI.RenderTexture, output: PIXI.RenderTexture, clear: boolean, currentState: object): void {
+	public apply(filterManager: PIXI.systems.FilterSystem, input: PIXI.RenderTexture, output: PIXI.RenderTexture, clear: PIXI.CLEAR_MODES, currentState: object): void {
 		if(ShadowLight.renderTextureResolution == 256) {
 			this.uniforms.resolutionMode = 1;
 		}
@@ -78,7 +78,7 @@ export class ShadowMapRenderer extends PIXI.Filter {
 		this.autoFit = false
 	}
 
-	public apply(filterManager: PIXI.systems.FilterSystem, input: PIXI.RenderTexture, output: PIXI.RenderTexture, clear: boolean, currentState: PIXI.State): void {
+	public apply(filterManager: PIXI.systems.FilterSystem, input: PIXI.RenderTexture, output: PIXI.RenderTexture, clear: PIXI.CLEAR_MODES, currentState: PIXI.State): void {
 		this.uniforms.textureSize = Math.ceil(this.textureSize - 2)
 
 		this.uniforms.color[0] = this.color.r

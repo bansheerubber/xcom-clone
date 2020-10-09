@@ -8,6 +8,7 @@ import Vector3d from "../helpers/vector3d";
 import SpriteSheet from "../render/spriteSheet";
 import Stage from "./stage";
 import TileChunk from "./tileChunk";
+import TileLighting from "./tileLighting";
 
 enum TILE_ADJACENT {
 	NORTH = 0,
@@ -20,13 +21,14 @@ export default class Tile extends GameObject {
 	public static TILE_SIZE: number = 64
 
 	protected chunk: TileChunk
-	protected sprite: SpriteSheet
+	public sprite: SpriteSheet
 	/**
 	 * the position of our tile in tilespace
 	 */
 	protected position: Vector3d = new Vector3d(0, 0, 0)
 	protected oldTint: RGBColor
 	protected stage: Stage
+	protected lights: Set<TileLighting> = new Set()
 	public readonly layer: number
 
 
@@ -50,6 +52,14 @@ export default class Tile extends GameObject {
 
 	get tint(): RGBColor {
 		return this.sprite.tint
+	}
+
+	set additive(additive: RGBColor) {
+		this.sprite.additive = additive
+	}
+
+	get additive(): RGBColor {
+		return this.sprite.additive
 	}
 
 	set opacity(opacity: number) {
@@ -124,6 +134,24 @@ export default class Tile extends GameObject {
 		
 	}
 
+	public removeLight(light: TileLighting) {
+		this.lights.delete(light)
+		this.calculateLighting()
+	}
+
+	public addLight(light: TileLighting) {
+		this.lights.add(light)
+		this.calculateLighting()
+	}
+
+	protected calculateLighting() {
+		let additive = 0x000000
+		for(let light of this.lights) {
+			additive += light.color.clone().mul(1 - light.position.dist(this.position) / light.radius).toHex()
+		}
+		this.additive = RGBColor.from(additive)
+	}
+
 	/**
 	 * gets the tile adjacent to this one on the same z-axis
 	 */
@@ -158,7 +186,7 @@ export default class Tile extends GameObject {
 			return null
 		}
 		else {
-			return this.stage.tileMap[5][Vector3d.getTempVector(99).unique()]
+			return this.stage.tileMap[this.stage.defaultLayer][Vector3d.getTempVector(99).unique()]
 		}
 	}
 

@@ -139,6 +139,14 @@ export default class Sprite extends RenderObject implements Physical {
 		return RGBColor.from(this.sprite.tint)
 	}
 
+	set additive(color: RGBColor) {
+		this.sprite.additive = color.toHex()
+	}
+
+	get additive(): RGBColor {
+		return RGBColor.from(this.sprite.additive)
+	}
+
 	set opacity(opacity: number) {
 		this.sprite.alpha = opacity
 	}

@@ -10,7 +10,7 @@ cp -a ../src/data/. ./client/data/
 cp -a ../src/data/. ./out/data/
 cd ./client
 echo "Webpack..."
-webpack -d
+webpack -p
 cd ../
 echo "Cleaning out..."
 rm -Rf ./out

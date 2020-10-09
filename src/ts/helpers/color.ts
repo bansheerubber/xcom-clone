@@ -89,6 +89,25 @@ export class RGBColor {
 	}
 
 	/**
+	 * creates a clone of the color
+	 */
+	public clone(): RGBColor {
+		return new RGBColor(this.r, this.g, this.b, this.a)
+	}
+
+	/**
+	 * multiplies all components by the input value
+	 * @param value
+	 */
+	public mul(value: number): RGBColor {
+		this.r *= value
+		this.g *= value
+		this.b *= value
+		this.a *= value
+		return this
+	}
+
+	/**
 	 * interpolates between two colors
 	 * @param color1 starting color
 	 * @param color2 ending color
@@ -107,9 +126,9 @@ export class RGBColor {
 	 */
 	public static from(input: number | string): RGBColor {
 		if(typeof input == "number") {
-			let r = ((input) & (255 << 0)) / (255 << 0)
+			let r = ((input) & (255 << 16)) / (255 << 16)
 			let g = ((input) & (255 << 8)) / (255 << 8)
-			let b = ((input) & (255 << 16)) / (255 << 16)
+			let b = ((input) & (255 << 0)) / (255 << 0)
 			return new RGBColor(r, g, b, 1)
 		}
 		else {

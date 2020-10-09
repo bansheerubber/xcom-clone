@@ -41,7 +41,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		}
 
 		let deleteTile = () => {
-			this.props.stage.tileMap[5][this.ghostTile.getPosition().unique()]?.destroy()
+			this.props.stage.tileMap[this.props.stage.defaultLayer][this.ghostTile.getPosition().unique()]?.destroy()
 		}
 
 		new Keybind("mouse0", KeybindModifier.NONE, "Select Tile").down((event: MouseEvent) => {
