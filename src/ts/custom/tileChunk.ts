@@ -72,7 +72,7 @@ export default class TileChunk extends GameObject {
 			this.forceUpdate = 1
 		}
 		else if(this.forceUpdate == 1) {
-			this.container.cacheAsBitmap = false
+			this.container.cacheAsBitmap = true
 			this.forceUpdate = 0
 		}
 
