@@ -35,9 +35,7 @@ export default class Stage extends GameObject {
 	/**
 	 * map for all the chunks in our stage
 	 */
-	private chunkMap: {
-		[index: number]: TileChunk
-	} = {}
+	private chunkMap: Map<number, TileChunk> = new Map()
 
 	private chunks: Set<TileChunk> = new Set()
 
@@ -56,9 +54,7 @@ export default class Stage extends GameObject {
 	/**
 	 * map for all the different lights
 	 */
-	public lightMap: {
-		[unqiueIndex: number]: TileLight
-	} = {}
+	public lightMap: Map<number, TileLight> = new Map()
 
 	private _rotation: StageRotation = StageRotation.DEG_0
 	private selectedTile: Tile
@@ -79,9 +75,9 @@ export default class Stage extends GameObject {
 
 	public updateTile(tile: Tile) {
 		let chunkPosition = TileChunk.tileToChunkSpace(tile.getPosition())
-		if(!this.chunkMap[chunkPosition.unique2d()]) {
+		if(!this.chunkMap.get(chunkPosition.unique2d())) {
 			let chunk = new TileChunk(this.game, this, chunkPosition)
-			this.chunkMap[chunkPosition.unique2d()] = chunk
+			this.chunkMap.set(chunkPosition.unique2d(), chunk)
 			this.chunks.add(chunk)
 		}
 
@@ -98,12 +94,12 @@ export default class Stage extends GameObject {
 		
 		this.tileMap[tile.layer].set(tile.getPosition().unique(), tile)
 
-		if(this.chunkMap[chunkPosition.unique2d()] != tile.getChunk()) {
+		if(this.chunkMap.get(chunkPosition.unique2d()) != tile.getChunk()) {
 			if(tile.getChunk()) {
 				tile.getChunk().remove(tile)
 			}
 			
-			this.chunkMap[chunkPosition.unique2d()].add(tile)
+			this.chunkMap.get(chunkPosition.unique2d()).add(tile)
 		}
 
 		if(tile.getPosition().x + 1 > this.maxPosition.x) {
@@ -124,7 +120,7 @@ export default class Stage extends GameObject {
 	}
 
 	public getChunk(vector: Vector3d): TileChunk {
-		return this.chunkMap[vector.unique2d()]
+		return this.chunkMap.get(vector.unique2d())
 	}
 
 	public selectTile(tile: Tile) {

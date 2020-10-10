@@ -108,7 +108,7 @@ export default class TileLight extends GameObject implements Serializable {
 
 	set position(position: Vector3d) {
 		if(this.position) {
-			this.stage.lightMap[this.position.unique()] = null
+			this.stage.lightMap.delete(this.position.unique())
 		}
 		
 		this._position = position
@@ -117,7 +117,7 @@ export default class TileLight extends GameObject implements Serializable {
 		this.icon?.setPosition(this._position)
 		this.iconBox?.setPosition(this._position)
 
-		this.stage.lightMap[this.position.unique()] = this
+		this.stage.lightMap.set(this.position.unique(), this)
 	}
 
 	get position(): Vector3d {
@@ -175,7 +175,7 @@ export default class TileLight extends GameObject implements Serializable {
 		delete this.affectedTiles
 
 		this.stage.lights.delete(this)
-		delete this.stage.lightMap[this.position.unique()]
+		this.stage.lightMap.delete(this.position.unique())
 
 		this.icon?.destroy()
 		this.iconBox?.destroy()

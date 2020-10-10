@@ -127,7 +127,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 
 		let moveGhost = (position: Vector3d) => {
 			this.ghostTile.setPosition(position)
-			let light = this.props.stage.lightMap[position.unique()]
+			let light = this.props.stage.lightMap.get(position.unique())
 			if(light) {
 				this.setState({
 					selectedLight: light,
