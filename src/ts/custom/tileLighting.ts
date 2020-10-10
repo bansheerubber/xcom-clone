@@ -7,7 +7,7 @@ import BinaryFileWriter from "../helpers/binaryFileWriter";
 import { RGBColor } from "../helpers/color";
 import Vector3d from "../helpers/vector3d";
 import Serializable from "./serializable";
-import Stage from "./stage";
+import Stage, { StageLayer } from "./stage";
 import Tile from "./tile";
 import TileChunk from "./tileChunk";
 
@@ -16,6 +16,8 @@ export default class TileLighting extends GameObject implements Serializable {
 	protected _position: Vector3d
 	protected _radius: number
 	protected _color: RGBColor
+	protected icon: Tile
+	protected iconBox: Tile
 
 	/**
 	 * the tiles who are lit up by this light source
@@ -32,13 +34,16 @@ export default class TileLighting extends GameObject implements Serializable {
 	constructor(game, stage: Stage, position: Vector3d, radius: number, color: RGBColor) {
 		super(game)
 		this.stage = stage
-		this._position = position
+		this.position = position
 		this._radius = radius
 		this._color = color
 
 		this.calculateChunks()
 		this.drawLight()
 		this.stage.lights.add(this)
+
+		this.icon = this.stage.createTile(this._position, 281, StageLayer.DEV_LIGHT_LAYER)
+		this.iconBox = this.stage.createTile(this._position, 268, StageLayer.DEV_LIGHT_BOX_LAYER)
 	}
 
 	public drawLight() {
@@ -58,7 +63,11 @@ export default class TileLighting extends GameObject implements Serializable {
 						continue
 					}
 
-					this.stage.getMapTile(position)?.addLight(this)
+					let tile = this.stage.getMapTile(position)
+					if(tile) {
+						tile.addLight(this)
+						this.affectedTiles.add(tile)
+					}
 				}
 			}
 		}
@@ -83,9 +92,17 @@ export default class TileLighting extends GameObject implements Serializable {
 	}
 
 	set position(position: Vector3d) {
+		if(this.position) {
+			this.stage.lightMap[this.position.unique()] = null
+		}
+		
 		this._position = position
 		this.calculateChunks()
 		this.drawLight()
+		this.icon?.setPosition(this._position)
+		this.iconBox?.setPosition(this._position)
+
+		this.stage.lightMap[this.position.unique()] = this
 	}
 
 	get position(): Vector3d {
@@ -143,5 +160,11 @@ export default class TileLighting extends GameObject implements Serializable {
 		delete this.affectedTiles
 
 		this.stage.lights.delete(this)
+		delete this.stage.lightMap[this.position.unique()]
+
+		this.icon?.destroy()
+		this.iconBox?.destroy()
+		delete this.icon
+		delete this.iconBox
 	}
 }

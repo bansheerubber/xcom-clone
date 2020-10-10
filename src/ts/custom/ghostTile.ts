@@ -1,6 +1,6 @@
 import GameObjectOptions from "../game/gameObjectOptions";
 import Vector3d from "../helpers/vector3d";
-import Stage from "./stage";
+import Stage, { StageLayer } from "./stage";
 import Tile from "./tile";
 import { TileChunkUpdate } from "./tileChunk";
 
@@ -10,7 +10,7 @@ export default class GhostTile extends Tile {
 	
 	
 	
-	constructor(game, stage: Stage, spriteIndex: number = 13, layer: number = 0, optionsOverride: GameObjectOptions) {
+	constructor(game, stage: Stage, spriteIndex: number = 13, layer: number = StageLayer.DEV_GHOST_LAYER, optionsOverride: GameObjectOptions) {
 		super(game, stage, spriteIndex, layer, {
 			canTick: true
 		})
@@ -26,7 +26,7 @@ export default class GhostTile extends Tile {
 		this.outlines.clear()
 
 		for(let z = 0; z <= this.getPosition().z; z++) {
-			this.outlines.add(this.stage.createTile(Vector3d.getTempVector(98).set(this.getPosition().x, this.getPosition().y, z), 268, 11))
+			this.outlines.add(this.stage.createTile(Vector3d.getTempVector(98).set(this.getPosition().x, this.getPosition().y, z), 268, StageLayer.DEV_GHOST_BOX_LAYER))
 		}
 	}
 

@@ -13,6 +13,14 @@ enum StageSaveFile {
 	BLANK_TILE = 2**16 - 1
 }
 
+export enum StageLayer {
+	DEFAULT_LAYER = 5,
+	DEV_LIGHT_LAYER = 6,
+	DEV_LIGHT_BOX_LAYER = 7,
+	DEV_GHOST_LAYER = 8,
+	DEV_GHOST_BOX_LAYER = 9,
+}
+
 export default class Stage extends GameObject {
 	/**
 	 * map for all the chunks in our stage
@@ -35,14 +43,20 @@ export default class Stage extends GameObject {
 	 */
 	public lights: Set<TileLighting> = new Set()
 
+	/**
+	 * map for all the different lights
+	 */
+	public lightMap: {
+		[unqiueIndex: number]: TileLighting
+	} = {}
+
 	private selectedTile: Tile
 	private selectedTileOutline: Tile
 	private maxPosition: Vector3d = new Vector3d(0, 0, 0)
-	public readonly defaultLayer: number = 5;
 
 	
 	
-	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = this.defaultLayer, tileClass: typeof Tile = Tile): Tile {
+	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = StageLayer.DEFAULT_LAYER, tileClass: typeof Tile = Tile): Tile {
 		if(!this.tileMap[layer]) {
 			this.tileMap[layer] = {}
 		}
@@ -93,7 +107,7 @@ export default class Stage extends GameObject {
 	}
 
 	public getMapTile(vector: Vector3d): Tile {
-		return this.tileMap[this.defaultLayer][vector.unique()]
+		return this.tileMap[StageLayer.DEFAULT_LAYER][vector.unique()]
 	}
 
 	public getChunk(vector: Vector3d): TileChunk {
@@ -143,8 +157,8 @@ export default class Stage extends GameObject {
 
 		let index = vector.unique()
 
-		if(this.tileMap[this.defaultLayer][index]) {
-			return this.tileMap[this.defaultLayer][index]
+		if(this.tileMap[StageLayer.DEFAULT_LAYER][index]) {
+			return this.tileMap[StageLayer.DEFAULT_LAYER][index]
 		}
 		else {
 			return null
@@ -182,8 +196,8 @@ export default class Stage extends GameObject {
 				Math.floor(i / max2dIndex)
 			)
 
-			if(this.tileMap[this.defaultLayer][position.unique()]) {
-				this.tileMap[this.defaultLayer][position.unique()].serialize(file, 0)
+			if(this.tileMap[StageLayer.DEFAULT_LAYER][position.unique()]) {
+				this.tileMap[StageLayer.DEFAULT_LAYER][position.unique()].serialize(file, 0)
 			}
 			else {
 				file.writeInt16(StageSaveFile.BLANK_TILE)

@@ -7,10 +7,17 @@
 				position: absolute;
 				top: 0;
 				right: 0;
+				z-index: 100000;
 				background-color: #444;
 				display: flex;
-				flex-wrap: wrap;
+				flex-direction: column;
+			}
+
+			.tile-scroll {
+				display: flex;
 				overflow: auto;
+				height: 100%;
+				flex-wrap: wrap;
 				align-content: flex-start;
 				box-sizing: border-box;
 				padding-bottom: 30px;
@@ -23,11 +30,35 @@
 				background-position-x: -0px;
 				background-position-y: -0px;
 			}
+
+			.light-edit {
+				color: #fff;
+				display: flex;
+				flex-direction: column;
+			}
 		</style>
 	</head>
 
 	<body>
 		<div class="tile-selection">
+			<div class="tile-scroll">
+				<div class="tile-preview" id="0" style="background-position: -1px -1px;">0</div><div class="tile-preview" id="1" style="background-position: -67px -1px;">1</div><div class="tile-preview" id="2" style="background-position: -133px -1px;">2</div><div class="tile-preview" id="3" style="background-position: -199px -1px;">3</div><div class="tile-preview" id="4" style="background-position: -265px -1px;">4</div><div class="tile-preview" id="5" style="background-position: -331px -1px;">5</div><div class="tile-preview" id="6" style="background-position: -397px -1px;">6</div><div class="tile-preview" id="7" style="background-position: -463px -1px;">7</div><div class="tile-preview" id="8" style="background-position: -529px -1px;">8</div><div class="tile-preview" id="9" style="background-position: -595px -1px;">9</div><div class="tile-preview" id="10" style="background-position: -661px -1px;">10</div><div class="tile-preview" id="11" style="background-position: -727px -1px;">11</div><div class="tile-preview" id="12" style="background-position: -793px -1px;">12</div><div class="tile-preview" id="13" style="background-position: -859px -1px;">13</div><div class="tile-preview" id="14" style="background-position: -925px -1px;">14</div><div class="tile-preview" id="15" style="background-position: -1px -67px;">15</div><div class="tile-preview" id="16" style="background-position: -67px -67px;">16</div><div class="tile-preview" id="17" style="background-position: -133px -67px;">17</div><div class="tile-preview" id="18" style="background-position: -199px -67px;">18</div><div class="tile-preview" id="19" style="background-position: -265px -67px;">19</div><div class="tile-preview" id="20" style="background-position: -331px -67px;">20</div><div class="tile-preview" id="21" style="background-position: -397px -67px;">21</div><div class="tile-preview" id="22" style="background-position: -463px -67px;">22</div><div class="tile-preview" id="23" style="background-position: -529px -67px;">23</div><div class="tile-preview" id="24" style="background-position: -595px -67px;">24</div><div class="tile-preview" id="25" style="background-position: -661px -67px;">25</div><div class="tile-preview" id="26" style="background-position: -727px -67px;">26</div><div class="tile-preview" id="27" style="background-position: -793px -67px; background-color: rgb(255, 255, 0);">27</div><div class="tile-preview" id="28" style="background-position: -859px -67px;">28</div><div class="tile-preview" id="29" style="background-position: -925px -67px;">29</div><div class="tile-preview" id="30" style="background-position: -1px -133px;">30</div><div class="tile-preview" id="31" style="background-position: -67px -133px;">31</div><div class="tile-preview" id="32" style="background-position: -133px -133px;">32</div><div class="tile-preview" id="33" style="background-position: -199px -133px;">33</div><div class="tile-preview" id="34" style="background-position: -265px -133px;">34</div><div class="tile-preview" id="35" style="background-position: -331px -133px;">35</div><div class="tile-preview" id="36" style="background-position: -397px -133px;">36</div><div class="tile-preview" id="37" style="background-position: -463px -133px;">37</div><div class="tile-preview" id="38" style="background-position: -529px -133px;">38</div><div class="tile-preview" id="39" style="background-position: -595px -133px;">39</div><div class="tile-preview" id="40" style="background-position: -661px -133px;">40</div><div class="tile-preview" id="41" style="background-position: -727px -133px;">41</div><div class="tile-preview" id="42" style="background-position: -793px -133px;">42</div><div class="tile-preview" id="43" style="background-position: -859px -133px;">43</div><div class="tile-preview" id="44" style="background-position: -925px -133px;">44</div><div class="tile-preview" id="45" style="background-position: -1px -199px;">45</div><div class="tile-preview" id="46" style="background-position: -67px -199px;">46</div><div class="tile-preview" id="47" style="background-position: -133px -199px;">47</div><div class="tile-preview" id="48" style="background-position: -199px -199px;">48</div><div class="tile-preview" id="49" style="background-position: -265px -199px;">49</div><div class="tile-preview" id="50" style="background-position: -331px -199px;">50</div><div class="tile-preview" id="51" style="background-position: -397px -199px;">51</div><div class="tile-preview" id="52" style="background-position: -463px -199px;">52</div><div class="tile-preview" id="53" style="background-position: -529px -199px;">53</div><div class="tile-preview" id="54" style="background-position: -595px -199px;">54</div><div class="tile-preview" id="55" style="background-position: -661px -199px;">55</div><div class="tile-preview" id="56" style="background-position: -727px -199px;">56</div><div class="tile-preview" id="57" style="background-position: -793px -199px;">57</div>
+			</div>
+			<div class="light-edit">
+				<b>Light</b>
+				<div>
+					<label for="light-radius">Radius:</label>
+					<input id="light-radius" type="text" style="width: 50px;" />
+				</div>
+				<div>
+					<label>Color:</label>
+					<input type="text" style="width: 50px;" />
+					<input type="text" style="width: 50px;" />
+					<input type="text" style="width: 50px;" />
+				</div>
+				<button>Delete Light</button>
+			</div>
+			<button>Save Stage</button>
 		</div>
 	</body>
 </html>

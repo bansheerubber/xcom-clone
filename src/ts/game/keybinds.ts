@@ -153,6 +153,14 @@ export default class KeybindController {
 	}
 
 	public static onPress(event: KeyboardEvent | MouseEvent): void {
+		let nodeName = (event.target as HTMLElement).nodeName.toLowerCase()
+		if(
+			nodeName.indexOf("canvas") == -1
+			&& nodeName.indexOf("body") == -1
+		) {
+			return
+		}
+		
 		// get the key info if we're a keyboard event
 		if(event instanceof KeyboardEvent) {
 			var hitKey = event.key.toLowerCase()
@@ -212,6 +220,14 @@ export default class KeybindController {
 	}
 
 	public static onMouseMove(event: MouseEvent): void {
+		let nodeName = (event.target as HTMLElement).nodeName.toLowerCase()
+		if(
+			nodeName.indexOf("canvas") == -1
+			&& nodeName.indexOf("body") == -1
+		) {
+			return
+		}
+		
 		for(let keybind of this.mouseMoves) {
 			keybind.onMouseMove(event)
 		}

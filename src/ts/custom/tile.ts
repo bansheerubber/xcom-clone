@@ -9,8 +9,8 @@ import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import SpriteSheet from "../render/spriteSheet";
 import Serializable from "./serializable";
-import Stage from "./stage";
-import TileChunk from "./tileChunk";
+import Stage, { StageLayer } from "./stage";
+import TileChunk, { TileChunkUpdate } from "./tileChunk";
 import TileLighting from "./tileLighting";
 
 enum TILE_ADJACENT {
@@ -59,6 +59,7 @@ export default class Tile extends GameObject implements Serializable {
 
 	set additive(additive: RGBColor) {
 		this.sprite.additive = additive
+		this.chunk?.update(TileChunkUpdate.NO_LIGHTS)
 	}
 
 	get additive(): RGBColor {
@@ -144,21 +145,27 @@ export default class Tile extends GameObject implements Serializable {
 
 	public removeLight(light: TileLighting) {
 		this.lights.delete(light)
-		this.calculateLighting()
+
+		if(!this.isDestroyed) {
+			this.calculateLighting()	
+		}
 	}
 
 	public addLight(light: TileLighting) {
 		this.lights.add(light)
-		this.calculateLighting()
+		
+		if(!this.isDestroyed) {
+			this.calculateLighting()	
+		}
 	}
 
 	protected calculateLighting() {
 		let fog = this.position.z / 100
-		let additive = new RGBColor(fog, fog, fog).toHex()
+		let additive = new RGBColor(fog, fog, fog)
 		for(let light of this.lights) {
-			additive += light.color.clone().mul(Math.max(0, 1 - light.position.dist(this.position) / light.radius)).toHex()
+			additive.add(light.color.clone().mul(Math.max(0, 1 - light.position.dist(this.position) / light.radius)))
 		}
-		this.additive = RGBColor.from(additive)
+		this.additive = RGBColor.from(additive.toHex())
 	}
 
 	/**
@@ -195,7 +202,7 @@ export default class Tile extends GameObject implements Serializable {
 			return null
 		}
 		else {
-			return this.stage.tileMap[this.stage.defaultLayer][Vector3d.getTempVector(99).unique()]
+			return this.stage.tileMap[StageLayer.DEFAULT_LAYER][Vector3d.getTempVector(99).unique()]
 		}
 	}
 

@@ -1,10 +1,12 @@
 import * as React from "react"
 import Game from "../../game/game"
 import { Keybind, KeybindModifier } from "../../game/keybinds"
+import { RGBColor } from "../../helpers/color"
 import Vector3d from "../../helpers/vector3d"
 import WebFileReader from "../../helpers/webFileReader"
 import GhostTile from "../ghostTile"
-import Stage from "../stage"
+import Stage, { StageLayer } from "../stage"
+import TileLighting from "../tileLighting"
 
 interface TileSelectionProps {
 	game: Game
@@ -12,7 +14,14 @@ interface TileSelectionProps {
 }
 
 interface TileSelectionState {
+	selectedLight: TileLighting
 	selectedId: number
+	lightEdit: {
+		red: string | number,
+		green: string | number,
+		blue: string | number,
+		radius: string | number,
+	}
 	frames: {
 		[name: string]: {
 			frame: {
@@ -47,7 +56,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 	constructor(props) {
 		super(props)
 
-		this.ghostTile = this.props.stage.createTile(Vector3d.getTempVector(0).set(5, 5, 1), 83, 10, GhostTile) as GhostTile
+		this.ghostTile = this.props.stage.createTile(Vector3d.getTempVector(0).set(5, 5, 1), 83, StageLayer.DEV_GHOST_LAYER, GhostTile) as GhostTile
 		this.ghostTile.opacity = 0.8
 
 		new WebFileReader("./data/sprites/spritesheet test.json").readFile().then((json: string) => {
@@ -66,19 +75,57 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		}
 
 		let plantTile = () => {
-			this.props.stage.createTile(this.ghostTile.getPosition(), this.ghostTile.type)
+			let type = this.ghostTile.type
+
+			switch(type) {
+				// lights
+				case 281: {
+					new TileLighting(this.props.game, this.props.stage, this.ghostTile.getPosition(), 5, new RGBColor(0.3, 0.3, 0.3))
+					break
+				}
+
+				default: {
+					this.props.stage.createTile(this.ghostTile.getPosition(), type)
+					break
+				}
+			}
+
+			moveGhost(this.ghostTile.getPosition())
 		}
 
 		let deleteTile = () => {
-			this.props.stage.tileMap[this.props.stage.defaultLayer][this.ghostTile.getPosition().unique()]?.destroy()
+			this.props.stage.tileMap[StageLayer.DEFAULT_LAYER][this.ghostTile.getPosition().unique()]?.destroy()
 		}
+
+		let moveGhost = (position: Vector3d) => {
+			this.ghostTile.setPosition(position)
+			let light = this.props.stage.lightMap[position.unique()]
+			if(light) {
+				this.setState({
+					selectedLight: light,
+					lightEdit: {
+						red: light.color.r,
+						green: light.color.g,
+						blue: light.color.b,
+						radius: light.radius,
+					},
+				})
+			}
+			else {
+				this.setState({
+					selectedLight: null,
+				})
+			}
+		}
+
+		moveGhost(new Vector3d(5, 5, 1))
 
 		new Keybind("mouse0", KeybindModifier.NONE, "Select Tile").down((event: MouseEvent) => {
 			let vector = this.props.stage.mouseToTileSpace(event.x, event.y)
 
 			if(vector) {
 				vector.z = this.ghostTile.getPosition().z
-				this.ghostTile.setPosition(vector)
+				moveGhost(vector)
 
 				if(this.spaceHeldDown) {
 					plantTile()
@@ -90,7 +137,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		new Keybind("arrowup", KeybindModifier.NONE, "Move Tile East").down((event: KeyboardEvent) => {
-			this.ghostTile.setPosition(this.ghostTile.getPosition().$add(1, 0, 0).foreach(limit))
+			moveGhost(this.ghostTile.getPosition().$add(1, 0, 0).foreach(limit))
 
 			if(this.spaceHeldDown) {
 				plantTile()
@@ -101,7 +148,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		new Keybind("arrowdown", KeybindModifier.NONE, "Move Tile West").down((event: KeyboardEvent) => {
-			this.ghostTile.setPosition(this.ghostTile.getPosition().$add(-1, 0, 0).foreach(limit))
+			moveGhost(this.ghostTile.getPosition().$add(-1, 0, 0).foreach(limit))
 
 			if(this.spaceHeldDown) {
 				plantTile()
@@ -112,7 +159,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		new Keybind("arrowleft", KeybindModifier.NONE, "Move Tile North").down((event: KeyboardEvent) => {
-			this.ghostTile.setPosition(this.ghostTile.getPosition().$add(0, -1, 0).foreach(limit))
+			moveGhost(this.ghostTile.getPosition().$add(0, -1, 0).foreach(limit))
 
 			if(this.spaceHeldDown) {
 				plantTile()
@@ -123,7 +170,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		new Keybind("arrowright", KeybindModifier.NONE, "Move Tile South").down((event: KeyboardEvent) => {
-			this.ghostTile.setPosition(this.ghostTile.getPosition().$add(0, 1, 0).foreach(limit))
+			moveGhost(this.ghostTile.getPosition().$add(0, 1, 0).foreach(limit))
 
 			if(this.spaceHeldDown) {
 				plantTile()
@@ -134,7 +181,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		new Keybind("pageup", KeybindModifier.NONE, "Move Tile Up").down((event: KeyboardEvent) => {
-			this.ghostTile.setPosition(this.ghostTile.getPosition().$add(0, 0, 1).foreach(limit))
+			moveGhost(this.ghostTile.getPosition().$add(0, 0, 1).foreach(limit))
 
 			if(this.spaceHeldDown) {
 				plantTile()
@@ -145,7 +192,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		new Keybind("pagedown", KeybindModifier.NONE, "Move Tile Down").down((event: KeyboardEvent) => {
-			this.ghostTile.setPosition(this.ghostTile.getPosition().$add(0, 0, -1).foreach(limit))
+			moveGhost(this.ghostTile.getPosition().$add(0, 0, -1).foreach(limit))
 
 			if(this.spaceHeldDown) {
 				plantTile()
@@ -170,6 +217,13 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		this.state = {
+			selectedLight: null,
+			lightEdit: {
+				red: "",
+				green: "",
+				blue: "",
+				radius: "",
+			},
 			selectedId: -1,
 			frames: null,
 		}
@@ -210,6 +264,101 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		return <div className="tile-selection">
 			<div className="tile-scroll">
 				{elements}
+			</div>
+			<div className="light-edit" style={{
+				display: this.state.selectedLight ? "block" : "none"
+			}}>
+				<b>Light</b>
+				<div>
+					<label htmlFor="light-radius">Radius:</label>
+					<input id="light-radius" value={this.state.lightEdit.radius} onChange={(event) => {
+						let radius = parseInt(event.target.value)
+						if(!isNaN(radius)) {
+							this.state.selectedLight.radius = Math.min(100, radius)
+						}
+						else if(event.target.value == "") {
+							this.state.selectedLight.radius = 0
+						}
+
+						this.setState({
+							lightEdit: {
+								...this.state.lightEdit,
+								radius: event.target.value
+							}
+						})
+					}} type="text" style={{
+						width: 50
+					}} />
+				</div>
+				<div>
+					<label>Color:</label>
+					<input type="text" value={this.state.lightEdit.red} onChange={(event) => {
+						let value = parseFloat(event.target.value)
+						if(!isNaN(value)) {
+							this.state.selectedLight.color.r = Math.min(1, value)
+							this.state.selectedLight.color = this.state.selectedLight.color
+						}
+						else if(event.target.value == "") {
+							this.state.selectedLight.color.r = 0
+							this.state.selectedLight.color = this.state.selectedLight.color
+						}
+
+						this.setState({
+							lightEdit: {
+								...this.state.lightEdit,
+								red: event.target.value
+							}
+						})
+					}} style={{
+						width: 50
+					}} />
+					<input type="text" value={this.state.lightEdit.green} onChange={(event) => {
+						let value = parseFloat(event.target.value)
+						if(!isNaN(value)) {
+							this.state.selectedLight.color.g = Math.min(1, value)
+							this.state.selectedLight.color = this.state.selectedLight.color
+						}
+						else if(event.target.value == "") {
+							this.state.selectedLight.color.g = 0
+							this.state.selectedLight.color = this.state.selectedLight.color
+						}
+
+						this.setState({
+							lightEdit: {
+								...this.state.lightEdit,
+								green: event.target.value
+							}
+						})
+					}} style={{
+						width: 50
+					}} />
+					<input type="text" value={this.state.lightEdit.blue} onChange={(event) => {
+						let value = parseFloat(event.target.value)
+						if(!isNaN(value)) {
+							this.state.selectedLight.color.b = Math.min(1, value)
+							this.state.selectedLight.color = this.state.selectedLight.color
+						}
+						else if(event.target.value == "") {
+							this.state.selectedLight.color.b = 0
+							this.state.selectedLight.color = this.state.selectedLight.color
+						}
+
+						this.setState({
+							lightEdit: {
+								...this.state.lightEdit,
+								blue: event.target.value
+							}
+						})
+					}} style={{
+						width: 50
+					}} />
+				</div>
+				<button onClick={() => {
+					this.state.selectedLight.destroy()
+					this.setState({
+						selectedLight: null,
+					})
+				}}>Delete Light</button>
 			</div>
 			<button onClick={() => this.props.stage.save()}>Save Stage</button>
 		</div>

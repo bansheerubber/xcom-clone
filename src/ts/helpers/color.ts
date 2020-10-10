@@ -63,7 +63,9 @@ export class RGBColor {
 	 * converts the color to a number
 	 */
 	public toHex(): number {
-		return Math.floor(this.r * 255) << 16 | Math.floor(this.g * 255) << 8 | Math.floor(this.b * 255) << 0
+		return Math.min(255, Math.floor(this.r * 255)) << 16
+			| Math.min(255, Math.floor(this.g * 255)) << 8
+			| Math.min(255, Math.floor(this.b * 255)) << 0
 	}
 
 	/**
@@ -104,6 +106,18 @@ export class RGBColor {
 		this.g *= value
 		this.b *= value
 		this.a *= value
+		return this
+	}
+	
+	/**
+	 * adds two colors together
+	 * @param color
+	 */
+	public add(color: RGBColor): RGBColor {
+		this.r += color.r
+		this.g += color.g
+		this.b += color.b
+		this.a += color.a
 		return this
 	}
 
