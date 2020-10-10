@@ -10,7 +10,9 @@ import TileChunk from "./tileChunk";
 import TileLighting from "./tileLighting";
 
 enum StageSaveFile {
-	BLANK_TILE = 2**16 - 1
+	VERSION = 1,
+	BLANK_TILE = 2**16 - 1,
+	REPEAT_TILE = 2**16 - 2
 }
 
 export enum StageLayer {
@@ -182,9 +184,13 @@ export default class Stage extends GameObject {
 
 	public save() {
 		let file = new BinaryFileWriter("stage.egg")
-		file.writeInt16(this.maxPosition.x)
-		file.writeInt16(this.maxPosition.y)
-		file.writeInt16(this.maxPosition.z)
+		file.writeInt16(StageSaveFile.VERSION)
+		file.writeByte(this.maxPosition.x)
+		file.writeByte(this.maxPosition.y)
+		file.writeByte(this.maxPosition.z)
+
+		let rememberedType = -1
+		let rememberedTypeCount = 0
 		
 		// write tiles to file
 		let max2dIndex = this.maxPosition.x * this.maxPosition.y
@@ -196,11 +202,43 @@ export default class Stage extends GameObject {
 				Math.floor(i / max2dIndex)
 			)
 
-			if(this.tileMap[StageLayer.DEFAULT_LAYER][position.unique()]) {
-				this.tileMap[StageLayer.DEFAULT_LAYER][position.unique()].serialize(file, 0)
+			let type = this.tileMap[StageLayer.DEFAULT_LAYER][position.unique()]?.type
+			type = type ? type : StageSaveFile.BLANK_TILE
+
+			// do optimizations for every single time we encounter a new type or when we go up one layer on the z-axis
+			if(
+				(type != rememberedType && rememberedType != -1)
+				|| i % max2dIndex == 0
+			) {
+				// only do optimizations for counts at or higher than 4 for max efficency
+				if(rememberedTypeCount >= 4) {
+					file.writeInt16(StageSaveFile.REPEAT_TILE)
+					file.writeInt16(rememberedTypeCount)
+					file.writeInt16(rememberedType)
+				}
+				else {
+					for(let j = 0; j < rememberedTypeCount; j++) {
+						file.writeInt16(rememberedType)
+					}
+				}
+
+				rememberedTypeCount = 0
+				rememberedType = -1
 			}
-			else {
-				file.writeInt16(StageSaveFile.BLANK_TILE)
+
+			rememberedType = type
+			rememberedTypeCount++
+		}
+
+		// dump remaining stuff at the end
+		if(rememberedTypeCount >= 4) {
+			file.writeInt16(StageSaveFile.REPEAT_TILE)
+			file.writeInt16(rememberedTypeCount)
+			file.writeInt16(rememberedType)
+		}
+		else {
+			for(let j = 0; j < rememberedTypeCount; j++) {
+				file.writeInt16(rememberedType)
 			}
 		}
 
@@ -217,9 +255,20 @@ export default class Stage extends GameObject {
 		let file = new BinaryFileReader(fileName)
 		await file.readFile()
 
-		let maxX = file.readInt16()
-		let maxY = file.readInt16()
-		let maxZ = file.readInt16()
+		let version = file.readInt16()
+		if(version != StageSaveFile.VERSION) {
+			throw new Error(`Incorrect stage save file version, file provided v${version} but expected v${StageSaveFile.VERSION}`)
+		}
+
+		let maxX = file.readByte()
+		let maxY = file.readByte()
+		let maxZ = file.readByte()
+
+		let placeTile = (position, type) => {
+			if(type != StageSaveFile.BLANK_TILE) {
+				this.createTile(position, type)
+			}
+		}
 
 		// read tiles
 		let max2dIndex = maxX * maxY
@@ -232,8 +281,27 @@ export default class Stage extends GameObject {
 			)
 
 			let type = file.readInt16()
-			if(type != 2**16 - 1) {
-				this.createTile(position, type)
+			// handle special commands first
+			if(type == StageSaveFile.REPEAT_TILE) {
+				let count = file.readInt16()
+				let type = file.readInt16()
+
+				// place all the repeated tiles we found
+				for(let j = 0; j < count; j++) {
+					let position = Vector3d.getTempVector(97).set(
+						i % maxX,
+						Math.floor(i / maxX) % maxY,
+						Math.floor(i / max2dIndex)
+					)
+					
+					placeTile(position, type)
+
+					i++
+				}
+				i--
+			}
+			else {
+				placeTile(position, type)
 			}
 		}
 
