@@ -9,7 +9,7 @@ import Tile from "./tile";
 import TileLighting from "./tileLighting";
 
 export enum TileChunkUpdate {
-	NO_LIGHTS = 1
+	DO_LIGHTS = 1 // there are only a few times where we want to update lighting, so this is an option and not the norm
 }
 
 export default class TileChunk extends GameObject {
@@ -104,8 +104,6 @@ export default class TileChunk extends GameObject {
 		tile.setChunk(this)
 
 		this.container.sortableChildren = true
-		this.container.sortDirty = true
-		this.container.sortChildren()
 		this.container.cacheAsBitmap = true
 
 		let zPosition = tile.getPosition().z
@@ -114,7 +112,7 @@ export default class TileChunk extends GameObject {
 			this.shouldRecalcBounds = true
 		}
 
-		this.update()
+		this.update(tile)
 	}
 
 	public remove(tile: Tile) {
@@ -122,7 +120,7 @@ export default class TileChunk extends GameObject {
 		tile.setContainer(null)
 		tile.setChunk(null)
 
-		this.update()
+		this.update(tile)
 	}
 
 	public addLight(light: TileLighting) {
@@ -143,14 +141,26 @@ export default class TileChunk extends GameObject {
 
 	/**
 	 * update our cached bitmap if there's a change
+	 * @param tile the tile that needs updating. tiles can force an update a chunk that they don't belong in, so tile isn't always in our tile set
+	 * @param updateBitmask tells us to do or skip different parts of the update process
 	 */
-	public update(updateBitmask: TileChunkUpdate = 0) {
+	public update(tile?: Tile, updateBitmask: TileChunkUpdate = 0) {
 		this.forceUpdate = 2
 
-		// draw all lights on update
-		if((updateBitmask & TileChunkUpdate.NO_LIGHTS) == 0) {
-			for(let light of this.lights) {
-				light.drawLight() // TODO this is called an insane amount of times
+		if(tile) {
+			// reassign the tile's lights
+			if(
+				(updateBitmask & TileChunkUpdate.DO_LIGHTS) == 1
+				&& this.tiles.has(tile)
+			) {
+				tile.removeAllLights()
+
+				// add new lights to tile, skipping expensive sphere search done in TileLighting
+				for(let light of this.lights) {
+					if(light.isInRadius(tile.getPosition())) {
+						tile.addLight(light)
+					}
+				}
 			}
 		}
 	}

@@ -43,7 +43,9 @@ export default class TileLighting extends GameObject implements Serializable {
 		this.stage.lights.add(this)
 
 		this.icon = this.stage.createTile(this._position, 281, StageLayer.DEV_LIGHT_LAYER)
+		this.icon.ignoreLights = true
 		this.iconBox = this.stage.createTile(this._position, 268, StageLayer.DEV_LIGHT_BOX_LAYER)
+		this.iconBox.ignoreLights = true
 	}
 
 	public drawLight() {
@@ -73,6 +75,19 @@ export default class TileLighting extends GameObject implements Serializable {
 		}
 	}
 
+	/**
+	 * update all affected tiles' lighting without recalculating bounds
+	 */
+	protected updateTileLighting() {
+		for(let tile of this.affectedTiles) {
+			tile.calculateLighting()
+		}
+	}
+
+	public isInRadius(position: Vector3d) {
+		return position.dist(this.position) <= this.radius
+	}
+
 	protected calculateChunks() {
 		// calculate what chunks we belong in
 		for(let chunk of this.chunks) {
@@ -97,8 +112,8 @@ export default class TileLighting extends GameObject implements Serializable {
 		}
 		
 		this._position = position
-		this.calculateChunks()
-		this.drawLight()
+		this.calculateChunks() // we need to recalc chunks b/c our AOE has changed
+		this.drawLight() // find new tiles within our bounds
 		this.icon?.setPosition(this._position)
 		this.iconBox?.setPosition(this._position)
 
@@ -111,8 +126,8 @@ export default class TileLighting extends GameObject implements Serializable {
 
 	set radius(radius: number) {
 		this._radius = radius
-		this.calculateChunks()
-		this.drawLight()
+		this.calculateChunks() // we need to recalc chunks b/c our AOE has changed
+		this.drawLight() // find new tiles within our bounds
 	}
 
 	get radius(): number {
@@ -121,7 +136,7 @@ export default class TileLighting extends GameObject implements Serializable {
 
 	set color(color: RGBColor) {
 		this._color = color
-		this.drawLight()
+		this.updateTileLighting() // since our AOE doesn't change, we do not need to recalc bounds. skip that step and update tiles directly
 	}
 
 	get color(): RGBColor {

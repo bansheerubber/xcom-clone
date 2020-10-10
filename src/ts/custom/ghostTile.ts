@@ -42,6 +42,6 @@ export default class GhostTile extends Tile {
 
 		this.opacity += this.opacityDirection * deltaTime
 
-		this.chunk.update(TileChunkUpdate.NO_LIGHTS)
+		this.chunk.update(this)
 	}
 }

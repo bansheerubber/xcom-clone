@@ -22,7 +22,8 @@ interface TileSelectionState {
 		blue: string | number,
 		radius: string | number,
 	}
-	frames: {
+	tileList: JSX.Element[]
+	/*frames: {
 		[name: string]: {
 			frame: {
 				x: number,
@@ -43,13 +44,14 @@ interface TileSelectionState {
 				h: number,
 			}
 		}
-	}
+	}*/
 }
 
 export default class TileSelection extends React.Component<TileSelectionProps, TileSelectionState> {
 	private ghostTile: GhostTile
 	private spaceHeldDown: boolean = false
 	private deleteHeldDown: boolean = false
+	private tilesList: JSX.Element[] = []
 	
 	
 	
@@ -60,8 +62,34 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		this.ghostTile.opacity = 0.8
 
 		new WebFileReader("./data/sprites/spritesheet test.json").readFile().then((json: string) => {
+			let index = 0
+			let elements = []
+			let frames = JSON.parse(json).frames
+			for(let name in frames) {
+				let frame = frames[name]
+				elements.push(<div className="tile-preview" id={`${index}`} key={index} onClick={(event) => {
+					let id = parseInt(event.currentTarget.id)
+					if(id != this.state.selectedId) {
+						this.setState({
+							selectedId: id,
+						})
+						this.ghostTile.type = id
+					}
+					else {
+						this.setState({
+							selectedId: -1,
+						})
+					}		
+				}} style={{
+					backgroundPositionX: -frame.frame.x,
+					backgroundPositionY: -frame.frame.y,
+					backgroundColor: this.state.selectedId == index ? "#FFFF00" : null
+				}}>{index}</div>)
+				index++
+			}
+			
 			this.setState({
-				frames: JSON.parse(json).frames
+				tileList: elements,
 			})
 		})
 
@@ -225,45 +253,14 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 				radius: "",
 			},
 			selectedId: -1,
-			frames: null,
+			tileList: []
 		}
 	}
 
 	render(): JSX.Element {
-		let elements = []
-		let spriteSheetSize = 990
-		let spriteSize = 64
-		let maxCount = 280
-
-		if(this.state.frames) {
-			let index = 0
-			for(let name in this.state.frames) {
-				let frame = this.state.frames[name]
-				elements.push(<div className="tile-preview" id={`${index}`} key={index} onClick={(event) => {
-					let id = parseInt(event.currentTarget.id)
-					if(id != this.state.selectedId) {
-						this.setState({
-							selectedId: id,
-						})
-						this.ghostTile.type = id
-					}
-					else {
-						this.setState({
-							selectedId: -1,
-						})
-					}		
-				}} style={{
-					backgroundPositionX: -frame.frame.x,
-					backgroundPositionY: -frame.frame.y,
-					backgroundColor: this.state.selectedId == index ? "#FFFF00" : null
-				}}>{index}</div>)
-				index++
-			}
-		}
-
 		return <div className="tile-selection">
 			<div className="tile-scroll">
-				{elements}
+				{this.state.tileList}
 			</div>
 			<div className="light-edit" style={{
 				display: this.state.selectedLight ? "block" : "none"

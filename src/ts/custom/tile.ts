@@ -25,6 +25,7 @@ export default class Tile extends GameObject implements Serializable {
 
 	protected chunk: TileChunk
 	public sprite: SpriteSheet
+	protected _ignoreLights: boolean = false
 	/**
 	 * the position of our tile in tilespace
 	 */
@@ -59,7 +60,7 @@ export default class Tile extends GameObject implements Serializable {
 
 	set additive(additive: RGBColor) {
 		this.sprite.additive = additive
-		this.chunk?.update(TileChunkUpdate.NO_LIGHTS)
+		this.chunk?.update(this)
 	}
 
 	get additive(): RGBColor {
@@ -76,7 +77,7 @@ export default class Tile extends GameObject implements Serializable {
 
 	set type(type: number) {
 		this.sprite.sheetIndex = type
-		this.chunk.update()
+		this.chunk.update(this)
 	}
 	
 	get type(): number {
@@ -89,6 +90,16 @@ export default class Tile extends GameObject implements Serializable {
 
 	get blendMode(): PIXI.BLEND_MODES {
 		return this.sprite.blendMode
+	}
+
+	set ignoreLights(input: boolean) {
+		this._ignoreLights = input
+		this.lights.clear()
+		this.calculateLighting()
+	}
+
+	get ignoreLights(): boolean {
+		return this._ignoreLights
 	}
 
 	public setPosition(vector: Vector3d) {
@@ -108,11 +119,11 @@ export default class Tile extends GameObject implements Serializable {
 		let oldChunk = this.chunk
 		this.stage.updateTile(this)
 		if(this.chunk) {
-			this.chunk.update()
+			this.chunk.update(this, TileChunkUpdate.DO_LIGHTS)
 		}
 		
 		if(oldChunk && this.chunk != oldChunk) {
-			oldChunk.update()
+			oldChunk.update(this)
 		}
 
 		this.calculateLighting()
@@ -143,23 +154,31 @@ export default class Tile extends GameObject implements Serializable {
 		
 	}
 
-	public removeLight(light: TileLighting) {
-		this.lights.delete(light)
+	public removeAllLights() {
+		this.lights.clear()
+	}
 
-		if(!this.isDestroyed) {
-			this.calculateLighting()	
+	public removeLight(light: TileLighting) {
+		if(!this._ignoreLights) {
+			this.lights.delete(light)
+
+			if(!this.isDestroyed) {
+				this.calculateLighting()	
+			}
 		}
 	}
 
 	public addLight(light: TileLighting) {
-		this.lights.add(light)
+		if(!this._ignoreLights) {
+			this.lights.add(light)
 		
-		if(!this.isDestroyed) {
-			this.calculateLighting()	
+			if(!this.isDestroyed) {
+				this.calculateLighting()	
+			}
 		}
 	}
 
-	protected calculateLighting() {
+	public calculateLighting() {
 		let fog = this.position.z / 100
 		let additive = new RGBColor(fog, fog, fog)
 		for(let light of this.lights) {
