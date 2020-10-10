@@ -11,7 +11,7 @@ import SpriteSheet from "../render/spriteSheet";
 import Serializable from "./serializable";
 import Stage, { StageLayer, StageRotation } from "./stage";
 import TileChunk, { TileChunkUpdate } from "./tileChunk";
-import TileLighting from "./tileLighting";
+import TileLight from "./tileLighting";
 
 enum TILE_ADJACENT {
 	NORTH = 0,
@@ -32,7 +32,7 @@ export default class Tile extends GameObject implements Serializable {
 	protected position: Vector3d = new Vector3d(0, 0, 0)
 	protected oldTint: RGBColor
 	protected stage: Stage
-	protected lights: Set<TileLighting> = new Set()
+	protected lights: Set<TileLight> = new Set()
 	public readonly layer: number
 
 
@@ -188,7 +188,7 @@ export default class Tile extends GameObject implements Serializable {
 		this.lights.clear()
 	}
 
-	public removeLight(light: TileLighting) {
+	public removeLight(light: TileLight) {
 		if(!this._ignoreLights) {
 			this.lights.delete(light)
 
@@ -198,7 +198,7 @@ export default class Tile extends GameObject implements Serializable {
 		}
 	}
 
-	public addLight(light: TileLighting) {
+	public addLight(light: TileLight) {
 		if(!this._ignoreLights) {
 			this.lights.add(light)
 		

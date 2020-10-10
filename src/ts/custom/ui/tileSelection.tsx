@@ -6,7 +6,7 @@ import Vector3d from "../../helpers/vector3d"
 import WebFileReader from "../../helpers/webFileReader"
 import GhostTile from "../ghostTile"
 import Stage, { StageLayer, StageRotation } from "../stage"
-import TileLighting from "../tileLighting"
+import TileLight from "../tileLighting"
 
 interface TileSelectionProps {
 	game: Game
@@ -14,7 +14,7 @@ interface TileSelectionProps {
 }
 
 interface TileSelectionState {
-	selectedLight: TileLighting
+	selectedLight: TileLight
 	selectedId: number
 	lightEdit: {
 		red: string | number,
@@ -108,7 +108,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 			switch(type) {
 				// lights
 				case 281: {
-					new TileLighting(this.props.game, this.props.stage, this.ghostTile.getPosition(), 5, new RGBColor(0.3, 0.3, 0.3))
+					new TileLight(this.props.game, this.props.stage, this.ghostTile.getPosition(), 5, new RGBColor(0.3, 0.3, 0.3))
 					break
 				}
 

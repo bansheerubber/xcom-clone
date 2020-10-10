@@ -11,7 +11,7 @@ import Stage, { StageLayer } from "./stage";
 import Tile from "./tile";
 import TileChunk from "./tileChunk";
 
-export default class TileLighting extends GameObject implements Serializable {
+export default class TileLight extends GameObject implements Serializable {
 	public stage: Stage
 	protected _position: Vector3d
 	protected _radius: number

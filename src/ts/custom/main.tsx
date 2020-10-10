@@ -8,7 +8,7 @@ import Vector3d from "../helpers/vector3d";
 import ImageResource from "../render/imageResource";
 import ControllableCamera from "./controllableCamera";
 import Stage from "./stage";
-import TileLighting from "./tileLighting";
+import TileLight from "./tileLighting";
 import MainUI from "./ui/main";
 
 export default async function(game: Game) {

@@ -8,7 +8,7 @@ import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Tile from "./tile";
 import TileChunk from "./tileChunk";
-import TileLighting from "./tileLighting";
+import TileLight from "./tileLighting";
 
 enum StageSaveFile {
 	VERSION = 1,
@@ -53,13 +53,13 @@ export default class Stage extends GameObject {
 	/**
 	 * all of the lights
 	 */
-	public lights: Set<TileLighting> = new Set()
+	public lights: Set<TileLight> = new Set()
 
 	/**
 	 * map for all the different lights
 	 */
 	public lightMap: {
-		[unqiueIndex: number]: TileLighting
+		[unqiueIndex: number]: TileLight
 	} = {}
 
 	private _rotation: StageRotation = StageRotation.DEG_0
@@ -413,7 +413,7 @@ export default class Stage extends GameObject {
 		let lightCount = file.readInt16()
 		let tempColor = new RGBColor(0, 0, 0)
 		for(let i = 0; i < lightCount; i++) {
-			new TileLighting(this.game, this, new Vector3d(0, 0, 0), 0, tempColor).read(file)
+			new TileLight(this.game, this, new Vector3d(0, 0, 0), 0, tempColor).read(file)
 		}
 	}
 }

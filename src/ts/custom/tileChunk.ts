@@ -7,7 +7,7 @@ import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Stage, { StageRotation } from "./stage";
 import Tile from "./tile";
-import TileLighting from "./tileLighting";
+import TileLight from "./tileLighting";
 
 export enum TileChunkUpdate {
 	DO_LIGHTS = 1 // there are only a few times where we want to update lighting, so this is an option and not the norm
@@ -29,7 +29,7 @@ export default class TileChunk extends GameObject {
 
 	public tiles: Set<Tile> = new Set()
 	private stage: Stage
-	private lights: Set<TileLighting> = new Set()
+	private lights: Set<TileLight> = new Set()
 	private container: PIXI.Container = new PIXI.Container()
 	private graphics: PIXI.Graphics
 	private color: RGBColor
@@ -125,11 +125,11 @@ export default class TileChunk extends GameObject {
 		this.update(tile)
 	}
 
-	public addLight(light: TileLighting) {
+	public addLight(light: TileLight) {
 		this.lights.add(light)
 	}
 
-	public removeLight(light: TileLighting) {
+	public removeLight(light: TileLight) {
 		this.lights.delete(light)
 	}
 
