@@ -140,8 +140,8 @@ export default class Tile extends GameObject implements Serializable {
 	}
 
 	public setPosition(vector: Vector3d) {
-		if(this.stage.tileMap[this.layer][this.getPosition().unique()] == this) {
-			delete this.stage.tileMap[this.layer][this.getPosition().unique()] // clear last position in tilemap
+		if(this.stage.tileMap[this.layer].get(this.getPosition().unique()) == this) {
+			this.stage.tileMap[this.layer].delete(this.getPosition().unique()) // clear last position in tilemap
 		}
 		
 		this.position.copy(vector)
@@ -251,7 +251,7 @@ export default class Tile extends GameObject implements Serializable {
 			return null
 		}
 		else {
-			return this.stage.tileMap[StageLayer.DEFAULT_LAYER][Vector3d.getTempVector(99).unique()]
+			return this.stage.getMapTile(Vector3d.getTempVector(99))
 		}
 	}
 
@@ -274,8 +274,8 @@ export default class Tile extends GameObject implements Serializable {
 		this.sprite?.destroy()
 		this.sprite = null
 
-		if(this.stage.tileMap[this.layer][this.getPosition().unique()]) {
-			delete this.stage.tileMap[this.layer][this.getPosition().unique()]
+		if(this.stage.tileMap[this.layer].get(this.getPosition().unique())) {
+			this.stage.tileMap[this.layer].delete(this.getPosition().unique())
 		}
 	}
 }

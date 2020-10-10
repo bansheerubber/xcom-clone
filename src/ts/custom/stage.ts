@@ -45,9 +45,7 @@ export default class Stage extends GameObject {
 	 * map for all the tiles in our stage. separated by layers. layer 0 is the main map, additional layers can contain special effects, etc
 	 */
 	public tileMap: {
-		[layer: number]: {
-			[uniqueIndex: number]: Tile
-		}
+		[layer: number]: Map<number, Tile>
 	} = {}
 
 	/**
@@ -71,7 +69,7 @@ export default class Stage extends GameObject {
 	
 	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = StageLayer.DEFAULT_LAYER, tileClass: typeof Tile = Tile): Tile {
 		if(!this.tileMap[layer]) {
-			this.tileMap[layer] = {}
+			this.tileMap[layer] = new Map()
 		}
 		
 		let tile = new tileClass(this.game, this, spriteIndex, layer)
@@ -88,17 +86,17 @@ export default class Stage extends GameObject {
 		}
 
 		if(!this.tileMap[tile.layer]) {
-			this.tileMap[tile.layer] = {}
+			this.tileMap[tile.layer] = new Map()
 		}
 
 		if(
-			this.tileMap[tile.layer][tile.getPosition().unique()]
-			&& this.tileMap[tile.layer][tile.getPosition().unique()] != tile
+			this.tileMap[tile.layer].get(tile.getPosition().unique())
+			&& this.tileMap[tile.layer].get(tile.getPosition().unique()) != tile
 		) {
-			this.tileMap[tile.layer][tile.getPosition().unique()].destroy()
+			this.tileMap[tile.layer].get(tile.getPosition().unique()).destroy()
 		}
 		
-		this.tileMap[tile.layer][tile.getPosition().unique()] = tile
+		this.tileMap[tile.layer].set(tile.getPosition().unique(), tile)
 
 		if(this.chunkMap[chunkPosition.unique2d()] != tile.getChunk()) {
 			if(tile.getChunk()) {
@@ -122,7 +120,7 @@ export default class Stage extends GameObject {
 	}
 
 	public getMapTile(vector: Vector3d): Tile {
-		return this.tileMap[StageLayer.DEFAULT_LAYER][vector.unique()]
+		return this.tileMap[StageLayer.DEFAULT_LAYER].get(vector.unique())
 	}
 
 	public getChunk(vector: Vector3d): TileChunk {
@@ -246,8 +244,8 @@ export default class Stage extends GameObject {
 
 		let index = vector.unique()
 
-		if(this.tileMap[StageLayer.DEFAULT_LAYER][index]) {
-			return this.tileMap[StageLayer.DEFAULT_LAYER][index]
+		if(this.tileMap[StageLayer.DEFAULT_LAYER].get(index)) {
+			return this.tileMap[StageLayer.DEFAULT_LAYER].get(index)
 		}
 		else {
 			return null
@@ -306,7 +304,7 @@ export default class Stage extends GameObject {
 				Math.floor(i / max2dIndex)
 			)
 
-			let type = this.tileMap[StageLayer.DEFAULT_LAYER][position.unique()]?.type
+			let type = this.tileMap[StageLayer.DEFAULT_LAYER].get(position.unique())?.type
 			type = type ? type : StageSaveFile.BLANK_TILE
 
 			// do optimizations for every single time we encounter a new type or when we go up one layer on the z-axis

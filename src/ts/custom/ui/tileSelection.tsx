@@ -122,7 +122,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		}
 
 		let deleteTile = () => {
-			this.props.stage.tileMap[StageLayer.DEFAULT_LAYER][this.ghostTile.getPosition().unique()]?.destroy()
+			this.props.stage.getMapTile(this.ghostTile.getPosition())?.destroy()
 		}
 
 		let moveGhost = (position: Vector3d) => {
