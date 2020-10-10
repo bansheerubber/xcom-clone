@@ -21,12 +21,7 @@ export default async function(game: Game) {
 			let stage = new Stage(game);
 			stage.load("./data/stage.egg").then(() => {
 				
-			});
-			// for(let x = 0; x <= 149; x++) {
-			// 	for(let y = 0; y <= 149; y++) {
-			// 		stage.createTile(new Vector3d(x, y, 0))
-			// 	}
-			// }
+			})
 
 			game.renderer.camera = new ControllableCamera(game)
 

@@ -3,6 +3,7 @@ import GameObject from "../game/gameObject";
 import BinaryFileReader from "../helpers/binaryFileReader";
 import BinaryFileWriter from "../helpers/binaryFileWriter";
 import { RGBColor } from "../helpers/color";
+import Rotation from "../helpers/rotation";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Tile from "./tile";
@@ -13,6 +14,13 @@ enum StageSaveFile {
 	VERSION = 1,
 	BLANK_TILE = 2**16 - 1,
 	REPEAT_TILE = 2**16 - 2
+}
+
+export enum StageRotation {
+	DEG_0,
+	DEG_90,
+	DEG_180,
+	DEG_270,
 }
 
 export enum StageLayer {
@@ -30,6 +38,8 @@ export default class Stage extends GameObject {
 	private chunkMap: {
 		[index: number]: TileChunk
 	} = {}
+
+	private chunks: Set<TileChunk> = new Set()
 
 	/**
 	 * map for all the tiles in our stage. separated by layers. layer 0 is the main map, additional layers can contain special effects, etc
@@ -52,6 +62,7 @@ export default class Stage extends GameObject {
 		[unqiueIndex: number]: TileLighting
 	} = {}
 
+	private _rotation: StageRotation = StageRotation.DEG_0
 	private selectedTile: Tile
 	private selectedTileOutline: Tile
 	private maxPosition: Vector3d = new Vector3d(0, 0, 0)
@@ -71,7 +82,9 @@ export default class Stage extends GameObject {
 	public updateTile(tile: Tile) {
 		let chunkPosition = TileChunk.tileToChunkSpace(tile.getPosition())
 		if(!this.chunkMap[chunkPosition.unique2d()]) {
-			this.chunkMap[chunkPosition.unique2d()] = new TileChunk(this.game, chunkPosition)
+			let chunk = new TileChunk(this.game, this, chunkPosition)
+			this.chunkMap[chunkPosition.unique2d()] = chunk
+			this.chunks.add(chunk)
 		}
 
 		if(!this.tileMap[tile.layer]) {
@@ -132,27 +145,101 @@ export default class Stage extends GameObject {
 		}
 	}
 
-	public mouseToTileSpace(x: number, y: number): Vector3d {
+	public worldToTileSpace(position: Vector, dontFloor = false): Vector3d {
 		let {
 			x: worldX,
 			y: worldY
-		} = this.game.renderer.camera.mouseToWorld(x, y)
+		} = position
+		
+		let angle = Math.PI / 4 + Math.PI / 2 * this.rotation
 
 		// transformation matrix, rotate by 45 degrees and apply sheer and scale of 2 on right column. magic number at the end was needed to adjust scaling of the axes
-		let tileX = Math.floor((worldX * Math.cos(Math.PI / 4) - worldY * (Math.sin(Math.PI / 4) * 2)) / (Tile.TILE_SIZE / 2) * (1000 / 1414) + 0.5)
-		let tileY = Math.floor((worldX * Math.sin(Math.PI / 4) + worldY * (Math.cos(Math.PI / 4) * 2)) / (Tile.TILE_SIZE / 2) * (999 / 1414) - 0.5)
+		let tileX = (worldX * Math.cos(angle) - worldY * (Math.sin(angle) * 2)) / (Tile.TILE_SIZE / 2) * (1000 / 1414)
+		let tileY = (worldX * Math.sin(angle) + worldY * (Math.cos(angle) * 2)) / (Tile.TILE_SIZE / 2) * (999 / 1414)
+			
+		if(dontFloor) {
+			return new Vector3d(tileX, tileY, 0)
+		}
+		else {
+			tileX -= 0.5
+			tileY -= 0.5
 
-		if(tileX < 0 || tileY < 0) {
+			switch(this.rotation) {
+				case StageRotation.DEG_90: {
+					tileX += 1
+					tileY += 1
+					break
+				}
+	
+				case StageRotation.DEG_180: {
+					tileY += 2
+					break
+				}
+	
+				case StageRotation.DEG_270: {
+					tileX -= 1
+					tileY += 1
+					break
+				}
+			}
+
+			return new Vector3d(tileX, tileY, 0).foreach(Math.floor)
+		}
+	}
+
+	public tileToWorldSpace(position: Vector3d): Vector {
+		let xSpriteSpace, xTileSpace, ySpriteSpace, yTileSpace
+		switch(this.rotation) {
+			case StageRotation.DEG_0: {
+				xSpriteSpace = 1
+				xTileSpace = 1
+				ySpriteSpace = 1
+				yTileSpace = 1
+				break
+			}
+
+			case StageRotation.DEG_90: {
+				xSpriteSpace = -1
+				xTileSpace = 1
+				ySpriteSpace = 1
+				yTileSpace = -1
+				break
+			}
+
+			case StageRotation.DEG_180: {
+				xSpriteSpace = 1
+				xTileSpace = -1
+				ySpriteSpace = 1
+				yTileSpace = -1
+				break
+			}
+
+			case StageRotation.DEG_270: {
+				xSpriteSpace = -1
+				xTileSpace = -1
+				ySpriteSpace = 1
+				yTileSpace = 1
+				break
+			}
+		}
+		
+		let x = xSpriteSpace * (position.x * xTileSpace * Tile.TILE_SIZE / 2 + position.y * yTileSpace * Tile.TILE_SIZE / 2)
+		let y = ySpriteSpace * (position.x * xTileSpace * -Tile.TILE_SIZE / 4 + position.y * yTileSpace * Tile.TILE_SIZE / 4 - position.z * Tile.TILE_SIZE / 2)
+		return Vector.getTempVector(0).set(x, y)
+	}
+
+	public mouseToTileSpace(x: number, y: number): Vector3d {
+		let vector = this.worldToTileSpace(this.game.renderer.camera.mouseToWorld(x, y))
+		if(vector.x < 0 || vector.y < 0) {
 			return null
 		}
 		else {
-			return new Vector3d(tileX, tileY, 0)
+			return vector
 		}
 	}
 
 	public getTileUnderMouse(x: number, y: number): Tile {
 		let vector = this.mouseToTileSpace(x, y)
-
 		if(!vector) {
 			return null
 		}
@@ -180,6 +267,23 @@ export default class Stage extends GameObject {
 		else {
 			this.selectTile(null)
 		}
+	}
+
+	public set rotation(rotation: StageRotation) {
+		let savedCameraTile = this.worldToTileSpace(this.game.renderer.camera.position, true)
+		this._rotation = rotation
+		this.game.renderer.camera.position.copy(this.tileToWorldSpace(savedCameraTile))
+
+		// TODO improve rotation efficency
+		for(let chunk of this.chunks) {
+			for(let tile of chunk.tiles) {
+				tile.updateRotation()
+			}
+		}
+	}
+
+	public get rotation(): StageRotation {
+		return this._rotation
 	}
 
 	public save() {

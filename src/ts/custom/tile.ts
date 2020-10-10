@@ -9,7 +9,7 @@ import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import SpriteSheet from "../render/spriteSheet";
 import Serializable from "./serializable";
-import Stage, { StageLayer } from "./stage";
+import Stage, { StageLayer, StageRotation } from "./stage";
 import TileChunk, { TileChunkUpdate } from "./tileChunk";
 import TileLighting from "./tileLighting";
 
@@ -102,6 +102,43 @@ export default class Tile extends GameObject implements Serializable {
 		return this._ignoreLights
 	}
 
+	public updateRotation() {
+		this.updateSpritePosition()
+		this.chunk?.update(this)
+	}
+
+	protected updateSpritePosition() {
+		let  xZIndex, yZIndex
+		switch(this.stage.rotation) {
+			case StageRotation.DEG_0: {
+				xZIndex = 1
+				yZIndex = 1
+				break
+			}
+
+			case StageRotation.DEG_90: {
+				xZIndex = 1
+				yZIndex = -1
+				break
+			}
+
+			case StageRotation.DEG_180: {
+				xZIndex = -1
+				yZIndex = -1
+				break
+			}
+
+			case StageRotation.DEG_270: {
+				xZIndex = -1
+				yZIndex = 1
+				break
+			}
+		}
+
+		this.sprite.setPosition(this.stage.tileToWorldSpace(this.getPosition()))
+		this.sprite.zIndex = -this.position.x * xZIndex + this.position.y * yZIndex + this.position.z + this.layer / 50
+	}
+
 	public setPosition(vector: Vector3d) {
 		if(this.stage.tileMap[this.layer][this.getPosition().unique()] == this) {
 			delete this.stage.tileMap[this.layer][this.getPosition().unique()] // clear last position in tilemap
@@ -109,18 +146,11 @@ export default class Tile extends GameObject implements Serializable {
 		
 		this.position.copy(vector)
 
-		let spritePosition = this.sprite.getPosition()
-		spritePosition.x = this.position.x * Tile.TILE_SIZE / 2 + this.position.y * Tile.TILE_SIZE / 2 
-		spritePosition.y = this.position.x * -Tile.TILE_SIZE / 4 + this.position.y * Tile.TILE_SIZE / 4 - this.position.z * Tile.TILE_SIZE / 2
-
-		this.sprite.setPosition(spritePosition)
-		this.sprite.zIndex = -this.position.x + this.position.y + this.position.z + this.layer / 50
+		this.updateSpritePosition()
 
 		let oldChunk = this.chunk
 		this.stage.updateTile(this)
-		if(this.chunk) {
-			this.chunk.update(this, TileChunkUpdate.DO_LIGHTS)
-		}
+		this.chunk?.update(this, TileChunkUpdate.DO_LIGHTS)
 		
 		if(oldChunk && this.chunk != oldChunk) {
 			oldChunk.update(this)

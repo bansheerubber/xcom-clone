@@ -5,7 +5,7 @@ import { RGBColor } from "../../helpers/color"
 import Vector3d from "../../helpers/vector3d"
 import WebFileReader from "../../helpers/webFileReader"
 import GhostTile from "../ghostTile"
-import Stage, { StageLayer } from "../stage"
+import Stage, { StageLayer, StageRotation } from "../stage"
 import TileLighting from "../tileLighting"
 
 interface TileSelectionProps {
@@ -165,7 +165,34 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		new Keybind("arrowup", KeybindModifier.NONE, "Move Tile East").down((event: KeyboardEvent) => {
-			moveGhost(this.ghostTile.getPosition().$add(1, 0, 0).foreach(limit))
+			let x, y
+			switch(this.props.stage.rotation) {
+				case StageRotation.DEG_0: {
+					x = 1
+					y = 0
+					break
+				}
+
+				case StageRotation.DEG_90: {
+					x = 0
+					y = 1
+					break
+				}
+
+				case StageRotation.DEG_180: {
+					x = -1
+					y = 0
+					break
+				}
+
+				case StageRotation.DEG_270: {
+					x = 0
+					y = -1
+					break
+				}
+			}
+			
+			moveGhost(this.ghostTile.getPosition().$add(x, y, 0).foreach(limit))
 
 			if(this.spaceHeldDown) {
 				plantTile()
@@ -176,7 +203,34 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		new Keybind("arrowdown", KeybindModifier.NONE, "Move Tile West").down((event: KeyboardEvent) => {
-			moveGhost(this.ghostTile.getPosition().$add(-1, 0, 0).foreach(limit))
+			let x, y
+			switch(this.props.stage.rotation) {
+				case StageRotation.DEG_0: {
+					x = -1
+					y = 0
+					break
+				}
+
+				case StageRotation.DEG_90: {
+					x = 0
+					y = -1
+					break
+				}
+
+				case StageRotation.DEG_180: {
+					x = 1
+					y = 0
+					break
+				}
+
+				case StageRotation.DEG_270: {
+					x = 0
+					y = 1
+					break
+				}
+			}
+			
+			moveGhost(this.ghostTile.getPosition().$add(x, y, 0).foreach(limit))
 
 			if(this.spaceHeldDown) {
 				plantTile()
@@ -187,7 +241,34 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		new Keybind("arrowleft", KeybindModifier.NONE, "Move Tile North").down((event: KeyboardEvent) => {
-			moveGhost(this.ghostTile.getPosition().$add(0, -1, 0).foreach(limit))
+			let x, y
+			switch(this.props.stage.rotation) {
+				case StageRotation.DEG_0: {
+					x = 0
+					y = -1
+					break
+				}
+
+				case StageRotation.DEG_90: {
+					x = 1
+					y = 0
+					break
+				}
+
+				case StageRotation.DEG_180: {
+					x = 0
+					y = 1
+					break
+				}
+
+				case StageRotation.DEG_270: {
+					x = -1
+					y = 0
+					break
+				}
+			}
+			
+			moveGhost(this.ghostTile.getPosition().$add(x, y, 0).foreach(limit))
 
 			if(this.spaceHeldDown) {
 				plantTile()
@@ -198,7 +279,34 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		})
 
 		new Keybind("arrowright", KeybindModifier.NONE, "Move Tile South").down((event: KeyboardEvent) => {
-			moveGhost(this.ghostTile.getPosition().$add(0, 1, 0).foreach(limit))
+			let x, y
+			switch(this.props.stage.rotation) {
+				case StageRotation.DEG_0: {
+					x = 0
+					y = 1
+					break
+				}
+
+				case StageRotation.DEG_90: {
+					x = -1
+					y = 0
+					break
+				}
+
+				case StageRotation.DEG_180: {
+					x = 0
+					y = -1
+					break
+				}
+
+				case StageRotation.DEG_270: {
+					x = 1
+					y = 0
+					break
+				}
+			}
+			
+			moveGhost(this.ghostTile.getPosition().$add(x, y, 0).foreach(limit))
 
 			if(this.spaceHeldDown) {
 				plantTile()
@@ -242,6 +350,18 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 			this.deleteHeldDown = true
 		}).up((event: KeyboardEvent) => {
 			this.deleteHeldDown = false
+		})
+
+		new Keybind("q", KeybindModifier.NONE, "Rotate Counter-clockwise").down((event: KeyboardEvent) => {
+			this.props.stage.rotation = (this.props.stage.rotation + 1) % 4
+		})
+
+		new Keybind("e", KeybindModifier.NONE, "Rotate Clockwise").down((event: KeyboardEvent) => {
+			let number = (this.props.stage.rotation - 1) % 4
+			if(number < 0) {
+				number = 3
+			}
+			this.props.stage.rotation = number
 		})
 
 		this.state = {

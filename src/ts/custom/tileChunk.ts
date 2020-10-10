@@ -5,6 +5,7 @@ import { HSVColor, RGBColor } from "../helpers/color";
 import Range from "../helpers/range";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
+import Stage, { StageRotation } from "./stage";
 import Tile from "./tile";
 import TileLighting from "./tileLighting";
 
@@ -26,7 +27,8 @@ export default class TileChunk extends GameObject {
 
 	public isVisible: boolean = true
 
-	private tiles: Set<Tile> = new Set()
+	public tiles: Set<Tile> = new Set()
+	private stage: Stage
 	private lights: Set<TileLighting> = new Set()
 	private container: PIXI.Container = new PIXI.Container()
 	private graphics: PIXI.Graphics
@@ -36,12 +38,14 @@ export default class TileChunk extends GameObject {
 	private highestZ: number = 0
 	private shouldRecalcBounds: boolean = false
 	private forceUpdate: number = 0
+	private lastRotation: StageRotation
 	
 	
 	
-	constructor(game: Game, position: Vector3d) {
+	constructor(game: Game, stage: Stage, position: Vector3d) {
 		super(game)
 
+		this.stage = stage
 		this.position = position.clone()
 
 		if(TileChunk.DEBUG) {
@@ -53,10 +57,7 @@ export default class TileChunk extends GameObject {
 		this.recalcBoundary()
 
 		this.game.renderer.isomap.addChild(this.container)
-		this.container.zIndex = -this.position.x + this.position.y + this.position.z
 		this.game.renderer.isomap.sortableChildren = true
-		this.game.renderer.isomap.sortDirty = true
-		this.game.renderer.isomap.sortChildren()
 	}
 
 	public tick(deltaTime: number) {
@@ -93,6 +94,7 @@ export default class TileChunk extends GameObject {
 				this.graphics.lineStyle(5 / this.game.renderer.camera.zoom, this.color.toHex())
 				this.graphics.beginFill(0x000000, 0)
 				this.graphics.drawRect(this.minBoundary.x, this.minBoundary.y, this.maxBoundary.x - this.minBoundary.x, this.maxBoundary.y - this.minBoundary.y)
+				this.graphics.drawCircle(this.minBoundary.x, this.minBoundary.y, 10 / this.game.renderer.camera.zoom)
 				this.graphics.endFill()
 			}
 		}
@@ -147,6 +149,11 @@ export default class TileChunk extends GameObject {
 	public update(tile?: Tile, updateBitmask: TileChunkUpdate = 0) {
 		this.forceUpdate = 2
 
+		// update our boundary if there's been a rotation
+		if(this.lastRotation != this.stage.rotation) {
+			this.recalcBoundary()
+		}
+
 		if(tile) {
 			// reassign the tile's lights
 			if(
@@ -163,22 +170,128 @@ export default class TileChunk extends GameObject {
 				}
 			}
 		}
+
+		// update z-index
+		let xSort = 1
+		let ySort = 1
+		switch(this.stage.rotation) {
+			case StageRotation.DEG_90: {
+				ySort = -1
+				break
+			}
+
+			case StageRotation.DEG_180: {
+				xSort = -1
+				ySort = -1
+				break
+			}
+			
+			case StageRotation.DEG_270: {
+				xSort = -1
+				break
+			}
+		}
+		this.container.zIndex = -this.position.x * xSort + this.position.y * ySort
 	}
 
 	private recalcBoundary() {
-		this.minBoundary = new Vector(
-			this.position.x * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2
-				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2 - (0.5 * Tile.TILE_SIZE),
-			(this.position.x + 2) * TileChunk.CHUNK_SIZE * -Tile.TILE_SIZE / 4
-				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 4 + TileChunk.CHUNK_SIZE / 4 * Tile.TILE_SIZE
-				- Tile.TILE_SIZE / 2 * this.highestZ
-		)
+		this.lastRotation = this.stage.rotation
+		
+		let xWorldSpace, xChunkSpace, yWorldSpace, yChunkSpace
+		switch(this.stage.rotation) {
+			case StageRotation.DEG_0: {
+				xWorldSpace = 1
+				xChunkSpace = 1
+				yWorldSpace = 1
+				yChunkSpace = 1
+				break
+			}
 
-		this.maxBoundary = new Vector(
-			(this.position.x + 2) * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2
-				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2 + (0.5 * Tile.TILE_SIZE),
-			this.position.x * TileChunk.CHUNK_SIZE * -Tile.TILE_SIZE / 4
-				+ this.position.y * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 4 + (TileChunk.CHUNK_SIZE + 4) / 4 * Tile.TILE_SIZE
-		)
+			case StageRotation.DEG_90: {
+				xWorldSpace = -1
+				xChunkSpace = 1
+				yWorldSpace = 1
+				yChunkSpace = -1
+				break
+			}
+
+			case StageRotation.DEG_180: {
+				xWorldSpace = 1
+				xChunkSpace = -1
+				yWorldSpace = 1
+				yChunkSpace = -1
+				break
+			}
+
+			case StageRotation.DEG_270: {
+				xWorldSpace = -1
+				xChunkSpace = -1
+				yWorldSpace = 1
+				yChunkSpace = 1
+				break
+			}
+		}
+
+		let xPad = Tile.TILE_SIZE / 2
+		let yPad = Tile.TILE_SIZE / 2
+		let xShift = TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2
+		let yShift = TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 4
+
+		let component1 = xWorldSpace * (this.position.x * xChunkSpace * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2
+			+ this.position.y * yChunkSpace * xShift - xPad)
+		
+		let component2 = yWorldSpace * ((this.position.x * xChunkSpace + 2) * TileChunk.CHUNK_SIZE * -Tile.TILE_SIZE / 4
+			+ this.position.y * yChunkSpace * yShift + TileChunk.CHUNK_SIZE / 4 * Tile.TILE_SIZE
+			- Tile.TILE_SIZE / 2 * this.highestZ)
+		
+		let component3 = xWorldSpace * ((this.position.x * xChunkSpace + 2) * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2
+			+ this.position.y * yChunkSpace * xShift + xPad)
+		
+		let component4 = yWorldSpace * (this.position.x * xChunkSpace * TileChunk.CHUNK_SIZE * -Tile.TILE_SIZE / 4
+			+ this.position.y * yChunkSpace * yShift + (TileChunk.CHUNK_SIZE + 4) / 4 * Tile.TILE_SIZE)
+
+		switch(this.stage.rotation) {
+			case StageRotation.DEG_0: {
+				this.minBoundary = new Vector(component1, component2)
+				this.maxBoundary = new Vector(component3, component4)
+				break
+			}
+
+			case StageRotation.DEG_90: {
+				this.minBoundary = new Vector(
+					component3 + xShift + xPad,
+					component2 - yShift + yPad / 2
+				)
+				this.maxBoundary = new Vector(
+					component1 + xShift + xPad,
+					component4 - yShift + yPad / 2
+				)
+				break
+			}
+
+			case StageRotation.DEG_180: {
+				this.minBoundary = new Vector(
+					component1 - xShift * 2 + xPad * 2,
+					component2
+				)
+				this.maxBoundary = new Vector(
+					component3 - xShift * 2 + xPad * 2,
+					component4
+				)
+				break
+			}
+
+			case StageRotation.DEG_270: {
+				this.minBoundary = new Vector(
+					component3 + xShift + xPad,
+					component2 + yShift - yPad / 2
+				)
+				this.maxBoundary = new Vector(
+					component1 + xShift + xPad,
+					component4 + yShift - yPad / 2
+				)
+				break
+			}
+		}
 	}
 }
