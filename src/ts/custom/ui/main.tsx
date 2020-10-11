@@ -13,7 +13,7 @@ export default class MainUI extends React.Component<MainUIProps> {
 	render(): JSX.Element {
 		return <>
 			<TileSelection game={this.props.game} stage={this.props.stage} />
-			{/* <Geoscape /> */}
+			<Geoscape />
 		</>
 	}
 }
