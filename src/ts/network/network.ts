@@ -3,7 +3,6 @@ import NetworkMetadata from "./networkMetadata";
 import RemoteObject from "./remoteObject";
 import GameObject from "../game/gameObject";
 import Validator from "./validators/validator";
-import { isNull } from "util";
 import NumberValidator from "./validators/numberValidator";
 import StringValidator from "./validators/stringValidator";
 
@@ -102,7 +101,7 @@ export default class Network {
 	// recursively converts an object to something that can acceptably be sent over the network. if ignoreFirstRemoteification is true, then we send all properties on a remote object (only for the first iteration). if false, we only send the classname and RID
 	private static convertObject(object: {}, ignoreFirstRemoteification: boolean = false): any {
 		// handle objects differently than primitives
-		if(typeof object == "object" && !isNull(object) && typeof object != "undefined") {
+		if(typeof object == "object" && null === object && typeof object != "undefined") {
 			if(Array.isArray(object)) {
 				var replacementObject: SendObject = [] as any
 			}
