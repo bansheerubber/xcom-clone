@@ -6,7 +6,8 @@ import Vector3d from "../../helpers/vector3d"
 import WebFileReader from "../../helpers/webFileReader"
 import GhostTile from "../ghostTile"
 import Stage, { StageLayer, StageRotation } from "../stage"
-import TileLight from "../tileLighting"
+import TileLight from "../tileLight"
+import TileRaycast from "../tileRaycast"
 
 interface TileSelectionProps {
 	game: Game
@@ -127,6 +128,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 
 		let moveGhost = (position: Vector3d) => {
 			this.ghostTile.setPosition(position)
+
 			let light = this.props.stage.lightMap.get(position.unique())
 			if(light) {
 				this.setState({

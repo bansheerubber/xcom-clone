@@ -11,7 +11,7 @@ import SpriteSheet from "../render/spriteSheet";
 import Serializable from "./serializable";
 import Stage, { StageLayer, StageRotation } from "./stage";
 import TileChunk, { TileChunkUpdate } from "./tileChunk";
-import TileLight from "./tileLighting";
+import TileLight from "./tileLight";
 
 enum TILE_ADJACENT {
 	NORTH = 0,
@@ -253,6 +253,18 @@ export default class Tile extends GameObject implements Serializable {
 		else {
 			return this.stage.getMapTile(Vector3d.getTempVector(99))
 		}
+	}
+
+	/**
+	 * whether or not a tile is adjacent
+	 */
+	public isAdjacent(tile: Tile): boolean {
+		for(let i = 0; i < 4; i++) {
+			if(this.getAdjacent(i) == tile) {
+				return true
+			}
+		}
+		return false
 	}
 
 	public serialize(file: BinaryFileWriter, mode: number) {

@@ -168,6 +168,33 @@ export default class Vector3d {
 	}
 
 	/**
+	 * linear interpolation by percent of distance between vectors
+	 * @param end 
+	 * @param percent 
+	 */
+	public lerp(end: Vector3d, percent: number): Vector3d {
+		return Vector3d.getTempVector(200).set(
+			this.x * (1 - percent) + end.x * percent,
+			this.y * (1 - percent) + end.y * percent,
+			this.z * (1 - percent) + end.z * percent,
+		)
+	}
+
+	/**
+	 * linear interpolation by 1 unit of distance between vectors
+	 * @param end 
+	 * @param percent 
+	 */
+	public lerpUnit(end: Vector3d, units: number): Vector3d {
+		let percent = Math.min(1, units / this.dist(end))
+		return Vector3d.getTempVector(200).set(
+			this.x * (1 - percent) + end.x * percent,
+			this.y * (1 - percent) + end.y * percent,
+			this.z * (1 - percent) + end.z * percent,
+		)
+	}
+
+	/**
 	 * set the x/y coordinates of this vector
 	 * @param x 
 	 * @param y 

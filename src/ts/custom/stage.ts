@@ -8,7 +8,7 @@ import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Tile from "./tile";
 import TileChunk from "./tileChunk";
-import TileLight from "./tileLighting";
+import TileLight from "./tileLight";
 
 enum StageSaveFile {
 	VERSION = 1,

@@ -1,15 +1,15 @@
-import { Vector } from "matter-js";
 import * as PIXI from "pixi.js"
-import { Vector3 } from "three";
 import GameObject from "../game/gameObject";
 import BinaryFileReader from "../helpers/binaryFileReader";
 import BinaryFileWriter from "../helpers/binaryFileWriter";
 import { RGBColor } from "../helpers/color";
+import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Serializable from "./serializable";
-import Stage, { StageLayer } from "./stage";
+import Stage, { StageLayer, StageRotation } from "./stage";
 import Tile from "./tile";
 import TileChunk from "./tileChunk";
+import TileRaycast from "./tileRaycast";
 
 export default class TileLight extends GameObject implements Serializable {
 	public stage: Stage
@@ -86,6 +86,44 @@ export default class TileLight extends GameObject implements Serializable {
 
 	public isInRadius(position: Vector3d) {
 		return position.dist(this.position) <= this.radius
+	}
+
+	/**
+	 * whether or not the given position should be lit by this light
+	 * @param position
+	 */
+	public hasEffect(tile: Tile) {
+		let angle = Math.PI / 4 + this.stage.rotation * Math.PI / 2
+		let towardsCamera = Vector3d.getTempVector(0).set(-Math.sin(angle), Math.cos(angle), 0)
+		
+		let positionAtOrigin = Vector3d.getTempVector(1).copy(tile.getPosition()).sub(this.position)
+		positionAtOrigin.z = 0
+		// if dot is above 0, then the blocks are closer to the camera than the light is (we cant see the sides of the tile that are lit)
+		if(positionAtOrigin.dot(towardsCamera) >= -0.) {
+			if(
+				this.stage.getMapTile(Vector3d.getTempVector(2).copy(tile.getPosition()).$add(0, 0, 1))
+				|| tile.getPosition().z > this.position.z
+			) {
+				return false
+			}
+		}
+
+		// below contains egg code
+		// cast rays after we've ruled out easy-to-calculate cases
+		let cast = TileRaycast.cast(this.stage, this.position, tile.getPosition(), [], true)
+		if(cast) {
+			if(cast.tile != tile) {
+				return false
+			}
+			else if(cast.normal.dot(towardsCamera) <= 0.01) {
+				return false
+			}
+			else {
+				console.log(cast.normal, towardsCamera, cast.normal.dot(towardsCamera))
+			}
+		}
+
+		return true
 	}
 
 	protected calculateChunks() {

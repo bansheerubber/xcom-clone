@@ -7,7 +7,7 @@ import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Stage, { StageRotation } from "./stage";
 import Tile from "./tile";
-import TileLight from "./tileLighting";
+import TileLight from "./tileLight";
 
 export enum TileChunkUpdate {
 	DO_LIGHTS = 1 // there are only a few times where we want to update lighting, so this is an option and not the norm
