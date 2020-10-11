@@ -214,7 +214,7 @@ export default class Tile extends GameObject implements Serializable {
 		for(let light of this.lights) {
 			additive.add(light.color.clone().mul(Math.max(0, 1 - light.position.dist(this.position) / light.radius)))
 		}
-		this.additive = RGBColor.from(additive.toHex())
+		this.additive = additive
 	}
 
 	/**

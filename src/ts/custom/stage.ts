@@ -155,7 +155,7 @@ export default class Stage extends GameObject {
 			return new Vector3d(tileX, tileY, 0)
 		}
 		else {
-			tileX -= 0.5
+			tileX += 0.5
 			tileY -= 0.5
 
 			switch(this.rotation) {
