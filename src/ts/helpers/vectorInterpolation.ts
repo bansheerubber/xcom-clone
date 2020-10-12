@@ -46,10 +46,14 @@ export default class VectorInterpolation extends GameObject {
 		if(percent < 1) {
 			this.interpolatedVector.x = (this.start.x * (1 - percent)) + (this.end.x * percent)
 			this.interpolatedVector.y = (this.start.y * (1 - percent)) + (this.end.y * percent)
-			this.callback(this.interpolatedVector)
+			if(this.callback) {
+				this.callback(this.interpolatedVector)
+			}
 		}
 		else {
-			this.endCallback(this.end)
+			if(this.endCallback) {
+				this.endCallback(this.end)
+			}
 			this.destroy()
 		}
 	}
@@ -71,10 +75,14 @@ export class SmoothVectorInterpolation extends VectorInterpolation {
 		if(this.timeElapsed < this.time) {
 			this.interpolatedVector.x = (this.start.x * (1 - percent)) + (this.end.x * percent)
 			this.interpolatedVector.y = (this.start.y * (1 - percent)) + (this.end.y * percent)
-			this.callback(this.interpolatedVector)
+			if(this.callback) {
+				this.callback(this.interpolatedVector)
+			}
 		}
 		else {
-			this.endCallback(this.end)
+			if(this.endCallback) {
+				this.endCallback(this.end)
+			}
 			this.destroy()
 		}
 	}

@@ -11,6 +11,8 @@ import ControllableCamera from "./controllableCamera";
 import Stage from "./stage";
 import TileLight from "./tileLight";
 import TileRaycast from "./tileRaycast";
+import GeoscapeIcon from "./ui/geoscape/geoscapeIcon";
+import GeoscapeScene from "./ui/geoscape/geoscapeScene";
 import MainUI from "./ui/main";
 
 export default async function(game: Game) {
@@ -24,7 +26,16 @@ export default async function(game: Game) {
 			stage.load("./data/stage.egg").then(() => {
 				stage.createTile(new Vector3d(15, 5, 3), 83)
 
-				ReactDOM.render(<MainUI game={game} stage={stage} />, document.getElementById("reactContainer"))
+				let geoscape = new GeoscapeScene(game)
+				let sprite1 = new GeoscapeIcon(game, geoscape)
+				sprite1.longitude = -113.674718
+				sprite1.latitude = 38.272689
+
+				let sprite2 = new GeoscapeIcon(game, geoscape)
+				sprite2.longitude = 45
+				sprite2.latitude = 45
+
+				ReactDOM.render(<MainUI game={game} geoscapeScene={geoscape} stage={stage} />, document.getElementById("reactContainer"))
 			})
 
 			game.renderer.camera = new ControllableCamera(game)
