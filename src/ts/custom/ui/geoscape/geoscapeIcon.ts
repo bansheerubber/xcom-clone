@@ -5,15 +5,18 @@ import GeoscapeScene from "./geoscapeScene";
 
 export default class GeoscapeIcon extends GameObject {
 	public sprite: THREE.Sprite
+	private geoscape: GeoscapeScene
 	private _longitude: number = 0
 	private _latitude: number = 0
 	
 	constructor(game, geoscape: GeoscapeScene, icon: string = "./data/egg.png") {
 		super(game)
 
+		this.geoscape = geoscape
+
 		let spriteMap = new THREE.TextureLoader().load(icon)
 		let spriteMaterial = new THREE.SpriteMaterial({
-			map: spriteMap
+			map: spriteMap,
 		})
 		this.sprite = new THREE.Sprite(spriteMaterial)
 		this.updatePosition()
@@ -39,7 +42,7 @@ export default class GeoscapeIcon extends GameObject {
 	 * ranges from -90 to 90 degrees
 	 */
 	set latitude(latitude: number) {
-		this._latitude = clamp(-latitude, -90, 90)
+		this._latitude = clamp(latitude, -90, 90)
 		this.updatePosition()
 	}
 
@@ -54,8 +57,14 @@ export default class GeoscapeIcon extends GameObject {
 		
 	}
 
+	public tick(deltaTime: number) {
+		super.tick(deltaTime)
+
+		this.sprite.scale.set(1 / this.geoscape.zoom, 1 / this.geoscape.zoom, 1 / this.geoscape.zoom)
+	}
+
 	private updatePosition() {
-		let theta = (Math.PI / 180) * this.latitude + Math.PI / 2
+		let theta = -(Math.PI / 180) * this.latitude + Math.PI / 2
 		let phi = (Math.PI / 180) * this.longitude
 		let radius = GeoscapeScene.GEOSCAPE_RADIUS + 0.5
 		this.sprite.position.set(

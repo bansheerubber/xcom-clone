@@ -14,7 +14,7 @@ interface MainUIProps {
 export default class MainUI extends React.Component<MainUIProps> {
 	render(): JSX.Element {
 		return <>
-			<TileSelection game={this.props.game} stage={this.props.stage} />
+			{/* <TileSelection game={this.props.game} stage={this.props.stage} /> */}
 			<GeoscapeUI scene={this.props.geoscapeScene} />
 		</>
 	}

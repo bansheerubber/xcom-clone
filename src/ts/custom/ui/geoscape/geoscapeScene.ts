@@ -37,19 +37,20 @@ export default class GeoscapeScene extends GameObject {
 		0.1,
 		10000
 	)
-	private zoom: number = 1
+	public zoom: number = 1
 	private ambientLight: THREE.AmbientLight
 	private directionalLight: THREE.DirectionalLight
 	private loadingManager: THREE.LoadingManager
 	private lastRender: number = 0
 	private tickCount: number = 0
 	private geoscape: THREE.Object3D
-	private cameraTheta: number = Math.PI / 2
-	private cameraPhi: number = 0
+	private _cameraPhi: number = 0
+	private _cameraTheta: number = Math.PI / 2
 	private icons: Map<THREE.Sprite, GeoscapeIcon> = new Map()
 	private interpolation: SmoothVectorInterpolation
 	private raycaster: THREE.Raycaster
 	private pointer: GeoscapeIcon
+	private isDragging: boolean = false
 	
 	constructor(game: Game) {
 		super(game)
@@ -91,7 +92,6 @@ export default class GeoscapeScene extends GameObject {
 
 		window.addEventListener("resize", this.onResize.bind(this))
 
-		let isDragging = false
 		let sawMovement = false
 		let startX = 0
 		let startY = 0
@@ -99,14 +99,14 @@ export default class GeoscapeScene extends GameObject {
 		let startTheta = 0
 
 		new Keybind("mouse0", Keybind.None, "Click Geoscape").down((event: MouseEvent) => {
-			isDragging = true
+			this.isDragging = true
 			startX = event.x
 			startY = event.y
 			startPhi = this.cameraPhi
 			startTheta = this.cameraTheta
 			sawMovement = false
 		}).up((event: MouseEvent) => {
-			isDragging = false
+			this.isDragging = false
 
 			if(!sawMovement) {
 				let mousePosition = new THREE.Vector2()
@@ -138,13 +138,9 @@ export default class GeoscapeScene extends GameObject {
 				}
 			}
 		}).move((event: MouseEvent) => {
-			if(isDragging && !this.interpolation) {
-				this.cameraPhi = (startPhi + ((event.x - startX) / 300) / this.zoom) % (Math.PI * 2)
-				this.cameraTheta = clamp(
-					startTheta + ((startY - event.y) / 300) / this.zoom,
-					Math.PI / 2 - Math.PI / 2 + 0.01,
-					Math.PI / 2 + Math.PI / 2 - 0.01
-				)
+			if(this.isDragging && !this.interpolation) {
+				this.cameraPhi = startPhi + ((event.x - startX) / 300) / this.zoom
+				this.cameraTheta = startTheta + ((startY - event.y) / 300) / this.zoom
 
 				if(
 					Math.abs(this.cameraPhi - startPhi) > 0.05
@@ -202,7 +198,49 @@ export default class GeoscapeScene extends GameObject {
 		this.onResize()
 	}
 
+	set cameraPhi(input: number) {
+		this._cameraPhi = input % (Math.PI * 2)
+		if(this._cameraPhi < 0) {
+			this._cameraPhi += Math.PI * 2
+		}
+	}
+
+	get cameraPhi(): number {
+		return this._cameraPhi
+	}
+
+	set cameraTheta(input: number) {
+		this._cameraTheta = clamp(
+			input,
+			Math.PI / 2 - Math.PI / 2 + 0.001,
+			Math.PI / 2 + Math.PI / 2 - 0.001
+		)
+	}
+
+	get cameraTheta(): number {
+		return this._cameraTheta
+	}
+
+	/**
+	 * in degrees
+	 */
+	get cameraLongitude(): number {
+		let longitude = -this.cameraPhi / (Math.PI / 180)
+		if(longitude < -180) {
+			longitude += 360
+		}
+		return longitude
+	}
+
+	/**
+	 * in degrees
+	 */
+	get cameraLatitude(): number {
+		return -(this.cameraTheta - Math.PI / 2) / (Math.PI / 180)
+	}
+
 	public goto(latitude: number, longitude: number) {
+		this.isDragging = false
 		if(this.interpolation) {
 			this.interpolation.destroy()
 			delete this.interpolation
@@ -283,19 +321,19 @@ export default class GeoscapeScene extends GameObject {
 
 		if(!this.interpolation) {
 			if(this.move.up) {
-				this.cameraTheta = Math.max(0.1, this.cameraTheta - this.cameraSpeed * deltaTime / this.zoom)
+				this.cameraTheta = this.cameraTheta - this.cameraSpeed * deltaTime / this.zoom
 			}
 	
 			if(this.move.down) {
-				this.cameraTheta = Math.min(Math.PI - 0.1, this.cameraTheta + this.cameraSpeed * deltaTime / this.zoom)
+				this.cameraTheta = this.cameraTheta + this.cameraSpeed * deltaTime / this.zoom
 			}
 	
 			if(this.move.left) {
-				this.cameraPhi = (this.cameraPhi + this.cameraSpeed * deltaTime / this.zoom) % (Math.PI * 2)
+				this.cameraPhi = this.cameraPhi + this.cameraSpeed * deltaTime / this.zoom
 			}
 	
 			if(this.move.right) {
-				this.cameraPhi = (this.cameraPhi - this.cameraSpeed * deltaTime / this.zoom) % (Math.PI * 2)
+				this.cameraPhi = this.cameraPhi - this.cameraSpeed * deltaTime / this.zoom
 			}
 		}
 
