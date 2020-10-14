@@ -72,7 +72,20 @@ export default class Vector3d {
 	public mul(scalar: number): Vector3d {
 		this.x *= scalar
 		this.y *= scalar
+		this.z *= scalar
 		return this
+	}
+
+	/**
+	 * find the cross product
+	 * @param vector
+	 */
+	public cross(vector: Vector3d): Vector3d {
+		return this.set(
+			this.y * vector.z - this.z * vector.y,
+			this.z * vector.x - this.x * vector.z,
+			this.x * vector.y - this.y * vector.x
+		)
 	}
 
 	/**
@@ -124,6 +137,14 @@ export default class Vector3d {
 	 */
 	public unit_(): Vector3d {
 		return this.clone().unit()
+	}
+
+	/**
+	 * clone us and find the cross product
+	 * @param vector 
+	 */
+	public cross_(vector: Vector3d): Vector3d {
+		return this.clone().cross(vector)
 	}
 
 	/**
@@ -195,9 +216,10 @@ export default class Vector3d {
 	}
 
 	/**
-	 * set the x/y coordinates of this vector
+	 * set the x/y/z coordinates of this vector
 	 * @param x 
 	 * @param y 
+	 * @param z
 	 */
 	public set(x: number, y: number, z: number): Vector3d {
 		this.x = x

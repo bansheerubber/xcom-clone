@@ -1,10 +1,10 @@
-import { Vector } from "matter-js";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import Game from "../game/game";
 import {
 	RGBColor
 } from "../helpers/color";
+import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import ImageResource from "../render/imageResource";
 import ControllableCamera from "./controllableCamera";
@@ -12,6 +12,7 @@ import Stage from "./stage";
 import TileLight from "./tileLight";
 import TileRaycast from "./tileRaycast";
 import GeoscapeIcon from "./ui/geoscape/geoscapeIcon";
+import GeoscapeLine from "./ui/geoscape/geoscapeLine";
 import GeoscapeScene from "./ui/geoscape/geoscapeScene";
 import MainUI from "./ui/main";
 
@@ -30,6 +31,13 @@ export default async function(game: Game) {
 				let sprite1 = new GeoscapeIcon(game, geoscape, "./data/base.png")
 				sprite1.longitude = -113.674718
 				sprite1.latitude = 38.272689
+
+				new GeoscapeLine(game, geoscape, [
+					new Vector(0, Math.PI / 2),
+					new Vector(0, 0),
+					new Vector(Math.PI / 2, Math.PI / 2),
+					new Vector(0, Math.PI / 2),
+				])
 
 				// let sprite2 = new GeoscapeIcon(game, geoscape)
 				// sprite2.longitude = 45

@@ -9,6 +9,7 @@ import clamp from "../../../helpers/clamp";
 import Vector from "../../../helpers/vector";
 import { SmoothVectorInterpolation } from "../../../helpers/vectorInterpolation";
 import GeoscapeIcon from "./geoscapeIcon";
+import GeoscapeLine from "./geoscapeLine";
 
 export default class GeoscapeScene extends GameObject {
 	public static GEOSCAPE_RADIUS: number = 10
@@ -47,6 +48,7 @@ export default class GeoscapeScene extends GameObject {
 	private _cameraPhi: number = 0
 	private _cameraTheta: number = Math.PI / 2
 	private icons: Map<THREE.Sprite, GeoscapeIcon> = new Map()
+	private lines: Map<THREE.Line, GeoscapeLine> = new Map()
 	private interpolation: SmoothVectorInterpolation
 	private raycaster: THREE.Raycaster
 	private pointer: GeoscapeIcon
@@ -239,6 +241,14 @@ export default class GeoscapeScene extends GameObject {
 		return -(this.cameraTheta - Math.PI / 2) / (Math.PI / 180)
 	}
 
+	public static sphericalToCartesian(phi: number, theta: number, radius: number = GeoscapeScene.GEOSCAPE_RADIUS): THREE.Vector3 {
+		return new THREE.Vector3(
+			radius * Math.sin(theta) * Math.cos(phi),
+			radius * Math.cos(theta),
+			radius * Math.sin(theta) * Math.sin(phi)
+		)
+	}
+
 	public goto(latitude: number, longitude: number) {
 		this.isDragging = false
 		if(this.interpolation) {
@@ -289,6 +299,16 @@ export default class GeoscapeScene extends GameObject {
 	public removeIcon(icon: GeoscapeIcon) {
 		this.icons.delete(icon.sprite)
 		this.scene.remove(icon.sprite)
+	}
+
+	public addLine(line: GeoscapeLine) {
+		this.lines.set(line.line, line)
+		this.scene.add(line.line)
+	}
+
+	public removeLine(line: GeoscapeLine) {
+		this.lines.delete(line.line)
+		this.scene.remove(line.line)
 	}
 
 	private onClick(latitude: number, longitude: number) {

@@ -234,6 +234,31 @@ export default class Vector {
 	}
 
 	/**
+	 * linear interpolation by percent of distance between vectors
+	 * @param end 
+	 * @param percent 
+	 */
+	public lerp(end: Vector, percent: number): Vector {
+		return Vector.getTempVector(200).set(
+			this.x * (1 - percent) + end.x * percent,
+			this.y * (1 - percent) + end.y * percent,
+		)
+	}
+
+	/**
+	 * linear interpolation by 1 unit of distance between vectors
+	 * @param end 
+	 * @param percent 
+	 */
+	public lerpUnit(end: Vector, units: number): Vector {
+		let percent = Math.min(1, units / this.dist(end))
+		return Vector.getTempVector(200).set(
+			this.x * (1 - percent) + end.x * percent,
+			this.y * (1 - percent) + end.y * percent,
+		)
+	}
+
+	/**
 	 * returns true if the vectors share the same unique number
 	 * @param vector
 	 */
