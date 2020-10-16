@@ -2,6 +2,7 @@ import * as THREE from "three";
 import GameObject from "../../../game/gameObject";
 import Vector from "../../../helpers/vector";
 import Vector3d from "../../../helpers/vector3d";
+import GeoscapeCountry from "./geoscapeCountry";
 import GeoscapeScene from "./geoscapeScene";
 
 function angleBetween(phi1, theta1, phi2, theta2, radius) {
@@ -58,14 +59,19 @@ function spherp(phi1, theta1, phi2, theta2, radius, step): Vector3d {
 		)
 }
 
-export default class GeoscapeLine extends GameObject {
+export default class GeoscapeBorder extends GameObject {
 	private scene: GeoscapeScene
 	private geometry = new THREE.BufferGeometry()
 	private positionsBuffer
+	private points: Vector[]
+	public readonly country: GeoscapeCountry
 	public line: THREE.Line
 	
-	constructor(game, scene: GeoscapeScene, points: Vector[]) {
+	constructor(game, scene: GeoscapeScene, country: GeoscapeCountry, points: Vector[]) {
 		super(game)
+
+		this.country = country
+		this.points = points
 
 		if(points.length < 2) {
 			throw new Error("Cannot create line from array of length less than 2")
@@ -76,15 +82,20 @@ export default class GeoscapeLine extends GameObject {
 			let lastPoint = points[i - 1]
 			let nextPoint = points[i]
 
-			let radius = GeoscapeScene.GEOSCAPE_RADIUS + 0.02
+			let radius = GeoscapeScene.RADIUS + 0.02
 			let step = 0.1
 			let angle = angleBetween(lastPoint.x, lastPoint.y, nextPoint.x, nextPoint.y, radius)
-			for(let j = 0; j <= angle + step; j+= step) {
+			for(let j = 0; j <= angle; j+= step) {
 				let vector = spherp(lastPoint.x, lastPoint.y, nextPoint.x, nextPoint.y, radius, j)
 				array.push(vector.x)
 				array.push(vector.y)
 				array.push(vector.z)
 			}
+
+			let vector = spherp(lastPoint.x, lastPoint.y, nextPoint.x, nextPoint.y, radius, 1)
+			array.push(vector.x)
+			array.push(vector.y)
+			array.push(vector.z)
 		}
 
 		console.log((array.length / 3) + " points")
@@ -105,6 +116,24 @@ export default class GeoscapeLine extends GameObject {
 			)
 		)
 
-		this.scene.addLine(this)
+		this.scene.addBorder(this)
+	}
+
+	public intersects(phi: number, theta: number): boolean {
+		// loop through all points
+		let time = performance.now()
+		let count = 0
+		for(let i = 1; i < this.points.length; i++) {
+			let lastPoint = this.points[i - 1]
+			let point = this.points[i]
+
+			if(
+				phi < lastPoint.x && phi < point.x
+				&& theta > Math.min(lastPoint.y, point.y) && theta < Math.max(lastPoint.y, point.y)
+			) {
+				count++
+			}
+		}
+		return (count % 2) == 1
 	}
 }

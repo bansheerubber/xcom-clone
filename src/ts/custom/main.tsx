@@ -13,9 +13,11 @@ import Stage from "./stage";
 import TileLight from "./tileLight";
 import TileRaycast from "./tileRaycast";
 import GeoscapeIcon from "./ui/geoscape/geoscapeIcon";
-import GeoscapeLine from "./ui/geoscape/geoscapeLine";
+import GeoscapeBorder from "./ui/geoscape/geoscapeBorder";
 import GeoscapeScene from "./ui/geoscape/geoscapeScene";
 import MainUI from "./ui/main";
+import { Keybind } from "../game/keybinds";
+import GeoscapeCountry from "./ui/geoscape/geoscapeCountry";
 
 export default async function(game: Game) {
 	if(game.isClient) {
@@ -33,34 +35,11 @@ export default async function(game: Game) {
 				sprite1.longitude = -113.674718
 				sprite1.latitude = 38.272689
 
-				new GeoscapeLine(game, geoscape, [
-					new Vector(0, Math.PI / 2),
-					new Vector(0, 0),
-					new Vector(Math.PI / 2, Math.PI / 2),
-					new Vector(0, Math.PI / 2),
-				])
-
-				new WebFileReader("./data/nz_small.json").readFile().then((json: string) => {
-					let array = JSON.parse(json)
-					let output = []
-					for(let element of array) {
-						output.push(GeoscapeScene.longLatToSpherical(element[0], element[1]))
-					}
-					new GeoscapeLine(game, geoscape, output)
-				})
-
-				new WebFileReader("./data/nz_small2.json").readFile().then((json: string) => {
-					let array = JSON.parse(json)
-					let output = []
-					for(let element of array) {
-						output.push(GeoscapeScene.longLatToSpherical(element[0], element[1]))
-					}
-					new GeoscapeLine(game, geoscape, output)
-				})
-
 				// let sprite2 = new GeoscapeIcon(game, geoscape)
 				// sprite2.longitude = 45
 				// sprite2.latitude = 45
+
+				let country = new GeoscapeCountry(game, geoscape, "./data/countries/us.json")
 
 				ReactDOM.render(<MainUI game={game} geoscapeScene={geoscape} stage={stage} />, document.getElementById("reactContainer"))
 			})

@@ -1,5 +1,4 @@
 import * as React from "react";
-import GeoscapeIcon from "./geoscapeIcon";
 import GeoscapeScene from "./geoscapeScene";
 
 // Terracourium

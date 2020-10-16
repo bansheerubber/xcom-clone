@@ -57,6 +57,10 @@ export default class GeoscapeIcon extends GameObject {
 		
 	}
 
+	public onDoubleClick() {
+		
+	}
+
 	public tick(deltaTime: number) {
 		super.tick(deltaTime)
 
@@ -66,7 +70,7 @@ export default class GeoscapeIcon extends GameObject {
 	private updatePosition() {
 		let theta = -(Math.PI / 180) * this.latitude + Math.PI / 2
 		let phi = (Math.PI / 180) * this.longitude
-		let radius = GeoscapeScene.GEOSCAPE_RADIUS + 0.5
+		let radius = GeoscapeScene.RADIUS + 0.5
 		this.sprite.position.set(
 			radius * Math.sin(theta) * Math.cos(phi),
 			radius * Math.cos(theta),

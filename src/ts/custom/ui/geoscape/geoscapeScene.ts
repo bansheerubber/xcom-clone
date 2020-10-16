@@ -9,10 +9,12 @@ import clamp from "../../../helpers/clamp";
 import Vector from "../../../helpers/vector";
 import { SmoothVectorInterpolation } from "../../../helpers/vectorInterpolation";
 import GeoscapeIcon from "./geoscapeIcon";
-import GeoscapeLine from "./geoscapeLine";
+import GeoscapeBorder from "./geoscapeBorder";
+import GeoscapeCountry from "./geoscapeCountry";
 
 export default class GeoscapeScene extends GameObject {
-	public static GEOSCAPE_RADIUS: number = 10
+	public static RADIUS: number = 10
+	public static DOUBLE_CLICK_TIME: number = 400
 
 	public move: {
 		up: number,
@@ -39,6 +41,7 @@ export default class GeoscapeScene extends GameObject {
 		10000
 	)
 	public zoom: number = 1
+	private selectedCountry: GeoscapeCountry
 	private ambientLight: THREE.AmbientLight
 	private directionalLight: THREE.DirectionalLight
 	private loadingManager: THREE.LoadingManager
@@ -48,11 +51,12 @@ export default class GeoscapeScene extends GameObject {
 	private _cameraPhi: number = 0
 	private _cameraTheta: number = Math.PI / 2
 	private icons: Map<THREE.Sprite, GeoscapeIcon> = new Map()
-	private lines: Map<THREE.Line, GeoscapeLine> = new Map()
+	private borders: Map<THREE.Line, GeoscapeBorder> = new Map()
 	private interpolation: SmoothVectorInterpolation
 	private raycaster: THREE.Raycaster
 	private pointer: GeoscapeIcon
 	private isDragging: boolean = false
+	private lastClick: number = 0
 	
 	constructor(game: Game) {
 		super(game)
@@ -110,7 +114,7 @@ export default class GeoscapeScene extends GameObject {
 		}).up((event: MouseEvent) => {
 			this.isDragging = false
 
-			if(!sawMovement) {
+			if(!sawMovement) {				
 				let mousePosition = new THREE.Vector2()
 				mousePosition.x = (event.x / window.innerWidth) * 2 - 1
 				mousePosition.y = -(event.y / window.innerHeight) * 2 + 1
@@ -118,26 +122,39 @@ export default class GeoscapeScene extends GameObject {
 				// check for sprites
 				this.raycaster.setFromCamera(mousePosition, this.camera);
 				let intersects = this.raycaster.intersectObjects(this.scene.children, false)
-				if(intersects[0]) {
-					this.icons.get(intersects[0].object as THREE.Sprite)?.onClick() // handle clicking icons
-					return
+				if(intersects[0] && this.icons.get(intersects[0].object as THREE.Sprite)) {
+					if(performance.now() - this.lastClick < GeoscapeScene.DOUBLE_CLICK_TIME) {
+						this.icons.get(intersects[0].object as THREE.Sprite)?.onDoubleClick() // handle clicking icons
+					}
+					else {
+						this.icons.get(intersects[0].object as THREE.Sprite)?.onClick() // handle clicking icons
+					}
 				}
-				
-				// check for earth
-				this.raycaster.setFromCamera(mousePosition, this.camera);
-				intersects = this.raycaster.intersectObjects(this.geoscape.children, false)
-				if(intersects) {
-					let point = intersects[0].point
-					let radius = point.length()
-					let phi = Math.atan2(point.z, point.x)
-					let theta = Math.acos(point.y / radius)
+				else {
+					// check for earth
+					this.raycaster.setFromCamera(mousePosition, this.camera);
+					intersects = this.raycaster.intersectObjects(this.geoscape.children, false)
+					if(intersects) {
+						let point = intersects[0].point
+						let radius = point.length()
+						let phi = Math.atan2(point.z, point.x)
+						let theta = Math.acos(point.y / radius)
 
-					let latitude = -(theta - Math.PI / 2) / (Math.PI / 180)
-					let longitude = -phi / (Math.PI / 180)
+						let {
+							x: longitude,
+							y: latitude
+						} = GeoscapeScene.sphericalToLongLat(phi, theta)
 
-					this.onClick(latitude, longitude) // handle clicking the globe
-					return
+						if(performance.now() - this.lastClick < GeoscapeScene.DOUBLE_CLICK_TIME) {
+							this.onDoubleClick(longitude, latitude)
+						}
+						else {
+							this.onClick(longitude, latitude) // handle clicking the globe
+						}
+					}
 				}
+
+				this.lastClick = performance.now()
 			}
 		}).move((event: MouseEvent) => {
 			if(this.isDragging && !this.interpolation) {
@@ -241,7 +258,7 @@ export default class GeoscapeScene extends GameObject {
 		return -(this.cameraTheta - Math.PI / 2) / (Math.PI / 180)
 	}
 
-	public static sphericalToCartesian(phi: number, theta: number, radius: number = GeoscapeScene.GEOSCAPE_RADIUS): THREE.Vector3 {
+	public static sphericalToCartesian(phi: number, theta: number, radius: number = GeoscapeScene.RADIUS): THREE.Vector3 {
 		return new THREE.Vector3(
 			radius * Math.sin(theta) * Math.cos(phi),
 			radius * Math.cos(theta),
@@ -253,6 +270,13 @@ export default class GeoscapeScene extends GameObject {
 		return new Vector(
 			-(Math.PI / 180) * longitude,
 			Math.PI / 2 - (Math.PI / 180) * latitude
+		)
+	}
+
+	public static sphericalToLongLat(phi: number, theta: number): Vector {
+		return new Vector(
+			-phi / (Math.PI / 180),
+			-(theta - Math.PI / 2) / (Math.PI / 180)
 		)
 	}
 
@@ -310,19 +334,59 @@ export default class GeoscapeScene extends GameObject {
 		this.scene.remove(icon.sprite)
 	}
 
-	public addLine(line: GeoscapeLine) {
-		this.lines.set(line.line, line)
-		this.scene.add(line.line)
+	public addBorder(border: GeoscapeBorder) {
+		this.borders.set(border.line, border)
+		this.scene.add(border.line)
 	}
 
-	public removeLine(line: GeoscapeLine) {
-		this.lines.delete(line.line)
-		this.scene.remove(line.line)
+	public removeBorder(border: GeoscapeBorder) {
+		this.borders.delete(border.line)
+		this.scene.remove(border.line)
 	}
 
-	private onClick(latitude: number, longitude: number) {
-		this.pointer.latitude = latitude
-		this.pointer.longitude = longitude
+	public selectCountry(country: GeoscapeCountry, goto: boolean = false) {
+		if(this.selectedCountry) {
+			this.selectedCountry.deselect()
+			delete this.selectedCountry
+		}
+		
+		this.selectedCountry = country
+
+		if(this.selectedCountry) {
+			this.selectedCountry.select()
+
+			if(goto) {
+				this.goto(this.selectedCountry.position.x, this.selectedCountry.position.y)
+			}
+		}
+	}
+
+	private onClick(longitude: number, latitude: number) {
+		for(let border of this.borders.values()) {
+			let {
+				x: phi,
+				y: theta
+			} = GeoscapeScene.longLatToSpherical(longitude, latitude)
+			
+			if(border.intersects(phi, theta)) {
+				this.selectCountry(border.country, false)
+			}
+		}
+	}
+
+	private onDoubleClick(longitude: number, latitude: number) {
+		for(let border of this.borders.values()) {
+			let {
+				x: phi,
+				y: theta
+			} = GeoscapeScene.longLatToSpherical(longitude, latitude)
+			
+			if(border.intersects(phi, theta)) {
+				this.selectCountry(border.country, true)
+				return
+			}
+		}
+		this.goto(longitude, latitude)
 	}
 
 	private onResize() {
