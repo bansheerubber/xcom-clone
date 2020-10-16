@@ -24,14 +24,19 @@ export default class GeoscapeCountry extends GameObject {
 	public compassion: number
 
 	/**
+	 * isolation score
+	 */
+	public isolation: number
+
+	/**
 	 * social unrest score
 	 */
 	public unrest: number
 
 	/**
-	 * country's capital, represents the amount they can spent
+	 * favoring xcom score
 	 */
-	public capital: number
+	public favor: number
 
 	/**
 	 * position in long/lat
@@ -49,8 +54,9 @@ export default class GeoscapeCountry extends GameObject {
 			this.description = info.description || ""
 			this.position = new Vector(info.position[0], info.position[1])
 			this.compassion = info.startingCompassion || 1
+			this.isolation = info.startingIsolation || 0
 			this.unrest = info.startingUnrest || 0
-			this.capital = info.startingCapital || 0
+			this.favor = info.startingFavor || 0
 
 			for(let border of info.borders) {
 				let output = []
