@@ -249,15 +249,24 @@ export default class GeoscapeScene extends GameObject {
 		)
 	}
 
-	public goto(latitude: number, longitude: number) {
+	public static longLatToSpherical(longitude: number, latitude: number): Vector {
+		return new Vector(
+			-(Math.PI / 180) * longitude,
+			Math.PI / 2 - (Math.PI / 180) * latitude
+		)
+	}
+
+	public goto(longitude: number, latitude: number) {
 		this.isDragging = false
 		if(this.interpolation) {
 			this.interpolation.destroy()
 			delete this.interpolation
 		}
 
-		let endPhi = (Math.PI / 180) * longitude
-		let endTheta = (Math.PI / 180) * latitude + Math.PI / 2
+		let {
+			x: endPhi,
+			y: endTheta
+		} = GeoscapeScene.longLatToSpherical(longitude, latitude)
 
 		let startPhi = this.cameraPhi
 		let startTheta = this.cameraTheta

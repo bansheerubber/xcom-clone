@@ -6,6 +6,7 @@ import {
 } from "../helpers/color";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
+import WebFileReader from "../helpers/webFileReader";
 import ImageResource from "../render/imageResource";
 import ControllableCamera from "./controllableCamera";
 import Stage from "./stage";
@@ -38,6 +39,24 @@ export default async function(game: Game) {
 					new Vector(Math.PI / 2, Math.PI / 2),
 					new Vector(0, Math.PI / 2),
 				])
+
+				new WebFileReader("./data/nz_small.json").readFile().then((json: string) => {
+					let array = JSON.parse(json)
+					let output = []
+					for(let element of array) {
+						output.push(GeoscapeScene.longLatToSpherical(element[0], element[1]))
+					}
+					new GeoscapeLine(game, geoscape, output)
+				})
+
+				new WebFileReader("./data/nz_small2.json").readFile().then((json: string) => {
+					let array = JSON.parse(json)
+					let output = []
+					for(let element of array) {
+						output.push(GeoscapeScene.longLatToSpherical(element[0], element[1]))
+					}
+					new GeoscapeLine(game, geoscape, output)
+				})
 
 				// let sprite2 = new GeoscapeIcon(game, geoscape)
 				// sprite2.longitude = 45

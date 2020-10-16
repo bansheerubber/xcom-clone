@@ -2,8 +2,6 @@ const fs = require("fs")
 
 export default class WebFileReader {
 	private fileName: string = ""
-	private bytes: Uint8Array
-	private byteIndex: number
 	
 	
 	

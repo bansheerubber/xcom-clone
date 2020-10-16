@@ -7,8 +7,7 @@ build/out/
 src/data
 build/.sass-cache
 deploy.sh
-
-
+borders/
 
 # Logs
 logs

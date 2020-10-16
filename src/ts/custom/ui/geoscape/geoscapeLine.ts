@@ -79,22 +79,12 @@ export default class GeoscapeLine extends GameObject {
 			let radius = GeoscapeScene.GEOSCAPE_RADIUS + 0.02
 			let step = 0.1
 			let angle = angleBetween(lastPoint.x, lastPoint.y, nextPoint.x, nextPoint.y, radius)
-			console.log(angle)
 			for(let j = 0; j <= angle + step; j+= step) {
 				let vector = spherp(lastPoint.x, lastPoint.y, nextPoint.x, nextPoint.y, radius, j)
 				array.push(vector.x)
 				array.push(vector.y)
 				array.push(vector.z)
 			}
-
-			// let step = 0.1
-			// for(let j = 0; j <= distance + step; j += step) {
-			// 	let interpolation = lastPoint.lerpUnit(nextPoint, j)
-			// 	let position = GeoscapeScene.sphericalToCartesian(interpolation.x, interpolation.y, GeoscapeScene.GEOSCAPE_RADIUS + 0.02)
-			// 	array.push(position.x)
-			// 	array.push(position.y)
-			// 	array.push(position.z)
-			// }
 		}
 
 		console.log((array.length / 3) + " points")
