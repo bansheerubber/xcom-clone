@@ -78,11 +78,11 @@ export default class GeoscapeBorder extends GameObject {
 		}
 
 		let array = []
+		let radius = GeoscapeScene.RADIUS
 		for(let i = 1; i < points.length; i++) {
 			let lastPoint = points[i - 1]
 			let nextPoint = points[i]
 
-			let radius = GeoscapeScene.RADIUS + 0.02
 			let step = 0.1
 			let angle = angleBetween(lastPoint.x, lastPoint.y, nextPoint.x, nextPoint.y, radius)
 			for(let j = 0; j <= angle; j+= step) {
@@ -98,6 +98,11 @@ export default class GeoscapeBorder extends GameObject {
 			array.push(vector.z)
 		}
 
+		let vector = GeoscapeScene.sphericalToCartesian(points[0].x, points[0].y, radius)
+		array.push(vector.x)
+		array.push(vector.y)
+		array.push(vector.z)
+
 		console.log((array.length / 3) + " points")
 
 		this.positionsBuffer = new Float32Array(array.length)
@@ -110,7 +115,7 @@ export default class GeoscapeBorder extends GameObject {
 		this.line = new THREE.Line(
 			this.geometry, 
 			new THREE.LineBasicMaterial({
-					color: 0xff0000,
+					color: 0xC9C9C9,
 					linewidth: 2
 				}
 			)
@@ -134,6 +139,17 @@ export default class GeoscapeBorder extends GameObject {
 				count++
 			}
 		}
+
+		let lastPoint = this.points[this.points.length - 1]
+		let point = this.points[0]
+
+		if(
+			phi < lastPoint.x && phi < point.x
+			&& theta > Math.min(lastPoint.y, point.y) && theta < Math.max(lastPoint.y, point.y)
+		) {
+			count++
+		}
+
 		return (count % 2) == 1
 	}
 }

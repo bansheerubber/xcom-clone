@@ -62,7 +62,7 @@ export default class GeoscapeScene extends GameObject {
 		super(game)
 		this.scene = new THREE.Scene()
 
-		this.ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.3)
+		this.ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.15)
 
 		this.setCameraPosition(new THREE.Vector3(-15, 0, 0))
 		this.setCameraLookAt(new THREE.Vector3(0, 0, 0))
@@ -70,7 +70,7 @@ export default class GeoscapeScene extends GameObject {
 		this.scene.add(this.camera)
 		this.scene.add(this.ambientLight)
 
-		this.pointer = new GeoscapeIcon(this.game, this)
+		// this.pointer = new GeoscapeIcon(this.game, this)
 
 		this.loadingManager = new THREE.LoadingManager()
 
