@@ -11,6 +11,7 @@ import { SmoothVectorInterpolation } from "../../../helpers/vectorInterpolation"
 import GeoscapeIcon from "./geoscapeIcon";
 import GeoscapeBorder from "./geoscapeBorder";
 import GeoscapeCountry from "./geoscapeCountry";
+import GeoscapeDialog from "./geoscapeDialog";
 
 export default class GeoscapeScene extends GameObject {
 	public static RADIUS: number = 10
@@ -41,6 +42,7 @@ export default class GeoscapeScene extends GameObject {
 		10000
 	)
 	public zoom: number = 1
+	public dialog: GeoscapeDialog
 	private selectedCountry: GeoscapeCountry
 	private ambientLight: THREE.AmbientLight
 	private directionalLight: THREE.DirectionalLight
@@ -392,6 +394,23 @@ export default class GeoscapeScene extends GameObject {
 	private onResize() {
 		this.renderer.setSize(window.innerWidth, window.innerHeight)
 		this.updateCameraBounds()
+	}
+
+	public displayDialog(title: string, description: string, buttons: [string, () => void][], image?: string) {
+		this.dialog?.setState({
+			description,
+			image,
+			buttons,
+			title,
+			display: true,
+			tick: -1,
+		})
+	}
+
+	public closeDialog() {
+		this.dialog?.setState({
+			display: false,
+		})
 	}
 
 	public renderGL(): void {

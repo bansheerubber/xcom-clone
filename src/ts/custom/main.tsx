@@ -18,6 +18,8 @@ import GeoscapeScene from "./ui/geoscape/geoscapeScene";
 import MainUI from "./ui/main";
 import { Keybind } from "../game/keybinds";
 import GeoscapeCountry from "./ui/geoscape/geoscapeCountry";
+import GeoscapeDialog from "./ui/geoscape/geoscapeDialog";
+import { Scene } from "three";
 
 export default async function(game: Game) {
 	if(game.isClient) {
@@ -51,8 +53,17 @@ export default async function(game: Game) {
 				new GeoscapeCountry(game, geoscape, "./data/countries/middle east.json")
 
 				ReactDOM.render(<MainUI game={game} geoscapeScene={geoscape} stage={stage} />, document.getElementById("reactContainer"))
-			})
 
+				setTimeout(() => {
+					geoscape.displayDialog(
+						"Alert: Datacus Message",
+						"Welcome to the Terracourium, %t% %ln%. This globe is the latest technology avaliable to us. You can spin it any which way you want, and it also has a ton of lines drawn on it. If we detect any UFO activity, you'll be able to see it here. Our bases will also be marked on here once we get them built. Go ahead, give the great big ball a whirl.",
+						[
+							["Thank you", () => { geoscape.closeDialog() }],
+						],
+					)
+				}, 5000)
+			})
 			game.renderer.camera = new ControllableCamera(game)
 		})
 	}

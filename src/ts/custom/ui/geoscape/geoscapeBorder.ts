@@ -103,8 +103,6 @@ export default class GeoscapeBorder extends GameObject {
 		array.push(vector.y)
 		array.push(vector.z)
 
-		console.log((array.length / 3) + " points")
-
 		this.positionsBuffer = new Float32Array(array.length)
 		this.positionsBuffer.set(array, 0)
 
