@@ -12,6 +12,7 @@ import GeoscapeIcon from "./geoscapeIcon";
 import GeoscapeBorder from "./geoscapeBorder";
 import GeoscapeCountry from "./geoscapeCountry";
 import GeoscapeDialog from "./geoscapeDialog";
+import GeoscapeDatacus from "./geoscapeDatacus";
 
 export default class GeoscapeScene extends GameObject {
 	public static RADIUS: number = 10
@@ -43,6 +44,7 @@ export default class GeoscapeScene extends GameObject {
 	)
 	public zoom: number = 1
 	public dialog: GeoscapeDialog
+	public datacus: GeoscapeDatacus
 	private selectedCountry: GeoscapeCountry
 	private ambientLight: THREE.AmbientLight
 	private directionalLight: THREE.DirectionalLight
@@ -410,6 +412,23 @@ export default class GeoscapeScene extends GameObject {
 	public closeDialog() {
 		this.dialog?.setState({
 			display: false,
+		})
+	}
+
+	public displayDatacus(title: string, children: JSX.Element, blackout: boolean = false) {
+		this.datacus?.setChildren(children)
+		this.datacus?.setState({
+			title,
+			display: true,
+			tick: -1,
+			blackout,
+		})
+	}
+
+	public closeDatacus() {
+		this.datacus?.setState({
+			display: false,
+			blackout: false,
 		})
 	}
 

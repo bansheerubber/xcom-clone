@@ -70,22 +70,23 @@ export default class GeoscapeDialog extends React.Component<GeoscapeDialogProps,
 			}}>{"<"}{text}{">"}</button>)
 		}
 		
-		return <div className="geoscape-dialog" style={{
+		return <div className="datacus" style={{
 			display: this.state.display ? "block" : "none"
 		}}>
 			<div className="container" style={{
 				"borderRight": this.state.tick >= 1 ? "" : "1px solid transparent",
 				"borderBottom": this.state.tick >= 2 ? "" : "1px solid transparent",
 				"borderLeft": this.state.tick >= 2 ? "" : "1px solid transparent",
+				"width": 600,
 			}}>
 				<span className="title">{this.state.title}</span>
 				<img src={this.state.image} style={{
 					display: this.state.image ? "block" : "none",
 				}} />
-				<div className="description">
+				<div className="text">
 					{description}
 				</div>
-				<div className="buttons-container">
+				<div className="dialog-buttons-container">
 					{buttons}
 				</div>
 			</div>

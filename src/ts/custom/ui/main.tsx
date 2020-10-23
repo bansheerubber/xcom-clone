@@ -4,6 +4,7 @@ import GeoscapeUI from "./geoscape/geoscape"
 import Stage from "../stage"
 import TileSelection from "./tileSelection"
 import GeoscapeScene from "./geoscape/geoscapeScene"
+import GeoscapeDatacus from "./geoscape/geoscapeDatacus"
 
 interface MainUIProps {
 	game: Game
@@ -16,6 +17,7 @@ export default class MainUI extends React.Component<MainUIProps> {
 		return <>
 			{/* <TileSelection game={this.props.game} stage={this.props.stage} /> */}
 			<GeoscapeUI scene={this.props.geoscapeScene} />
+			<GeoscapeDatacus scene={this.props.geoscapeScene} />
 		</>
 	}
 }

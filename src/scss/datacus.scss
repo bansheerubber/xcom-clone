@@ -1,0 +1,156 @@
+$datacus-font-size: 12pt;
+$datacus-padding: 0.5em;
+$datacus-white: #DDD;
+$datacus-background: rgba(11, 11, 11, 0.93);
+$datacus-black: rgb(11, 11, 11);
+$datacus-font-family: monospace;
+
+.datacus-black-background {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgb(20, 20, 20);
+	z-index: 2;
+}
+
+.datacus {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 3;
+	border: 14px solid $datacus-background;
+	border-top: 16px solid $datacus-background;
+	border-bottom: 16px solid $datacus-background;
+	user-select: none;
+}
+
+.datacus .form {
+	margin-bottom: 0.5em;
+}
+
+.datacus .form label {
+	display: block;
+}
+
+.datacus .form input {
+	background-color: transparent;
+	border: 1px solid $datacus-white;
+	font-family: $datacus-font-family;
+	font-size: $datacus-font-size;
+	color: $datacus-white;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.datacus .form input.datacus-hidden {
+	border: 1px solid transparent;
+}
+
+.datacus input:focus {
+	outline: 0 !important;
+}
+
+.datacus input:active {
+	outline: 0 !important;
+}
+
+.datacus select {
+	background-color: transparent;
+	background: 0;
+	border: 1px solid $datacus-white;
+	font-family: $datacus-font-family;
+	font-size: $datacus-font-size;
+	color: $datacus-white;
+	width: 100%;
+	box-sizing: border-box;
+	transition: none;
+}
+
+.datacus select option {
+	background-color: $datacus-black;
+}
+
+.datacus select option:hover {
+	background-color: $datacus-white;
+	color: $datacus-black;
+}
+
+.datacus select.datacus-hidden {
+	border: 1px solid transparent;
+	color: transparent;
+}
+
+.datacus select:focus {
+	outline: 0 !important;
+}
+
+.datacus select:active {
+	outline: 0 !important;
+}
+
+.datacus .container {
+	font-family: $datacus-font-family;
+	font-size: $datacus-font-size;
+	background-color: $datacus-background;
+	color: $datacus-white;
+	border: 1px solid white;
+	padding: $datacus-padding;
+	padding-top: 1em;
+	width: 600px;
+}
+
+.datacus .title {
+	position: absolute;
+	top: calc(-12pt / 2);
+	left: 0.5em;
+	display: inline-block;
+	background-color: $datacus-black;
+	font-family: $datacus-font-family;
+	font-size: $datacus-font-size;
+}
+
+.datacus .dialog-buttons-container {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	margin-top: 0.2em;
+}
+
+.datacus .dialog-buttons-container button {
+	font-size: $datacus-font-size;
+	padding: 0.2em;
+	background-color: 0;
+	background: 0;
+	border: 0;
+	color: $datacus-white;
+	font-family: $datacus-font-family;
+	width: 100%;
+}
+
+.datacus .dialog-buttons-container button:hover {
+	background-color: $datacus-white;
+	color: $datacus-black;
+	outline: 0 !important;
+}
+
+.datacus .dialog-buttons-container button:focus {
+	background-color: $datacus-white;
+	color: $datacus-black;
+	outline: 0 !important;
+}
+
+.datacus .dialog-buttons-container button:active {
+	color: $datacus-white;
+	background-color: transparent !important;
+	outline: 0 !important;
+}
+
+.datacus img {
+	width: 150px;
+	float: left;
+	margin-right: 0.5em;
+	margin-bottom: 0.25em;
+}
