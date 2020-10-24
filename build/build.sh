@@ -13,4 +13,4 @@ echo "Webpack..."
 webpack -d eval
 cd ../
 echo "Cleaning out..."
-rm -Rf ./out
+# rm -Rf ./out

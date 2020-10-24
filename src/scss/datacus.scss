@@ -47,6 +47,7 @@ $datacus-font-family: monospace;
 
 .datacus .form input.datacus-hidden {
 	border: 1px solid transparent;
+	color: transparent !important;
 }
 
 .datacus input:focus {
@@ -67,6 +68,10 @@ $datacus-font-family: monospace;
 	width: 100%;
 	box-sizing: border-box;
 	transition: none;
+}
+
+.datacus .error {
+	color: #FF0000;
 }
 
 .datacus select option {
@@ -146,6 +151,20 @@ $datacus-font-family: monospace;
 	color: $datacus-white;
 	background-color: transparent !important;
 	outline: 0 !important;
+}
+
+.datacus .dialog-buttons-container button:hover.datacus-hidden {
+	background-color: transparent !important;
+	color: transparent !important;
+}
+
+.datacus .dialog-buttons-container button:focus.datacus-hidden {
+	background-color: transparent !important;
+	color: transparent !important;
+}
+
+.datacus .dialog-buttons-container button:active.datacus-hidden {
+	color: transparent !important;
 }
 
 .datacus img {

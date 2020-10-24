@@ -71,6 +71,10 @@ export default class GeoscapeDatacus extends React.Component<GeoscapeDatacusProp
 		let maxCharacters = tick * 1.5 * GeoscapeDatacus.CHARACTERS_PER_TICK - GeoscapeDatacus.BORDER_DONE_TICK * GeoscapeDatacus.CHARACTERS_PER_TICK
 		let amountOfCharactersRead = 0
 
+		let getTypeName = type => {
+			return type.prototype?.constructor?.name || type
+		}
+
 		// animate elements
 		let recurse = (element) => {
 			if(!element) {
@@ -87,8 +91,8 @@ export default class GeoscapeDatacus extends React.Component<GeoscapeDatacusProp
 			}
 
 			// if we were touched by the datacus, then we need to do something special
-			if(element.type && GeoscapeDatacus.TYPE_BLACKLIST[element.type.toLowerCase()]) {
-				amountOfCharactersRead += GeoscapeDatacus.EXTRA_TYPE_CHARACTERS[element.type.toLowerCase()] || 0
+			if(element.type && GeoscapeDatacus.TYPE_BLACKLIST[getTypeName(element.type).toLowerCase()]) {
+				amountOfCharactersRead += GeoscapeDatacus.EXTRA_TYPE_CHARACTERS[getTypeName(element.type).toLowerCase()] || 0
 				return element
 			}
 			else if(element.props?.datacusTouched) {
@@ -119,8 +123,8 @@ export default class GeoscapeDatacus extends React.Component<GeoscapeDatacusProp
 				element.props.children = recurse(element.props.children)
 			}
 
-			if(element.type && GeoscapeDatacus.EXTRA_TYPE_CHARACTERS[element.type.toLowerCase()]) {
-				amountOfCharactersRead += GeoscapeDatacus.EXTRA_TYPE_CHARACTERS[element.type.toLowerCase()]
+			if(element.type && GeoscapeDatacus.EXTRA_TYPE_CHARACTERS[getTypeName(element.type).toLowerCase()]) {
+				amountOfCharactersRead += GeoscapeDatacus.EXTRA_TYPE_CHARACTERS[getTypeName(element.type).toLowerCase()]
 			}
 
 			element.key = Math.random()
@@ -129,7 +133,6 @@ export default class GeoscapeDatacus extends React.Component<GeoscapeDatacusProp
 
 		let element = recurse(this.children)
 		this.charactersCounted = amountOfCharactersRead
-		console.log(maxCharacters, tick, this.charactersCounted)
 		
 		return <>
 			<div className="datacus-black-background" style={{

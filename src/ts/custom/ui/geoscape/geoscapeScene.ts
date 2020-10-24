@@ -138,7 +138,7 @@ export default class GeoscapeScene extends GameObject {
 					// check for earth
 					this.raycaster.setFromCamera(mousePosition, this.camera);
 					intersects = this.raycaster.intersectObjects(this.geoscape.children, false)
-					if(intersects) {
+					if(intersects && intersects[0]) {
 						let point = intersects[0].point
 						let radius = point.length()
 						let phi = Math.atan2(point.z, point.x)

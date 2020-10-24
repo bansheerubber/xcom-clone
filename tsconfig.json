@@ -1,12 +1,13 @@
 {
     "compilerOptions": {
         "resolveJsonModule": true,
-        "target": "es2018",
+        "target": "es2020",
         "module": "commonjs",
         "outDir": "dist",
 		"sourceMap": true,
 		"jsx": "react",
 		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true
+        "emitDecoratorMetadata": true,
+        "esModuleInterop": true,
     }
 }
