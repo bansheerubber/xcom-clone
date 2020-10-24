@@ -5,7 +5,7 @@ import GeoscapeScene from "./geoscapeScene";
 
 export default class GeoscapeIcon extends GameObject {
 	public sprite: THREE.Sprite
-	private geoscape: GeoscapeScene
+	protected geoscape: GeoscapeScene
 	private _longitude: number = 0
 	private _latitude: number = 0
 	

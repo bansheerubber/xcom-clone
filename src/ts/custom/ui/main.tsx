@@ -8,16 +8,26 @@ import GeoscapeDatacus from "./geoscape/geoscapeDatacus"
 
 interface MainUIProps {
 	game: Game
-	stage: Stage
 	geoscapeScene: GeoscapeScene
 }
 
-export default class MainUI extends React.Component<MainUIProps> {
+interface MainUIState {
+	displayGeoscape: boolean
+}
+
+export default class MainUI extends React.Component<MainUIProps, MainUIState> {
+	constructor(props) {
+		super(props)
+
+		this.state = {
+			displayGeoscape: false
+		}
+	}
+	
 	render(): JSX.Element {
 		return <>
 			{/* <TileSelection game={this.props.game} stage={this.props.stage} /> */}
-			<GeoscapeUI scene={this.props.geoscapeScene} />
-			<GeoscapeDatacus scene={this.props.geoscapeScene} />
+			<GeoscapeUI scene={this.props.geoscapeScene} display={this.state.displayGeoscape} />
 		</>
 	}
 }

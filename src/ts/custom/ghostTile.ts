@@ -16,8 +16,8 @@ export default class GhostTile extends Tile {
 		})
 	}
 
-	setPosition(position: Vector3d) {
-		super.setPosition(position)
+	set position(position: Vector3d) {
+		super.position = position
 
 		for(let outline of this.outlines) {
 			outline.destroy()
@@ -25,8 +25,8 @@ export default class GhostTile extends Tile {
 
 		this.outlines.clear()
 
-		for(let z = 0; z <= this.getPosition().z; z++) {
-			this.outlines.add(this.stage.createTile(Vector3d.getTempVector(98).set(this.getPosition().x, this.getPosition().y, z), 268, StageLayer.DEV_GHOST_BOX_LAYER))
+		for(let z = 0; z <= this.position.z; z++) {
+			this.outlines.add(this.stage.createTile(Vector3d.getTempVector(98).set(this.position.x, this.position.y, z), 268, StageLayer.DEV_GHOST_BOX_LAYER))
 		}
 	}
 

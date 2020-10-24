@@ -24,6 +24,7 @@ export default class GameRenderer {
 	public enabled: boolean = true
 
 	private _camera: Camera
+	private isStopped: boolean = false
 
 	
 	
@@ -68,16 +69,26 @@ export default class GameRenderer {
 	}
 
 	public tick(deltaTime: number): void {
-		if(this._camera) {
-			this._camera.tick(deltaTime) // have the camera apply its transformations
+		if(!this.isStopped) {
+			if(this._camera) {
+				this._camera.tick(deltaTime) // have the camera apply its transformations
+			}
+			
+			// render shadow maps
+			for(let shadowLight of this.shadowLights.values()) {
+				shadowLight.tick()
+			}
+	
+			this.pixiApp.render() // render everything	
 		}
-		
-		// render shadow maps
-		for(let shadowLight of this.shadowLights.values()) {
-			shadowLight.tick()
-		}
+	}
 
-		this.pixiApp.render() // render everything
+	public start() {
+		this.isStopped = false
+	}
+
+	public stop() {
+		this.isStopped = true
 	}
 
 	public updateCamera(x: number, y: number, zoom: number, rotation: number): void {

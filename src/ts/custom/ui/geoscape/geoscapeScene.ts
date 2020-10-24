@@ -4,7 +4,7 @@ import {
 } from "three/examples/jsm/loaders/GLTFLoader";
 import Game from "../../../game/game";
 import GameObject from "../../../game/gameObject";
-import { Keybind } from "../../../game/keybinds";
+import { Keybind, KeybindModifier } from "../../../game/keybinds";
 import clamp from "../../../helpers/clamp";
 import Vector from "../../../helpers/vector";
 import { SmoothVectorInterpolation } from "../../../helpers/vectorInterpolation";
@@ -13,6 +13,7 @@ import GeoscapeBorder from "./geoscapeBorder";
 import GeoscapeCountry from "./geoscapeCountry";
 import GeoscapeDialog from "./geoscapeDialog";
 import GeoscapeDatacus from "./geoscapeDatacus";
+import SaveFile from "../../saveFile";
 
 export default class GeoscapeScene extends GameObject {
 	public static RADIUS: number = 10
@@ -32,6 +33,10 @@ export default class GeoscapeScene extends GameObject {
 	public cameraSpeed: number = 1.75
 	
 	public renderer: THREE.WebGLRenderer
+	public zoom: number = 1
+	public dialog: GeoscapeDialog
+	public datacus: GeoscapeDatacus
+	public save: SaveFile = new SaveFile(this.game)
 	private scene: THREE.Scene
 	private cameraViewSize = 12
 	private camera: THREE.OrthographicCamera = new THREE.OrthographicCamera(
@@ -42,13 +47,9 @@ export default class GeoscapeScene extends GameObject {
 		0.1,
 		10000
 	)
-	public zoom: number = 1
-	public dialog: GeoscapeDialog
-	public datacus: GeoscapeDatacus
 	private selectedCountry: GeoscapeCountry
 	private ambientLight: THREE.AmbientLight
 	private directionalLight: THREE.DirectionalLight
-	private loadingManager: THREE.LoadingManager
 	private lastRender: number = 0
 	private tickCount: number = 0
 	private geoscape: THREE.Object3D
@@ -58,9 +59,9 @@ export default class GeoscapeScene extends GameObject {
 	private borders: Map<THREE.Line, GeoscapeBorder> = new Map()
 	private interpolation: SmoothVectorInterpolation
 	private raycaster: THREE.Raycaster
-	private pointer: GeoscapeIcon
 	private isDragging: boolean = false
 	private lastClick: number = 0
+	private isStopped: boolean = false
 	
 	constructor(game: Game) {
 		super(game)
@@ -73,10 +74,6 @@ export default class GeoscapeScene extends GameObject {
 
 		this.scene.add(this.camera)
 		this.scene.add(this.ambientLight)
-
-		// this.pointer = new GeoscapeIcon(this.game, this)
-
-		this.loadingManager = new THREE.LoadingManager()
 
 		this.renderer = new THREE.WebGLRenderer({
 			antialias: true,
@@ -108,7 +105,7 @@ export default class GeoscapeScene extends GameObject {
 		let startPhi = 0
 		let startTheta = 0
 
-		new Keybind("mouse0", Keybind.None, "Click Geoscape").down((event: MouseEvent) => {
+		new Keybind("mouse0", KeybindModifier.NONE, "Click Geoscape").down((event: MouseEvent) => {
 			this.isDragging = true
 			startX = event.x
 			startY = event.y
@@ -116,6 +113,10 @@ export default class GeoscapeScene extends GameObject {
 			startTheta = this.cameraTheta
 			sawMovement = false
 		}).up((event: MouseEvent) => {
+			if(this.isStopped) {
+				return
+			}
+			
 			this.isDragging = false
 
 			if(!sawMovement) {				
@@ -161,6 +162,10 @@ export default class GeoscapeScene extends GameObject {
 				this.lastClick = performance.now()
 			}
 		}).move((event: MouseEvent) => {
+			if(this.isStopped) {
+				return
+			}
+			
 			if(this.isDragging && !this.interpolation) {
 				this.cameraPhi = startPhi + ((event.x - startX) / 300) / this.zoom
 				this.cameraTheta = startTheta + ((startY - event.y) / 300) / this.zoom
@@ -175,46 +180,46 @@ export default class GeoscapeScene extends GameObject {
 		})
 
 		// move the camera up with W
-		new Keybind("w", Keybind.None, "Move Camera Up").down(() => {
+		new Keybind("w", KeybindModifier.NONE, "Move Camera Up").down(() => {
 			this.move.up = 1
 		}).up(() => {
 			this.move.up = 0
 		})
 
 		// move the camera down with S
-		new Keybind("s", Keybind.None, "Move Camera Down").down(() => {
+		new Keybind("s", KeybindModifier.NONE, "Move Camera Down").down(() => {
 			this.move.down = 1
 		}).up(() => {
 			this.move.down = 0
 		})
 
 		// move the camera left with A
-		new Keybind("a", Keybind.None, "Move Camera Left").down(() => {
+		new Keybind("a", KeybindModifier.NONE, "Move Camera Left").down(() => {
 			this.move.left = 1
 		}).up(() => {
 			this.move.left = 0
 		})
 
 		// move the camera right with D
-		new Keybind("d", Keybind.None, "Move Camera Right").down(() => {
+		new Keybind("d", KeybindModifier.NONE, "Move Camera Right").down(() => {
 			this.move.right = 1
 		}).up(() => {
 			this.move.right = 0
 		})
 
 		// zoom in the camera with +
-		new Keybind("=", Keybind.None, "Zoom In").down(() => {
+		new Keybind("=", KeybindModifier.NONE, "Zoom In").down(() => {
 			this.zoom = Math.min(2, this.zoom + this.zoom * 0.1)
 			this.updateCameraBounds()
 		})
 
 		// zoom out the camera with -
-		new Keybind("-", Keybind.None, "Zoom Out").down(() => {
+		new Keybind("-", KeybindModifier.NONE, "Zoom Out").down(() => {
 			this.zoom = Math.max(0.5, this.zoom + this.zoom * -0.1)
 			this.updateCameraBounds()
 		})
 
-		new Keybind(" ", Keybind.None, "Zoom Out").down(() => {
+		new Keybind(" ", KeybindModifier.NONE, "Zoom Out").down(() => {
 			this.goto(0, 0)
 		})
 
@@ -432,7 +437,20 @@ export default class GeoscapeScene extends GameObject {
 		})
 	}
 
+	public start() {
+		requestAnimationFrame(this.renderGL.bind(this))
+		this.isStopped = false
+	}
+
+	public stop() {
+		this.isStopped = true
+	}
+
 	public renderGL(): void {
+		if(this.isStopped) {
+			return
+		}
+		
 		let deltaTime = (performance.now() - this.lastRender) / 1000
 
 		this.renderer.render(this.scene, this.camera)
@@ -444,7 +462,7 @@ export default class GeoscapeScene extends GameObject {
 		let phi = day * (Math.PI * 2) // each day is 360 degree rotation
 		let theta = (Math.PI / 180) * (90 + Math.cos(day * 2 * Math.PI / 365) * 23.5) // have day/night cycle switch between hemispheres
 
-		this.directionalLight.position.set(
+		this.directionalLight?.position.set(
 			15 * Math.sin(theta) * Math.cos(phi),
 			15 * Math.cos(theta),
 			15 * Math.sin(theta) * Math.sin(phi)

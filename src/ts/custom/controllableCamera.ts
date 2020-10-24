@@ -1,7 +1,8 @@
 import Camera from "../render/camera";
 import Vector from "../helpers/vector";
 import Game from "../game/game";
-import { Keybind } from "../game/keybinds";
+import { Keybind, KeybindModifier } from "../game/keybinds";
+import Stage from "./stage";
 
 interface CameraMove {
 	up: number,
@@ -19,48 +20,65 @@ export default class ControllableCamera extends Camera {
 	}
 	public speed: number = 750
 	public active: boolean = true // whether or not we can use the keybinds to move this camera around
+	public stage: Stage
 
-
-
-	constructor(game: Game) {
+	constructor(game: Game, stage: Stage) {
 		super(game)
 
+		this.stage = stage
+
 		// move the camera up with W
-		new Keybind("w", Keybind.None, "Move Camera Up").down(() => {
+		new Keybind("w", KeybindModifier.NONE, "Move Camera Up").down(() => {
 			this.move.up = 1
 		}).up(() => {
 			this.move.up = 0
 		})
 
 		// move the camera down with S
-		new Keybind("s", Keybind.None, "Move Camera Down").down(() => {
+		new Keybind("s", KeybindModifier.NONE, "Move Camera Down").down(() => {
 			this.move.down = 1
 		}).up(() => {
 			this.move.down = 0
 		})
 
 		// move the camera left with A
-		new Keybind("a", Keybind.None, "Move Camera Left").down(() => {
+		new Keybind("a", KeybindModifier.NONE, "Move Camera Left").down(() => {
 			this.move.left = 1
 		}).up(() => {
 			this.move.left = 0
 		})
 
 		// move the camera right with D
-		new Keybind("d", Keybind.None, "Move Camera Right").down(() => {
+		new Keybind("d", KeybindModifier.NONE, "Move Camera Right").down(() => {
 			this.move.right = 1
 		}).up(() => {
 			this.move.right = 0
 		})
 
 		// zoom in the camera with +
-		new Keybind("=", Keybind.None, "Zoom In").down(() => {
+		new Keybind("=", KeybindModifier.NONE, "Zoom In").down(() => {
 			this.zoom += this.zoom * 0.1
 		})
 
 		// zoom out the camera with -
-		new Keybind("-", Keybind.None, "Zoom Out").down(() => {
+		new Keybind("-", KeybindModifier.NONE, "Zoom Out").down(() => {
 			this.zoom += this.zoom * -0.1
+		})
+
+		new Keybind("q", KeybindModifier.NONE, "Rotate Counter-clockwise").down((event: KeyboardEvent) => {
+			if(this.stage) {
+				this.stage.rotation = (this.stage.rotation + 1) % 4
+			}
+		})
+
+		new Keybind("e", KeybindModifier.NONE, "Rotate Clockwise").down((event: KeyboardEvent) => {
+			if(this.stage) {
+				let number = (this.stage.rotation - 1) % 4
+				if(number < 0) {
+					number = 3
+				}
+				this.stage.rotation = number
+			}
 		})
 	}
 	

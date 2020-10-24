@@ -60,6 +60,28 @@ export default class TileChunk extends GameObject {
 		this.game.renderer.isomap.sortableChildren = true
 	}
 
+	public destroy() {
+		super.destroy()
+		
+		this.stage?.removeChunk(this)
+		if(this.tiles) {
+			for(let tile of this.tiles) {
+				tile.setChunk(null)
+			}
+		}
+
+		this.container?.destroy()
+
+		delete this.tiles
+		delete this.stage
+		delete this.lights
+		delete this.container
+		delete this.graphics
+		delete this.color
+		delete this.minBoundary
+		delete this.maxBoundary
+	}
+
 	public tick(deltaTime: number) {
 		super.tick(deltaTime)
 
@@ -108,7 +130,7 @@ export default class TileChunk extends GameObject {
 		this.container.sortableChildren = true
 		this.container.cacheAsBitmap = true
 
-		let zPosition = tile.getPosition().z
+		let zPosition = tile.position.z
 		if(zPosition > this.highestZ) {
 			this.highestZ = zPosition
 			this.shouldRecalcBounds = true
@@ -164,7 +186,7 @@ export default class TileChunk extends GameObject {
 
 				// add new lights to tile, skipping expensive sphere search done in TileLighting
 				for(let light of this.lights) {
-					if(light.isInRadius(tile.getPosition())) {
+					if(light.isInRadius(tile.position)) {
 						tile.addLight(light)
 					}
 				}

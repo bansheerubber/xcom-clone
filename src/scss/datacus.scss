@@ -50,6 +50,10 @@ $datacus-font-family: monospace;
 	color: transparent !important;
 }
 
+.datacus ul.datacus-hidden {
+	list-style: none;
+}
+
 .datacus input:focus {
 	outline: 0 !important;
 }
@@ -172,4 +176,8 @@ $datacus-font-family: monospace;
 	float: left;
 	margin-right: 0.5em;
 	margin-bottom: 0.25em;
+}
+
+.datacus .red {
+	color: #FF0000;
 }

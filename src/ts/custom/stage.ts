@@ -6,6 +6,7 @@ import { RGBColor } from "../helpers/color";
 import Rotation from "../helpers/rotation";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
+import ControllableCamera from "./controllableCamera";
 import Tile from "./tile";
 import TileChunk from "./tileChunk";
 import TileLight from "./tileLight";
@@ -42,26 +43,52 @@ export default class Stage extends GameObject {
 	/**
 	 * map for all the tiles in our stage. separated by layers. layer 0 is the main map, additional layers can contain special effects, etc
 	 */
-	public tileMap: {
+	private tileMap: {
 		[layer: number]: Map<number, Tile>
 	} = {}
+
+	private tiles: Set<Tile> = new Set()
 
 	/**
 	 * all of the lights
 	 */
-	public lights: Set<TileLight> = new Set()
+	private lights: Set<TileLight> = new Set()
 
 	/**
 	 * map for all the different lights
 	 */
-	public lightMap: Map<number, TileLight> = new Map()
+	private lightMap: Map<number, TileLight> = new Map()
 
 	private _rotation: StageRotation = StageRotation.DEG_0
 	private selectedTile: Tile
 	private selectedTileOutline: Tile
 	private maxPosition: Vector3d = new Vector3d(0, 0, 0)
 
-	
+	public destroy() {
+		// destroy lights
+		for(let light of new Set(this.lights)) {
+			light.destroy()
+		}
+
+		// destroy chunks
+		for(let chunk of new Set(this.chunks)) {
+			chunk.destroy()
+		}
+		
+		// destroy tiles
+		for(let tile of new Set(this.tiles)) {
+			tile.destroy()
+		}
+
+		delete (this.game.renderer.camera as ControllableCamera).stage
+
+		delete this.chunkMap
+		delete this.chunks
+		delete this.tileMap
+		delete this.tiles
+		delete this.lights
+		delete this.lightMap
+	}
 	
 	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = StageLayer.DEFAULT_LAYER, tileClass: typeof Tile = Tile): Tile {
 		if(!this.tileMap[layer]) {
@@ -69,12 +96,20 @@ export default class Stage extends GameObject {
 		}
 		
 		let tile = new tileClass(this.game, this, spriteIndex, layer)
-		tile.setPosition(position.clone())
+		tile.position = position
+
+		this.tiles.add(tile)
+
 		return tile
 	}
 
-	public updateTile(tile: Tile) {
-		let chunkPosition = TileChunk.tileToChunkSpace(tile.getPosition())
+	public removeTile(tile: Tile) {
+		this.tileMap[tile.layer].delete(tile.position.unique())
+		this.tiles.delete(tile)
+	}
+
+	public updateTile(tile: Tile, oldPosition: Vector3d, newPosition: Vector3d) {
+		let chunkPosition = TileChunk.tileToChunkSpace(tile.position)
 		if(!this.chunkMap.get(chunkPosition.unique2d())) {
 			let chunk = new TileChunk(this.game, this, chunkPosition)
 			this.chunkMap.set(chunkPosition.unique2d(), chunk)
@@ -86,13 +121,14 @@ export default class Stage extends GameObject {
 		}
 
 		if(
-			this.tileMap[tile.layer].get(tile.getPosition().unique())
-			&& this.tileMap[tile.layer].get(tile.getPosition().unique()) != tile
+			this.tileMap[tile.layer].get(newPosition.unique())
+			&& this.tileMap[tile.layer].get(newPosition.unique()) != tile
 		) {
-			this.tileMap[tile.layer].get(tile.getPosition().unique()).destroy()
+			this.tileMap[tile.layer].get(newPosition.unique()).destroy()
 		}
 		
-		this.tileMap[tile.layer].set(tile.getPosition().unique(), tile)
+		this.tileMap[tile.layer].delete(oldPosition.unique())
+		this.tileMap[tile.layer].set(newPosition.unique(), tile)
 
 		if(this.chunkMap.get(chunkPosition.unique2d()) != tile.getChunk()) {
 			if(tile.getChunk()) {
@@ -102,16 +138,36 @@ export default class Stage extends GameObject {
 			this.chunkMap.get(chunkPosition.unique2d()).add(tile)
 		}
 
-		if(tile.getPosition().x + 1 > this.maxPosition.x) {
-			this.maxPosition.x = tile.getPosition().x + 1
+		if(newPosition.x + 1 > this.maxPosition.x) {
+			this.maxPosition.x = tile.position.x + 1
 		}
 
-		if(tile.getPosition().y + 1 > this.maxPosition.y) {
-			this.maxPosition.y = tile.getPosition().y + 1
+		if(newPosition.y + 1 > this.maxPosition.y) {
+			this.maxPosition.y = tile.position.y + 1
 		}
 
-		if(tile.getPosition().z + 1 > this.maxPosition.z) {
-			this.maxPosition.z = tile.getPosition().z + 1
+		if(newPosition.z + 1 > this.maxPosition.z) {
+			this.maxPosition.z = tile.position.z + 1
+		}
+	}
+
+	public addLight(light: TileLight) {
+		this.lights.add(light)
+		this.updateLight(light, null, light.position)
+	}
+
+	public removeLight(light: TileLight) {
+		this.lights.delete(light)
+		this.lightMap.delete(light.position.unique())
+	}
+
+	public updateLight(light: TileLight, oldPosition: Vector3d, position: Vector3d) {
+		if(oldPosition) {
+			this.lightMap.delete(oldPosition.unique())
+		}
+
+		if(position) {
+			this.lightMap.set(position.unique(), light)
 		}
 	}
 
@@ -119,8 +175,17 @@ export default class Stage extends GameObject {
 		return this.tileMap[StageLayer.DEFAULT_LAYER].get(vector.unique())
 	}
 
+	public getLight(position: Vector3d): TileLight {
+		return this.lightMap.get(position.unique())
+	}
+
 	public getChunk(vector: Vector3d): TileChunk {
 		return this.chunkMap.get(vector.unique2d())
+	}
+
+	public removeChunk(chunk: TileChunk) {
+		this.chunkMap.delete(chunk.position.unique())
+		this.chunks.delete(chunk)
 	}
 
 	public selectTile(tile: Tile) {
@@ -135,7 +200,7 @@ export default class Stage extends GameObject {
 
 		if(this.selectedTile) {
 			this.selectedTile.select()
-			this.selectedTileOutline = this.createTile(this.selectedTile.getPosition(), 273, 6)
+			this.selectedTileOutline = this.createTile(this.selectedTile.position, 273, 6)
 		}
 	}
 

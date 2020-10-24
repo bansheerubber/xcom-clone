@@ -10,7 +10,7 @@ const getAcronym = string => string.split(" ").reduce(
 	''
 )
 
-export const commissionNamePicker = (geoscape: GeoscapeScene, saveFile: SaveFile) => {
+export const commissionNamePicker = (geoscape: GeoscapeScene) => {
 	let startingName = `${words[Range.getRandomInt(0, words.length - 1)]} ${words[Range.getRandomInt(0, words.length - 1)]} ${words[Range.getRandomInt(0, words.length - 1)]}`
 	return <div>
 		<div className="text">
@@ -19,7 +19,7 @@ export const commissionNamePicker = (geoscape: GeoscapeScene, saveFile: SaveFile
 			<br />
 			<div className="form">
 				<label htmlFor="commission-name">Commission Name:</label>
-				<input value={startingName} id="commission-name" type="text" onChange={(event) => {
+				<input id="commission-name" type="text" onChange={(event) => {
 					document.getElementById("acronym-preview").innerHTML = getAcronym(event.target.value)
 				}} />
 			</div>
@@ -35,10 +35,10 @@ export const commissionNamePicker = (geoscape: GeoscapeScene, saveFile: SaveFile
 					document.getElementById("acronym-error").innerHTML = "Enter at least two words."
 				}
 				else {
-					saveFile.setMiscValue("commissionName", commissionName)
-					saveFile.setMiscValue("commissionAcronym", getAcronym(commissionName))
+					geoscape.save.setMiscValue("commissionName", commissionName)
+					geoscape.save.setMiscValue("commissionAcronym", getAcronym(commissionName))
 					
-					geoscape.displayDatacus("Your Name", generalNamePicker(geoscape, saveFile), true)
+					geoscape.displayDatacus("Your Name", generalNamePicker(geoscape), true)
 				}
 			}}>{"<Done>"}</button>
 		</div>

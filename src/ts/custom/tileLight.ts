@@ -34,13 +34,13 @@ export default class TileLight extends GameObject implements Serializable {
 	constructor(game, stage: Stage, position: Vector3d, radius: number, color: RGBColor) {
 		super(game)
 		this.stage = stage
+		this.stage.addLight(this)
 		this.position = position
 		this._radius = radius
 		this._color = color
 
 		this.calculateChunks()
 		this.drawLight()
-		this.stage.lights.add(this)
 
 		this.icon = this.stage.createTile(this._position, 281, StageLayer.DEV_LIGHT_LAYER)
 		this.icon.ignoreLights = true
@@ -96,13 +96,13 @@ export default class TileLight extends GameObject implements Serializable {
 		let angle = Math.PI / 4 + this.stage.rotation * Math.PI / 2
 		let towardsCamera = Vector3d.getTempVector(0).set(-Math.sin(angle), Math.cos(angle), 0)
 		
-		let positionAtOrigin = Vector3d.getTempVector(1).copy(tile.getPosition()).sub(this.position)
+		let positionAtOrigin = Vector3d.getTempVector(1).copy(tile.position).sub(this.position)
 		positionAtOrigin.z = 0
 		// if dot is above 0, then the blocks are closer to the camera than the light is (we cant see the sides of the tile that are lit)
 		if(positionAtOrigin.dot(towardsCamera) >= -0.) {
 			if(
-				this.stage.getMapTile(Vector3d.getTempVector(2).copy(tile.getPosition()).$add(0, 0, 1))
-				|| tile.getPosition().z > this.position.z
+				this.stage.getMapTile(Vector3d.getTempVector(2).copy(tile.position).$add(0, 0, 1))
+				|| tile.position.z > this.position.z
 			) {
 				return false
 			}
@@ -110,7 +110,7 @@ export default class TileLight extends GameObject implements Serializable {
 
 		// below contains egg code
 		// cast rays after we've ruled out easy-to-calculate cases
-		let cast = TileRaycast.cast(this.stage, this.position, tile.getPosition(), [], true)
+		let cast = TileRaycast.cast(this.stage, this.position, tile.position, [], true)
 		if(cast) {
 			if(cast.tile != tile) {
 				return false
@@ -145,17 +145,18 @@ export default class TileLight extends GameObject implements Serializable {
 	}
 
 	set position(position: Vector3d) {
-		if(this.position) {
-			this.stage.lightMap.delete(this.position.unique())
-		}
+		let oldPosition = this.position?.clone()
 		
 		this._position = position
 		this.calculateChunks() // we need to recalc chunks b/c our AOE has changed
 		this.drawLight() // find new tiles within our bounds
-		this.icon?.setPosition(this._position)
-		this.iconBox?.setPosition(this._position)
 
-		this.stage.lightMap.set(this.position.unique(), this)
+		if(this.icon && this.iconBox) {
+			this.icon.position = this._position
+			this.iconBox.position = this._position
+		}
+
+		this.stage?.updateLight(this, oldPosition, this.position)
 	}
 
 	get position(): Vector3d {
@@ -205,19 +206,21 @@ export default class TileLight extends GameObject implements Serializable {
 		for(let chunk of this.chunks) {
 			chunk.removeLight(this)
 		}
-		delete this.chunks
 
 		for(let tile of this.affectedTiles) {
 			tile.removeLight(this)
 		}
-		delete this.affectedTiles
 
-		this.stage.lights.delete(this)
-		this.stage.lightMap.delete(this.position.unique())
+		this.stage.removeLight(this)
 
 		this.icon?.destroy()
 		this.iconBox?.destroy()
+
+		delete this._color
+		delete this._position
 		delete this.icon
 		delete this.iconBox
+		delete this.affectedTiles
+		delete this.chunks
 	}
 }

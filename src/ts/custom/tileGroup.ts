@@ -44,7 +44,7 @@ export default class TileGroup extends GameObject {
 				let adjacent = tile.getAdjacent(i)
 				// if we find an adjacent tile that we need to draw a border along, then do it
 				if(!adjacent || !this.tiles.has(adjacent)) {
-					this.tileOutlines.add(this.stage.createTile(tile.getPosition(), 274 + i, 1))
+					this.tileOutlines.add(this.stage.createTile(tile.position, 274 + i, 1))
 				}
 			}
 		}

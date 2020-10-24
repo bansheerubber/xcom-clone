@@ -51,13 +51,6 @@ export class Keybind {
 
 	public isPressed: boolean = false
 
-	public static None: number = 0
-	public static Shift: number = 0b001
-	public static Control: number = 0b010
-	public static Alt: number = 0b100
-
-
-
 	constructor(key: string, modifier: number, name: string, description?: string, category?: KeybindCategory, subcategory?: KeybindSubCategory)  {
 		KeybindController.initIndex(key, modifier)
 

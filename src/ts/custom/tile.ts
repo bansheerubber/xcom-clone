@@ -29,7 +29,7 @@ export default class Tile extends GameObject implements Serializable {
 	/**
 	 * the position of our tile in tilespace
 	 */
-	protected position: Vector3d = new Vector3d(0, 0, 0)
+	protected _position: Vector3d = new Vector3d(0, 0, 0)
 	protected oldTint: RGBColor
 	protected stage: Stage
 	protected lights: Set<TileLight> = new Set()
@@ -135,21 +135,19 @@ export default class Tile extends GameObject implements Serializable {
 			}
 		}
 
-		this.sprite.setPosition(this.stage.tileToWorldSpace(this.getPosition()))
+		this.sprite.setPosition(this.stage.tileToWorldSpace(this.position))
 		this.sprite.zIndex = -this.position.x * xZIndex + this.position.y * yZIndex + this.position.z + this.layer / 50
 	}
 
-	public setPosition(vector: Vector3d) {
-		if(this.stage.tileMap[this.layer].get(this.getPosition().unique()) == this) {
-			this.stage.tileMap[this.layer].delete(this.getPosition().unique()) // clear last position in tilemap
-		}
+	set position(vector: Vector3d) {
+		let oldPosition = vector.clone()
 		
-		this.position.copy(vector)
+		this._position.copy(vector)
 
 		this.updateSpritePosition()
 
 		let oldChunk = this.chunk
-		this.stage.updateTile(this)
+		this.stage.updateTile(this, oldPosition, this.position)
 		this.chunk?.update(this, TileChunkUpdate.DO_LIGHTS)
 		
 		if(oldChunk && this.chunk != oldChunk) {
@@ -159,8 +157,8 @@ export default class Tile extends GameObject implements Serializable {
 		this.calculateLighting()
 	}
 
-	public getPosition(): Vector3d {
-		return this.position.clone()
+	get position(): Vector3d {
+		return this._position
 	}
 	
 	public setContainer(container) {
@@ -189,6 +187,10 @@ export default class Tile extends GameObject implements Serializable {
 	}
 
 	public removeLight(light: TileLight) {
+		if(this.isDestroyed) {
+			return
+		}
+		
 		if(!this._ignoreLights) {
 			this.lights.delete(light)
 
@@ -199,6 +201,10 @@ export default class Tile extends GameObject implements Serializable {
 	}
 
 	public addLight(light: TileLight) {
+		if(this.isDestroyed) {
+			return
+		}
+		
 		if(!this._ignoreLights) {
 			this.lights.add(light)
 		
@@ -209,6 +215,10 @@ export default class Tile extends GameObject implements Serializable {
 	}
 
 	public calculateLighting() {
+		if(this.isDestroyed) {
+			return
+		}
+		
 		let fog = this.position.z / 100
 		let additive = new RGBColor(fog, fog, fog)
 		for(let light of this.lights) {
@@ -221,6 +231,10 @@ export default class Tile extends GameObject implements Serializable {
 	 * gets the tile adjacent to this one on the same z-axis
 	 */
 	public getAdjacent(index: TILE_ADJACENT) {
+		if(this.isDestroyed) {
+			return
+		}
+		
 		switch(index) {
 			// north is negative y
 			case TILE_ADJACENT.NORTH: {
@@ -282,12 +296,16 @@ export default class Tile extends GameObject implements Serializable {
 	public destroy() {
 		super.destroy()
 		this.chunk?.remove(this)
-		this.chunk = null
 		this.sprite?.destroy()
-		this.sprite = null
 
-		if(this.stage.tileMap[this.layer].get(this.getPosition().unique())) {
-			this.stage.tileMap[this.layer].delete(this.getPosition().unique())
-		}
+		this.stage?.removeTile(this)
+
+		// i don't trust garbage collectors to do their job
+		delete this.chunk
+		delete this.sprite
+		delete this.position
+		delete this.oldTint
+		delete this.stage
+		delete this.lights
 	}
 }

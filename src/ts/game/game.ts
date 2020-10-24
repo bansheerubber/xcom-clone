@@ -75,7 +75,7 @@ export default class Game {
 	/**
 	 * stops the ticker
 	 */
-	public stop(): void {
+public stop(): void {
 		this.ticker.stop()
 	}
 }
