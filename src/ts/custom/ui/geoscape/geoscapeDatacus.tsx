@@ -1,5 +1,4 @@
 import * as React from "react";
-import { JsxEmit } from "typescript";
 import GeoscapeScene from "./geoscapeScene";
 
 interface GeoscapeDatacusProps {

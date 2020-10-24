@@ -35,17 +35,24 @@ export default class TileLight extends GameObject implements Serializable {
 		super(game)
 		this.stage = stage
 		this.stage.addLight(this)
-		this.position = position
+		this._position = position
 		this._radius = radius
 		this._color = color
 
 		this.calculateChunks()
 		this.drawLight()
+	}
 
-		this.icon = this.stage.createTile(this._position, 281, StageLayer.DEV_LIGHT_LAYER)
-		this.icon.ignoreLights = true
-		this.iconBox = this.stage.createTile(this._position, 268, StageLayer.DEV_LIGHT_BOX_LAYER)
-		this.iconBox.ignoreLights = true
+	private createDebugTiles() {
+		if(!this.icon || !this.iconBox || this.icon.isDestroyed || this.iconBox.isDestroyed) {
+			this.icon?.destroy()
+			this.iconBox?.destroy()
+			
+			this.icon = this.stage.createTile(this.position, 281, StageLayer.DEV_LIGHT_LAYER)
+			this.icon.ignoreLights = true
+			this.iconBox = this.stage.createTile(this.position, 268, StageLayer.DEV_LIGHT_BOX_LAYER)
+			this.iconBox.ignoreLights = true
+		}
 	}
 
 	public drawLight() {
@@ -151,12 +158,14 @@ export default class TileLight extends GameObject implements Serializable {
 		this.calculateChunks() // we need to recalc chunks b/c our AOE has changed
 		this.drawLight() // find new tiles within our bounds
 
-		if(this.icon && this.iconBox) {
+		if(this.icon && this.iconBox && !this.icon.isDestroyed && !this.iconBox.isDestroyed) {
 			this.icon.position = this._position
 			this.iconBox.position = this._position
 		}
 
 		this.stage?.updateLight(this, oldPosition, this.position)
+
+		this.createDebugTiles()
 	}
 
 	get position(): Vector3d {

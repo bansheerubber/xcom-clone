@@ -24,7 +24,7 @@ export const commissionNamePicker = (geoscape: GeoscapeScene) => {
 				}} />
 			</div>
 			<br />
-			Acronym Preview: <span id="acronym-preview">{getAcronym(startingName)}</span>
+			Acronym Preview: <span id="acronym-preview"></span>
 			<br />
 			<div className="error" id="acronym-error"></div>
 		</div>

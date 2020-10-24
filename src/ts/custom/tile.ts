@@ -108,7 +108,7 @@ export default class Tile extends GameObject implements Serializable {
 	}
 
 	protected updateSpritePosition() {
-		let  xZIndex, yZIndex
+		let xZIndex, yZIndex
 		switch(this.stage.rotation) {
 			case StageRotation.DEG_0: {
 				xZIndex = 1
