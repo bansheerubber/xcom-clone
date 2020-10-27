@@ -264,7 +264,7 @@ export default class TileChunk extends GameObject {
 		
 		let component2 = yWorldSpace * ((this.position.x * xChunkSpace + 2) * TileChunk.CHUNK_SIZE * -Tile.TILE_SIZE / 4
 			+ this.position.y * yChunkSpace * yShift + TileChunk.CHUNK_SIZE / 4 * Tile.TILE_SIZE
-			- Tile.TILE_SIZE / 2 * this.highestZ)
+			- Tile.TILE_HEIGHT * this.highestZ) - Tile.TILE_HEIGHT
 		
 		let component3 = xWorldSpace * ((this.position.x * xChunkSpace + 2) * TileChunk.CHUNK_SIZE * Tile.TILE_SIZE / 2
 			+ this.position.y * yChunkSpace * xShift + xPad)

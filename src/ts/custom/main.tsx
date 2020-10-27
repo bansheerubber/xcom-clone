@@ -1,3 +1,4 @@
+import * as PIXI from "pixi.js";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import Game from "../game/game";
@@ -16,9 +17,9 @@ import XCOMGamemode from "./xcomGamemode";
 
 export default async function(game: Game) {
 	if(game.isClient) {
-		ImageResource.queueImage("./data/sprites/spritesheet test.json")
+		ImageResource.queueImage("./data/sprites/spritesheet.json")
 		.queueImage("./data/egg.png")
-		.loadImages().then(() => {
+		.loadImages().then(() => {	
 			console.log("loaded images")
 			game.gamemode = new XCOMGamemode(game)
 		})

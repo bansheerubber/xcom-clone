@@ -3,7 +3,9 @@ import Sprite from "./sprite";
 import Game from "../game/game";
 
 export default class SpriteSheet extends Sprite {
-	public static textureProperties = {}
+	public static textureProperties: {
+		[index: string]: string[]
+	} = {}
 	
 	
 	public spritesheet: PIXI.Spritesheet
@@ -28,6 +30,17 @@ export default class SpriteSheet extends Sprite {
 		}
 		catch(error) {
 			console.log(`Failed to load spritesheet resource ${resource}.`, error)
+		}
+	}
+
+	set sheetName(sheetName: string) {
+		if(this.spritesheet.textures) {
+			if(!SpriteSheet.textureProperties[this.source]) {
+				SpriteSheet.textureProperties[this.source] = Object.getOwnPropertyNames(this.spritesheet.textures)
+			}
+			let properties = SpriteSheet.textureProperties[this.source]
+
+			this.sheetIndex = properties.indexOf(sheetName)
 		}
 	}
 

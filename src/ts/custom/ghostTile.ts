@@ -1,7 +1,7 @@
 import GameObjectOptions from "../game/gameObjectOptions";
 import Vector3d from "../helpers/vector3d";
 import Stage, { StageLayer } from "./stage";
-import Tile from "./tile";
+import Tile, { TileSprites } from "./tile";
 import { TileChunkUpdate } from "./tileChunk";
 
 export default class GhostTile extends Tile {
@@ -10,7 +10,7 @@ export default class GhostTile extends Tile {
 	
 	
 	
-	constructor(game, stage: Stage, spriteIndex: number = 13, layer: number = StageLayer.DEV_GHOST_LAYER, optionsOverride: GameObjectOptions) {
+	constructor(game, stage: Stage, spriteIndex: number = TileSprites.DEFAULT_TILE, layer: number = StageLayer.DEV_GHOST_LAYER, optionsOverride: GameObjectOptions) {
 		super(game, stage, spriteIndex, layer, {
 			canTick: true
 		})
@@ -26,8 +26,16 @@ export default class GhostTile extends Tile {
 		this.outlines.clear()
 
 		for(let z = 0; z <= this.position.z; z++) {
-			this.outlines.add(this.stage.createTile(Vector3d.getTempVector(98).set(this.position.x, this.position.y, z), 268, StageLayer.DEV_GHOST_BOX_LAYER))
+			this.outlines.add(this.stage.createTile(
+				Vector3d.getTempVector(98).set(this.position.x, this.position.y, z),
+				TileSprites.GHOST_INDEX,
+				StageLayer.DEV_GHOST_BOX_LAYER
+			))
 		}
+	}
+
+	get position(): Vector3d {
+		return super.position
 	}
 
 	tick(deltaTime: number) {

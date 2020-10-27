@@ -6,6 +6,7 @@ import Vector3d from "../../helpers/vector3d"
 import WebFileReader from "../../helpers/webFileReader"
 import GhostTile from "../ghostTile"
 import Stage, { StageLayer, StageRotation } from "../stage"
+import { TileSprites } from "../tile"
 import TileLight from "../tileLight"
 import TileRaycast from "../tileRaycast"
 
@@ -59,20 +60,28 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 	constructor(props) {
 		super(props)
 
-		this.ghostTile = this.props.stage.createTile(Vector3d.getTempVector(0).set(5, 5, 1), 83, StageLayer.DEV_GHOST_LAYER, GhostTile) as GhostTile
+		this.ghostTile = this.props.stage.createTile(Vector3d.getTempVector(0).set(5, 5, 1), TileSprites.DEFAULT_TILE, StageLayer.DEV_GHOST_LAYER, GhostTile) as GhostTile
 		this.ghostTile.opacity = 0.8
 
-		new WebFileReader("./data/sprites/spritesheet test.json").readFile().then((json: string) => {
+		new WebFileReader(TileSprites.SHEET).readFile().then((json: string) => {
 			let index = 0
 			let elements = []
 			let frames = JSON.parse(json).frames
 			for(let name in frames) {
 				let frame = frames[name]
-				elements.push(<div className="tile-preview" id={`${index}`} key={index} onClick={(event) => {
-					let id = parseInt(event.currentTarget.id)
+				elements.push(<div className="tile-preview" id={`tile-preview-${index}`} key={index} onClick={(event) => {
+					let id = parseInt(event.currentTarget.id.match(/[0-9]+/g)[0])
+
+					if(document.getElementById(`tile-preview-${this.state.selectedId}`)) {
+						document.getElementById(`tile-preview-${this.state.selectedId}`).style.backgroundColor = ""
+					}
+
 					if(id != this.state.selectedId) {
+						document.getElementById(`tile-preview-${id}`).style.backgroundColor = "#FFFF00"
+
 						this.setState({
 							selectedId: id,
+							tileList: this.state.tileList
 						})
 						this.ghostTile.type = id
 					}
@@ -80,7 +89,7 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 						this.setState({
 							selectedId: -1,
 						})
-					}		
+					}
 				}} style={{
 					backgroundPositionX: -frame.frame.x,
 					backgroundPositionY: -frame.frame.y,

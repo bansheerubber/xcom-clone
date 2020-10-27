@@ -13,7 +13,7 @@ export default class ImageResource {
 		})
 	}
 
-	public static getSpriteTexture(resource: string): PIXI.Texture {
-		return PIXI.Loader.shared.resources[resource].texture
+	public static getSpriteTextures(resource: string): PIXI.ITextureDictionary {
+		return PIXI.Loader.shared.resources[resource].textures
 	}
 }

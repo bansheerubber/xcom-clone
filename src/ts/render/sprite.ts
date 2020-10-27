@@ -39,7 +39,7 @@ export default class Sprite extends RenderObject implements Physical {
 		}
 
 		this.sprite.anchor.x = 0
-		this.sprite.anchor.y = 0
+		this.sprite.anchor.y = 1
 
 		let chunkSet = this.game.renderer.chunks.get(customContainer)
 		this.container = customContainer

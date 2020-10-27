@@ -4,8 +4,6 @@ import GameObjectOptions from "../game/gameObjectOptions";
 import BinaryFileReader from "../helpers/binaryFileReader";
 import BinaryFileWriter from "../helpers/binaryFileWriter";
 import { RGBColor } from "../helpers/color";
-import Range from "../helpers/range";
-import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import SpriteSheet from "../render/spriteSheet";
 import Serializable from "./serializable";
@@ -20,8 +18,16 @@ enum TILE_ADJACENT {
 	WEST = 3,
 }
 
+export enum TileSprites {
+	SHEET = "./data/sprites/spritesheet.json",
+	GHOST_INDEX = "ghost.png",
+	DEFAULT_TILE = 0,
+}
+
 export default class Tile extends GameObject implements Serializable {
 	public static TILE_SIZE: number = 64
+	public static TILE_HEIGHT: number = 39
+	public static TILE_BOTTOM_TO_TOP: number = 55
 
 	protected chunk: TileChunk
 	public sprite: SpriteSheet
@@ -37,7 +43,7 @@ export default class Tile extends GameObject implements Serializable {
 
 
 
-	constructor(game, stage: Stage, spriteIndex: number = 13, layer: number = 0, optionsOverride?: GameObjectOptions) {
+	constructor(game, stage: Stage, spriteIndex: number | string = 13, layer: number = 0, optionsOverride?: GameObjectOptions) {
 		super(game, optionsOverride ? optionsOverride : {
 			canTick: false,
 		})
@@ -45,9 +51,15 @@ export default class Tile extends GameObject implements Serializable {
 		this.layer = layer
 		this.stage = stage
 
-		this.sprite = new SpriteSheet(this.game, "./data/sprites/spritesheet test.json", this.game.renderer.isomap)
+		this.sprite = new SpriteSheet(this.game, TileSprites.SHEET, this.game.renderer.isomap)
 		this.sprite.isVisible = false
-		this.sprite.sheetIndex = spriteIndex
+
+		if(typeof spriteIndex === "string") {
+			this.sprite.sheetName = spriteIndex
+		}
+		else {
+			this.sprite.sheetIndex = spriteIndex
+		}
 	}
 
 	set tint(tint: RGBColor) {
@@ -140,7 +152,7 @@ export default class Tile extends GameObject implements Serializable {
 	}
 
 	set position(vector: Vector3d) {
-		let oldPosition = vector.clone()
+		let oldPosition = this._position.clone()
 		
 		this._position.copy(vector)
 

@@ -1,16 +1,18 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import Gamemode from "../game/gamemode";
+import { RGBColor } from "../helpers/color";
+import Vector from "../helpers/vector";
+import Vector3d from "../helpers/vector3d";
 import ControllableCamera from "./controllableCamera";
 import Stage from "./stage";
-import { commissionNamePicker } from "./ui/datacuses/commissionNamePicker";
 import GeoscapeCountry from "./ui/geoscape/geoscapeCountry";
 import GeoscapeIncident from "./ui/geoscape/geoscapeIncident";
 import GeoscapeScene from "./ui/geoscape/geoscapeScene";
 import MainUI from "./ui/main";
 
 export default class XCOMGamemode extends Gamemode {
-	public stage: Stage
+	private stage: Stage
 	public geoscape: GeoscapeScene
 	public mainUI: MainUI
 
@@ -35,8 +37,16 @@ export default class XCOMGamemode extends Gamemode {
 
 		this.mainUI = ReactDOM.render(<MainUI game={game} geoscapeScene={this.geoscape} />, document.getElementById("reactContainer")) as any as MainUI
 
-		this.focusGeoscape()
+		// this.focusGeoscape()
 		game.renderer.camera = new ControllableCamera(game, null)
+
+		let stage = new Stage(this.game)
+		for(let x = 0; x < 100; x++) {
+			for(let y = 0; y < 100; y++) {
+				stage.createTile(new Vector3d(x, y, 0), 0)
+			}
+		}
+		this.focusStage(stage)
 
 		/*setTimeout(() => {
 			this.geoscape.displayDatacus("Choose Commission Name", commissionNamePicker(this.geoscape), true)
@@ -60,8 +70,14 @@ export default class XCOMGamemode extends Gamemode {
 		})
 	}
 
-	public focusStage() {
+	public focusStage(stage?: Stage) {
+		if(stage) {
+			this.stage = stage
+		}
+		
 		if(this.stage) {
+			this.mainUI.loadTileSelection(this.stage);
+			
 			(this.game.renderer.camera as ControllableCamera).stage = this.stage
 			
 			this.game.renderer.start()

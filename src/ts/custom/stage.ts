@@ -7,7 +7,7 @@ import Rotation from "../helpers/rotation";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import ControllableCamera from "./controllableCamera";
-import Tile from "./tile";
+import Tile, { TileSprites } from "./tile";
 import TileChunk from "./tileChunk";
 import TileLight from "./tileLight";
 
@@ -90,7 +90,7 @@ export default class Stage extends GameObject {
 		delete this.lightMap
 	}
 	
-	public createTile(position: Vector3d, spriteIndex: number = 13, layer: number = StageLayer.DEFAULT_LAYER, tileClass: typeof Tile = Tile): Tile {
+	public createTile(position: Vector3d, spriteIndex: number | string = 13, layer: number = StageLayer.DEFAULT_LAYER, tileClass: typeof Tile = Tile): Tile {
 		if(!this.tileMap[layer]) {
 			this.tileMap[layer] = new Map()
 		}
@@ -211,6 +211,7 @@ export default class Stage extends GameObject {
 		} = position
 		
 		let angle = Math.PI / 4 + Math.PI / 2 * this.rotation
+		worldY += Tile.TILE_BOTTOM_TO_TOP
 
 		// transformation matrix, rotate by 45 degrees and apply sheer and scale of 2 on right column. magic number at the end was needed to adjust scaling of the axes
 		let tileX = (worldX * Math.cos(angle) - worldY * (Math.sin(angle) * 2)) / (Tile.TILE_SIZE / 2) * (1000 / 1414)
@@ -220,23 +221,19 @@ export default class Stage extends GameObject {
 			return new Vector3d(tileX, tileY, 0)
 		}
 		else {
-			tileX += 0.5
-			tileY -= 0.5
-
 			switch(this.rotation) {
 				case StageRotation.DEG_90: {
+					tileX += 1
+					break
+				}
+	
+				case StageRotation.DEG_180: {
 					tileX += 1
 					tileY += 1
 					break
 				}
 	
-				case StageRotation.DEG_180: {
-					tileY += 2
-					break
-				}
-	
 				case StageRotation.DEG_270: {
-					tileX -= 1
 					tileY += 1
 					break
 				}
@@ -283,7 +280,7 @@ export default class Stage extends GameObject {
 		}
 		
 		let x = xSpriteSpace * (position.x * xTileSpace * Tile.TILE_SIZE / 2 + position.y * yTileSpace * Tile.TILE_SIZE / 2)
-		let y = ySpriteSpace * (position.x * xTileSpace * -Tile.TILE_SIZE / 4 + position.y * yTileSpace * Tile.TILE_SIZE / 4 - position.z * Tile.TILE_SIZE / 2)
+		let y = ySpriteSpace * (position.x * xTileSpace * -Tile.TILE_SIZE / 4 + position.y * yTileSpace * Tile.TILE_SIZE / 4 - position.z * Tile.TILE_HEIGHT)
 		return Vector.getTempVector(0).set(x, y)
 	}
 

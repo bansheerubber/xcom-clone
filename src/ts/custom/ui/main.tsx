@@ -13,6 +13,7 @@ interface MainUIProps {
 
 interface MainUIState {
 	displayGeoscape: boolean
+	stage: Stage
 }
 
 export default class MainUI extends React.Component<MainUIProps, MainUIState> {
@@ -20,13 +21,20 @@ export default class MainUI extends React.Component<MainUIProps, MainUIState> {
 		super(props)
 
 		this.state = {
-			displayGeoscape: false
+			displayGeoscape: false,
+			stage: null
 		}
+	}
+
+	public loadTileSelection(stage: Stage) {
+		this.setState({
+			stage
+		})
 	}
 	
 	render(): JSX.Element {
 		return <>
-			{/* <TileSelection game={this.props.game} stage={this.props.stage} /> */}
+			{this.state.stage ? <TileSelection game={this.props.game} stage={this.state.stage} /> : null}
 			<GeoscapeUI scene={this.props.geoscapeScene} display={this.state.displayGeoscape} />
 		</>
 	}
