@@ -113,11 +113,11 @@ export default class TileSelection extends React.Component<TileSelectionProps, T
 		}
 
 		let plantTile = () => {
-			let type = this.ghostTile.type
+			let type = this.ghostTile.typeName
 
 			switch(type) {
 				// lights
-				case 281: {
+				case TileSprites.LIGHT_INDEX: {
 					new TileLight(this.props.game, this.props.stage, this.ghostTile.position, 5, new RGBColor(0.3, 0.3, 0.3))
 					break
 				}

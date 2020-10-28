@@ -8,6 +8,7 @@ src/data
 build/.sass-cache
 deploy.sh
 borders/
+sprites/
 
 # Logs
 logs

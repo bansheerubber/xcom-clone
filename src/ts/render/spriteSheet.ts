@@ -10,6 +10,7 @@ export default class SpriteSheet extends Sprite {
 	
 	public spritesheet: PIXI.Spritesheet
 	protected _sheetIndex: number = 0
+	protected _sheetName: string = ""
 	private source: string
 
 
@@ -44,6 +45,10 @@ export default class SpriteSheet extends Sprite {
 		}
 	}
 
+	get sheetName(): string {
+		return this._sheetName
+	}
+
 	set sheetIndex(sheetIndex: number) {
 		this._sheetIndex = sheetIndex
 
@@ -55,6 +60,8 @@ export default class SpriteSheet extends Sprite {
 
 			sheetIndex = sheetIndex % properties.length
 			this.texture = this.spritesheet.textures[properties[sheetIndex]]
+
+			this._sheetName = properties[sheetIndex]
 		}
 	}
 

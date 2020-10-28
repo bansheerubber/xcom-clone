@@ -127,7 +127,9 @@ export default class Stage extends GameObject {
 			this.tileMap[tile.layer].get(newPosition.unique()).destroy()
 		}
 		
-		this.tileMap[tile.layer].delete(oldPosition.unique())
+		if(this.tileMap[tile.layer].get(oldPosition.unique()) == tile) {
+			this.tileMap[tile.layer].delete(oldPosition.unique())
+		}
 		this.tileMap[tile.layer].set(newPosition.unique(), tile)
 
 		if(this.chunkMap.get(chunkPosition.unique2d()) != tile.getChunk()) {

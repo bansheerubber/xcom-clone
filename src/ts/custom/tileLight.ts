@@ -7,7 +7,7 @@ import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Serializable from "./serializable";
 import Stage, { StageLayer, StageRotation } from "./stage";
-import Tile from "./tile";
+import Tile, { TileSprites } from "./tile";
 import TileChunk from "./tileChunk";
 import TileRaycast from "./tileRaycast";
 
@@ -34,10 +34,11 @@ export default class TileLight extends GameObject implements Serializable {
 	constructor(game, stage: Stage, position: Vector3d, radius: number, color: RGBColor) {
 		super(game)
 		this.stage = stage
-		this.stage.addLight(this)
-		this._position = position
+		this._position = position.clone()
 		this._radius = radius
 		this._color = color
+		this.stage.addLight(this)
+		this.createDebugTiles()
 
 		this.calculateChunks()
 		this.drawLight()
@@ -48,9 +49,9 @@ export default class TileLight extends GameObject implements Serializable {
 			this.icon?.destroy()
 			this.iconBox?.destroy()
 			
-			this.icon = this.stage.createTile(this.position, 281, StageLayer.DEV_LIGHT_LAYER)
+			this.icon = this.stage.createTile(this.position, TileSprites.LIGHT_INDEX, StageLayer.DEV_LIGHT_LAYER)
 			this.icon.ignoreLights = true
-			this.iconBox = this.stage.createTile(this.position, 268, StageLayer.DEV_LIGHT_BOX_LAYER)
+			this.iconBox = this.stage.createTile(this.position, TileSprites.GHOST_INDEX, StageLayer.DEV_LIGHT_BOX_LAYER)
 			this.iconBox.ignoreLights = true
 		}
 	}

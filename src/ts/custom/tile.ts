@@ -21,6 +21,7 @@ enum TILE_ADJACENT {
 export enum TileSprites {
 	SHEET = "./data/sprites/spritesheet.json",
 	GHOST_INDEX = "ghost.png",
+	LIGHT_INDEX = "light_icon.png",
 	DEFAULT_TILE = 0,
 }
 
@@ -94,6 +95,15 @@ export default class Tile extends GameObject implements Serializable {
 	
 	get type(): number {
 		return this.sprite.sheetIndex
+	}
+
+	set typeName(type: string) {
+		this.sprite.sheetName = type
+		this.chunk.update(this)
+	}
+
+	get typeName(): string {
+		return this.sprite.sheetName
 	}
 
 	set blendMode(blend: PIXI.BLEND_MODES) {
@@ -205,10 +215,7 @@ export default class Tile extends GameObject implements Serializable {
 		
 		if(!this._ignoreLights) {
 			this.lights.delete(light)
-
-			if(!this.isDestroyed) {
-				this.calculateLighting()	
-			}
+			this.calculateLighting()
 		}
 	}
 
@@ -219,10 +226,7 @@ export default class Tile extends GameObject implements Serializable {
 		
 		if(!this._ignoreLights) {
 			this.lights.add(light)
-		
-			if(!this.isDestroyed) {
-				this.calculateLighting()	
-			}
+			this.calculateLighting()	
 		}
 	}
 
