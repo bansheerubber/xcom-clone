@@ -41,8 +41,8 @@ export default class XCOMGamemode extends Gamemode {
 		game.renderer.camera = new ControllableCamera(game, null)
 
 		let stage = new Stage(this.game)
-		for(let x = 0; x < 10; x++) {
-			for(let y = 0; y < 10; y++) {
+		for(let x = 0; x < 100; x++) {
+			for(let y = 0; y < 100; y++) {
 				stage.createTile(new Vector3d(x, y, 0), 0)
 			}
 		}
