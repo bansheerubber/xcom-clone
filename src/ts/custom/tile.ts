@@ -6,11 +6,45 @@ import BinaryFileWriter from "../helpers/binaryFileWriter";
 import { RGBColor } from "../helpers/color";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
+import WebFileReader from "../helpers/webFileReader";
 import SpriteSheet from "../render/spriteSheet";
 import Serializable from "./serializable";
 import Stage, { StageLayer, StageRotation } from "./stage";
 import TileChunk, { TileChunkUpdate } from "./tileChunk";
 import TileLight from "./tileLight";
+
+interface SpritesheetPayload {
+	frames: {
+		[index: string]: SpriteDefinition
+	}
+}
+
+interface SpriteDefinition {
+	frame: {
+		x: number,
+		y: number,
+		w: number,
+		h: number,
+	},
+	rotated: boolean,
+	trimmed: boolean,
+	spriteSourceSize: {
+		x: number,
+		y: number,
+		w: number,
+		h: number,
+	},
+	sourceSize: {
+		w: number,
+		h: number,
+	},
+	custom: {
+		isRotateable: boolean,
+		isTall: boolean,
+		isWall: boolean,
+		isWallCorner: boolean,
+	}
+}
 
 enum TILE_ADJACENT {
 	NORTH = 0,
@@ -30,9 +64,19 @@ export default class Tile extends GameObject implements Serializable {
 	public static TILE_SIZE: number = 64
 	public static TILE_HEIGHT: number = 39
 	public static TILE_BOTTOM_TO_TOP: number = 55
+	public static metadata: {
+		[index: string]: {
+			isRotateable: boolean,
+			isTall: boolean,
+			isWall: boolean,
+			isWallCorner: boolean,
+		}
+	} = {}
 
-	protected chunk: TileChunk
 	public sprite: SpriteSheet
+	protected _type: number
+	protected _typeName: string
+	protected chunk: TileChunk
 	protected _ignoreLights: boolean = false
 	/**
 	 * the position of our tile in tilespace
@@ -57,10 +101,10 @@ export default class Tile extends GameObject implements Serializable {
 		this.sprite.isVisible = false
 
 		if(typeof spriteIndex === "string") {
-			this.sprite.sheetName = spriteIndex
+			this.typeName = spriteIndex
 		}
 		else {
-			this.sprite.sheetIndex = spriteIndex
+			this.type = spriteIndex
 		}
 	}
 
@@ -90,21 +134,21 @@ export default class Tile extends GameObject implements Serializable {
 	}
 
 	set type(type: number) {
-		this.sprite.sheetIndex = type
-		this.chunk.update(this)
+		this._type = type
+		this._typeName = SpriteSheet.textureProperties[this.sprite.source][type]
+		this.updateRotation()
 	}
 	
 	get type(): number {
-		return this.sprite.sheetIndex
+		return this._type
 	}
 
 	set typeName(type: string) {
-		this.sprite.sheetName = type
-		this.chunk.update(this)
+		this.type = SpriteSheet.textureProperties[this.sprite.source].indexOf(type)
 	}
 
 	get typeName(): string {
-		return this.sprite.sheetName
+		return this._typeName
 	}
 
 	set blendMode(blend: PIXI.BLEND_MODES) {
@@ -126,6 +170,15 @@ export default class Tile extends GameObject implements Serializable {
 	}
 
 	public updateRotation() {
+		if(Tile.metadata[this.typeName].isRotateable) {
+			let rotation = parseInt(this.typeName.match(/[1-4](?=\.png$)/g)[0])
+			let nextRotation = ((rotation - 1) + this.stage.rotation) % 4 + 1
+			this.sprite.sheetName = this.typeName.replace(/[1-4](?=\.png$)/, `${nextRotation}`)
+		}
+		else {
+			this.sprite.sheetIndex = this._type
+		}
+
 		this.updateSpritePosition()
 		this.chunk?.update(this)
 	}
@@ -324,5 +377,14 @@ export default class Tile extends GameObject implements Serializable {
 		delete this.oldTint
 		delete this.stage
 		delete this.lights
+	}
+
+	public static loadMetadata(fileName: string): Promise<void> {
+		return new WebFileReader(fileName).readFile().then((result) => {
+			let data: SpritesheetPayload = JSON.parse(result)
+			for(let name in data.frames) {
+				this.metadata[name] = data.frames[name].custom
+			}
+		})
 	}
 }

@@ -14,14 +14,17 @@ import { generalNamePicker } from "./ui/datacuses/generalNamePicker";
 import { commissionNamePicker } from "./ui/datacuses/commissionNamePicker";
 import GeoscapeIncident from "./ui/geoscape/geoscapeIncident";
 import XCOMGamemode from "./xcomGamemode";
+import Tile from "./tile";
 
 export default async function(game: Game) {
 	if(game.isClient) {
-		ImageResource.queueImage("./data/sprites/spritesheet.json")
+		await ImageResource.queueImage("./data/sprites/spritesheet.json")
 		.queueImage("./data/egg.png")
-		.loadImages().then(() => {	
-			console.log("loaded images")
-			game.gamemode = new XCOMGamemode(game)
-		})
+		.loadImages()
+	
+		await Tile.loadMetadata("./data/sprites/spritesheet.json")
+	
+		console.log("loaded images")
+		game.gamemode = new XCOMGamemode(game)
 	}
 }

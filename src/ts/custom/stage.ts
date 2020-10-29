@@ -18,10 +18,10 @@ enum StageSaveFile {
 }
 
 export enum StageRotation {
-	DEG_0,
-	DEG_90,
-	DEG_180,
-	DEG_270,
+	DEG_0 = 0,
+	DEG_90 = 1,
+	DEG_180 = 2,
+	DEG_270 = 3,
 }
 
 export enum StageLayer {
