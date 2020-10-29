@@ -4,6 +4,7 @@ import GameObjectOptions from "../game/gameObjectOptions";
 import BinaryFileReader from "../helpers/binaryFileReader";
 import BinaryFileWriter from "../helpers/binaryFileWriter";
 import { RGBColor } from "../helpers/color";
+import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import SpriteSheet from "../render/spriteSheet";
 import Serializable from "./serializable";

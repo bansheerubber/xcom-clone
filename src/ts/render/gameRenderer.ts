@@ -33,6 +33,8 @@ export default class GameRenderer {
 
 		PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
 		PIXI.settings.ROUND_PIXELS = false
+		PIXI.settings.WRAP_MODE = PIXI.WRAP_MODES.CLAMP
+		PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF
 
     // setup the pixi application
     this.pixiApp = new PIXI.Application({
