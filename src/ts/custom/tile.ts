@@ -64,6 +64,7 @@ export default class Tile extends GameObject implements Serializable {
 	public static TILE_SIZE: number = 64
 	public static TILE_HEIGHT: number = 39
 	public static TILE_BOTTOM_TO_TOP: number = 55
+	public static TILE_LAYER_RESOLUTION: number = 50
 	public static metadata: {
 		[index: string]: {
 			isRotateable: boolean,
@@ -89,7 +90,7 @@ export default class Tile extends GameObject implements Serializable {
 
 
 
-	constructor(game, stage: Stage, spriteIndex: number | string = 13, layer: number = 0, optionsOverride?: GameObjectOptions) {
+	constructor(game, stage: Stage, spriteIndex: number | string = TileSprites.DEFAULT_TILE, layer: number = 0, optionsOverride?: GameObjectOptions) {
 		super(game, optionsOverride ? optionsOverride : {
 			canTick: false,
 		})
@@ -212,7 +213,17 @@ export default class Tile extends GameObject implements Serializable {
 		}
 
 		this.sprite.setPosition(this.stage.tileToWorldSpace(this.position))
-		this.sprite.zIndex = -this.position.x * xZIndex + this.position.y * yZIndex + this.position.z + this.layer / 50
+		this.sprite.zIndex = -this.position.x * xZIndex + this.position.y * yZIndex + this.position.z + this.layer / Tile.TILE_LAYER_RESOLUTION
+
+		if(Tile.metadata[this.typeName].isWall) {
+			let rotation = parseInt(this.sprite.sheetName.match(/[1-4](?=\.png$)/g)[0])
+			if(
+				Tile.metadata[this.typeName].isWallCorner && rotation != 4
+				|| (!Tile.metadata[this.typeName].isWallCorner && rotation != 1 && rotation != 4)
+			) {
+				this.sprite.zIndex += (1 / Tile.TILE_LAYER_RESOLUTION) / 2
+			}
+		}
 	}
 
 	set position(vector: Vector3d) {
@@ -375,7 +386,6 @@ export default class Tile extends GameObject implements Serializable {
 		delete this.sprite
 		delete this.position
 		delete this.oldTint
-		delete this.stage
 		delete this.lights
 	}
 

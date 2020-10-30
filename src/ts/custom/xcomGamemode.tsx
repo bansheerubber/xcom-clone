@@ -48,6 +48,8 @@ export default class XCOMGamemode extends Gamemode {
 		}
 		this.focusStage(stage)
 
+		stage.createUnit(new Vector3d(2, 2, 1), "person1.png")
+
 		/*setTimeout(() => {
 			this.geoscape.displayDatacus("Choose Commission Name", commissionNamePicker(this.geoscape), true)
 		}, 1000)*/

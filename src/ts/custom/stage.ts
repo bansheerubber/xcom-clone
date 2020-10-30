@@ -1,15 +1,14 @@
-import { textChangeRangeIsUnchanged } from "typescript";
 import GameObject from "../game/gameObject";
 import BinaryFileReader from "../helpers/binaryFileReader";
 import BinaryFileWriter from "../helpers/binaryFileWriter";
 import { RGBColor } from "../helpers/color";
-import Rotation from "../helpers/rotation";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import ControllableCamera from "./controllableCamera";
 import Tile, { TileSprites } from "./tile";
 import TileChunk from "./tileChunk";
 import TileLight from "./tileLight";
+import Unit from "./unit";
 
 enum StageSaveFile {
 	VERSION = 1,
@@ -26,10 +25,11 @@ export enum StageRotation {
 
 export enum StageLayer {
 	DEFAULT_LAYER = 5,
-	DEV_LIGHT_LAYER = 6,
-	DEV_LIGHT_BOX_LAYER = 7,
-	DEV_GHOST_LAYER = 8,
-	DEV_GHOST_BOX_LAYER = 9,
+	UNIT_LAYER = 6,
+	DEV_LIGHT_LAYER = 7,
+	DEV_LIGHT_BOX_LAYER = 8,
+	DEV_GHOST_LAYER = 9,
+	DEV_GHOST_BOX_LAYER = 10,
 }
 
 export default class Stage extends GameObject {
@@ -48,6 +48,8 @@ export default class Stage extends GameObject {
 	} = {}
 
 	private tiles: Set<Tile> = new Set()
+
+	private units: Set<Unit> = new Set()
 
 	/**
 	 * all of the lights
@@ -90,7 +92,12 @@ export default class Stage extends GameObject {
 		delete this.lightMap
 	}
 	
-	public createTile(position: Vector3d, spriteIndex: number | string = 13, layer: number = StageLayer.DEFAULT_LAYER, tileClass: typeof Tile = Tile): Tile {
+	public createTile(
+		position: Vector3d,
+		spriteIndex: number | string = TileSprites.DEFAULT_TILE,
+		layer: number = StageLayer.DEFAULT_LAYER,
+		tileClass: typeof Tile = Tile
+	): Tile {
 		if(!this.tileMap[layer]) {
 			this.tileMap[layer] = new Map()
 		}
@@ -153,6 +160,20 @@ export default class Stage extends GameObject {
 		}
 	}
 
+	public createUnit(
+		position: Vector3d,
+		spriteIndex: number | string = TileSprites.DEFAULT_TILE,
+		unitClass: typeof Unit = Unit
+	): Unit {
+		let unit = this.createTile(position, spriteIndex, StageLayer.UNIT_LAYER, unitClass) as Unit
+		this.units.add(unit)
+		return unit
+	}
+
+	public removeUnit(unit: Unit) {
+		this.units.delete(unit);
+	}
+
 	public addLight(light: TileLight) {
 		this.lights.add(light)
 		this.updateLight(light, null, light.position)
@@ -173,8 +194,8 @@ export default class Stage extends GameObject {
 		}
 	}
 
-	public getMapTile(vector: Vector3d): Tile {
-		return this.tileMap[StageLayer.DEFAULT_LAYER].get(vector.unique())
+	public getMapTile(vector: Vector3d, layer = StageLayer.DEFAULT_LAYER): Tile {
+		return this.tileMap[layer].get(vector.unique())
 	}
 
 	public getLight(position: Vector3d): TileLight {

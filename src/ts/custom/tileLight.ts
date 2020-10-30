@@ -78,6 +78,12 @@ export default class TileLight extends GameObject implements Serializable {
 						tile.addLight(this)
 						this.affectedTiles.add(tile)
 					}
+
+					let unit = this.stage.getMapTile(position, StageLayer.UNIT_LAYER)
+					if(unit) {
+						unit.addLight(this)
+						this.affectedTiles.add(unit)
+					}
 				}
 			}
 		}
