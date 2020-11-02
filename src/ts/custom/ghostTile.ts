@@ -2,15 +2,12 @@ import GameObjectOptions from "../game/gameObjectOptions";
 import Vector3d from "../helpers/vector3d";
 import Stage, { StageLayer } from "./stage";
 import Tile, { TileSprites } from "./tile";
-import { TileChunkUpdate } from "./tileChunk";
 
 export default class GhostTile extends Tile {
 	private opacityDirection: number = -1
 	private outlines: Set<Tile> = new Set()
 	
-	
-	
-	constructor(game, stage: Stage, spriteIndex: number = TileSprites.DEFAULT_TILE, layer: number = StageLayer.DEV_GHOST_LAYER, optionsOverride: GameObjectOptions) {
+	constructor(game, stage: Stage, spriteIndex: number | string = TileSprites.DEFAULT_TILE, layer: number = StageLayer.DEV_GHOST_LAYER, optionsOverride: GameObjectOptions) {
 		super(game, stage, spriteIndex, layer, {
 			canTick: true
 		})

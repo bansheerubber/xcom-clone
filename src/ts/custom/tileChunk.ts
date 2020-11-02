@@ -7,11 +7,9 @@ import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import Stage, { StageRotation } from "./stage";
 import Tile from "./tile";
+import Unit from "./units/unit";
 import TileLight from "./tileLight";
-
-export enum TileChunkUpdate {
-	DO_LIGHTS = 1 // there are only a few times where we want to update lighting, so this is an option and not the norm
-}
+import { TileChunkUpdate } from "./tileChunkUpdate";
 
 export default class TileChunk extends GameObject {
 	/**
@@ -28,6 +26,7 @@ export default class TileChunk extends GameObject {
 	public isVisible: boolean = true
 
 	public tiles: Set<Tile> = new Set()
+	private units: Set<Unit> = new Set()
 	private stage: Stage
 	private lights: Set<TileLight> = new Set()
 	private container: PIXI.Container = new PIXI.Container()
@@ -73,6 +72,7 @@ export default class TileChunk extends GameObject {
 		this.container?.destroy()
 
 		delete this.tiles
+		delete this.units
 		delete this.stage
 		delete this.lights
 		delete this.container
@@ -124,6 +124,11 @@ export default class TileChunk extends GameObject {
 
 	public add(tile: Tile) {
 		this.tiles.add(tile)
+
+		if(tile instanceof Unit) {
+			this.units.add(tile as Unit)
+		}
+
 		tile.setContainer(this.container)
 		tile.setChunk(this)
 
@@ -141,6 +146,11 @@ export default class TileChunk extends GameObject {
 
 	public remove(tile: Tile) {
 		this.tiles.delete(tile)
+
+		if(tile instanceof Unit) {
+			this.units.delete(tile as Unit)
+		}
+
 		tile.setContainer(null)
 		tile.setChunk(null)
 

@@ -8,7 +8,7 @@ import ControllableCamera from "./controllableCamera";
 import Tile, { TileSprites } from "./tile";
 import TileChunk from "./tileChunk";
 import TileLight from "./tileLight";
-import Unit from "./unit";
+import Unit from "./units/unit";
 
 enum StageSaveFile {
 	VERSION = 1,
@@ -25,11 +25,15 @@ export enum StageRotation {
 
 export enum StageLayer {
 	DEFAULT_LAYER = 5,
-	UNIT_LAYER = 6,
-	DEV_LIGHT_LAYER = 7,
-	DEV_LIGHT_BOX_LAYER = 8,
-	DEV_GHOST_LAYER = 9,
-	DEV_GHOST_BOX_LAYER = 10,
+	OUTLINE_LAYER1 = 6,
+	OUTLINE_LAYER2 = 7,
+	OUTLINE_LAYER3 = 8,
+	OUTLINE_LAYER4 = 9,
+	UNIT_LAYER = 10,
+	DEV_LIGHT_LAYER = 11,
+	DEV_LIGHT_BOX_LAYER = 12,
+	DEV_GHOST_LAYER = 13,
+	DEV_GHOST_BOX_LAYER = 14,
 }
 
 export default class Stage extends GameObject {
@@ -385,8 +389,8 @@ export default class Stage extends GameObject {
 				Math.floor(i / max2dIndex)
 			)
 
-			let type = this.tileMap[StageLayer.DEFAULT_LAYER].get(position.unique())?.type
-			type = type ? type : StageSaveFile.BLANK_TILE
+			let type = this.getMapTile(position)?.type
+			type = type != undefined ? type : StageSaveFile.BLANK_TILE
 
 			// do optimizations for every single time we encounter a new type or when we go up one layer on the z-axis
 			if(

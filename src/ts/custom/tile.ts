@@ -1,16 +1,17 @@
 import * as PIXI from "pixi.js"
+import Game from "../game/game";
 import GameObject from "../game/gameObject";
 import GameObjectOptions from "../game/gameObjectOptions";
 import BinaryFileReader from "../helpers/binaryFileReader";
 import BinaryFileWriter from "../helpers/binaryFileWriter";
 import { RGBColor } from "../helpers/color";
-import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import WebFileReader from "../helpers/webFileReader";
 import SpriteSheet from "../render/spriteSheet";
 import Serializable from "./serializable";
 import Stage, { StageLayer, StageRotation } from "./stage";
-import TileChunk, { TileChunkUpdate } from "./tileChunk";
+import type TileChunk from "./tileChunk";
+import { TileChunkUpdate } from "./tileChunkUpdate";
 import TileLight from "./tileLight";
 
 interface SpritesheetPayload {
@@ -53,11 +54,22 @@ enum TILE_ADJACENT {
 	WEST = 3,
 }
 
+enum TILE_DIAGONAL {
+	NORTH_WEST = 0,
+	NORTH_EAST = 1,
+	SOUTH_EAST = 2,
+	SOUTH_WEST = 3,
+}
+
 export enum TileSprites {
 	SHEET = "./data/sprites/spritesheet.json",
 	GHOST_INDEX = "ghost.png",
 	LIGHT_INDEX = "light_icon.png",
-	DEFAULT_TILE = 0,
+	DEFAULT_TILE = "cube.png",
+	OUTLINE_NORTH = "outline1.png",
+	OUTLINE_WEST = "outline2.png",
+	OUTLINE_SOUTH = "outline3.png",
+	OUTLINE_EAST = "outline4.png",
 }
 
 export default class Tile extends GameObject implements Serializable {
@@ -88,9 +100,7 @@ export default class Tile extends GameObject implements Serializable {
 	protected lights: Set<TileLight> = new Set()
 	public readonly layer: number
 
-
-
-	constructor(game, stage: Stage, spriteIndex: number | string = TileSprites.DEFAULT_TILE, layer: number = 0, optionsOverride?: GameObjectOptions) {
+	constructor(game: Game, stage: Stage, spriteIndex: number | string = TileSprites.DEFAULT_TILE, layer: number = StageLayer.DEFAULT_LAYER, optionsOverride?: GameObjectOptions) {
 		super(game, optionsOverride ? optionsOverride : {
 			canTick: false,
 		})
@@ -150,6 +160,10 @@ export default class Tile extends GameObject implements Serializable {
 
 	get typeName(): string {
 		return this._typeName
+	}
+
+	get isWall(): boolean {
+		return Tile.metadata[this.typeName].isWall
 	}
 
 	set blendMode(blend: PIXI.BLEND_MODES) {
@@ -351,15 +365,126 @@ export default class Tile extends GameObject implements Serializable {
 	}
 
 	/**
+	 * generate adjacents
+	 */
+	public *getAdjacents(): IterableIterator<Tile> {
+		let north = this.getAdjacent(TILE_ADJACENT.NORTH)
+		let east = this.getAdjacent(TILE_ADJACENT.EAST)
+		let south = this.getAdjacent(TILE_ADJACENT.SOUTH)
+		let west = this.getAdjacent(TILE_ADJACENT.WEST)
+
+		if(north) {
+			yield north
+		}
+
+		if(east) {
+			yield east
+		}
+
+		if(south) {
+			yield south
+		}
+
+		if(west) {
+			yield west
+		}
+	}
+
+	/**
 	 * whether or not a tile is adjacent
 	 */
 	public isAdjacent(tile: Tile): boolean {
-		for(let i = 0; i < 4; i++) {
-			if(this.getAdjacent(i) == tile) {
+		for(let adjacent of this.getAdjacents()) {
+			if(adjacent == tile) {
 				return true
 			}
 		}
 		return false
+	}
+
+	public getDiagonal(index: TILE_DIAGONAL): Tile {
+		if(this.isDestroyed) {
+			return
+		}
+		
+		switch(index) {
+			// north is negative y, west is negative x
+			case TILE_DIAGONAL.NORTH_WEST: {
+				Vector3d.getTempVector(99).copy(this.position).$add(-1, -1, 0)
+				break
+			}
+
+			// north is negative y, east is positive x
+			case TILE_DIAGONAL.NORTH_EAST: {
+				Vector3d.getTempVector(99).copy(this.position).$add(1, -1, 0)
+				break
+			}
+
+			// south is positive y, east is positive x
+			case TILE_DIAGONAL.SOUTH_EAST: {
+				Vector3d.getTempVector(99).copy(this.position).$add(1, 1, 0)
+				break
+			}
+
+			// south is positive y, east is negative x
+			case TILE_DIAGONAL.SOUTH_WEST: {
+				Vector3d.getTempVector(99).copy(this.position).$add(-1, 1, 0)
+				break
+			}
+		}
+
+		if(Vector3d.getTempVector(99).x < 0 || Vector3d.getTempVector(99).y < 0 || Vector3d.getTempVector(99).z < 0) {
+			return null
+		}
+		else {
+			return this.stage.getMapTile(Vector3d.getTempVector(99))
+		}
+	}
+
+	/**
+	 * generate diagonals
+	 */
+	public *getDiagonals(): IterableIterator<Tile> {
+		let north_west = this.getDiagonal(TILE_DIAGONAL.NORTH_WEST)
+		let north_east = this.getDiagonal(TILE_DIAGONAL.NORTH_EAST)
+		let south_east = this.getDiagonal(TILE_DIAGONAL.SOUTH_EAST)
+		let south_west = this.getDiagonal(TILE_DIAGONAL.SOUTH_WEST)
+
+		if(north_west) {
+			yield north_west
+		}
+
+		if(north_east) {
+			yield north_east
+		}
+
+		if(south_east) {
+			yield south_east
+		}
+
+		if(south_west) {
+			yield south_west
+		}
+	}
+
+	/**
+	 * whether or not a tile is diagonal
+	 */
+	public isDiagonal(tile: Tile): boolean {
+		for(let diagonal of this.getDiagonals()) {
+			if(diagonal == tile) {
+				return true
+			}
+		}
+		return false
+	}
+
+	public getTop(): Tile {
+		return this.stage.getMapTile(Vector3d.getTempVector(99).copy(this.position).$add(0, 0, 1))
+	}
+
+	public getBottom(): Tile {
+		return this.stage.getMapTile(Vector3d.getTempVector(99).copy(this.position).$add(0, 0, -1))
 	}
 
 	public serialize(file: BinaryFileWriter, mode: number) {

@@ -1,13 +1,13 @@
 import GameObject from "../game/gameObject";
-import Stage from "./stage";
-import Tile from "./tile";
+import { RGBColor } from "../helpers/color";
+import Stage, { StageLayer } from "./stage";
+import Tile, { TileSprites } from "./tile";
 
 export default class TileGroup extends GameObject {
 	private tiles: Set<Tile> = new Set()
 	private tileOutlines: Set<Tile> = new Set()
 	private stage: Stage
-
-
+	private _color: RGBColor
 
 	constructor(game, stage: Stage) {
 		super(game)
@@ -32,11 +32,27 @@ export default class TileGroup extends GameObject {
 		}
 	}
 
+	public clear() {
+		this.tiles.clear()
+		this.clearOutline()
+	}
+	
+	public has(tile: Tile): boolean {
+		return this.tiles.has(tile)
+	}
+
 	/**
 	 * draws an outline around our tile group
 	 */
 	public drawOutline() {
 		this.clearOutline()
+
+		const outlines = [
+			TileSprites.OUTLINE_NORTH,
+			TileSprites.OUTLINE_EAST,
+			TileSprites.OUTLINE_SOUTH,
+			TileSprites.OUTLINE_WEST,
+		]
 		
 		// iterate through the enum
 		for(let tile of this.tiles.values()) {
@@ -44,7 +60,9 @@ export default class TileGroup extends GameObject {
 				let adjacent = tile.getAdjacent(i)
 				// if we find an adjacent tile that we need to draw a border along, then do it
 				if(!adjacent || !this.tiles.has(adjacent)) {
-					this.tileOutlines.add(this.stage.createTile(tile.position, 274 + i, 1))
+					let outline = this.stage.createTile(tile.position, outlines[i], StageLayer.OUTLINE_LAYER1 + i)
+					outline.tint = this.color
+					this.tileOutlines.add(outline)
 				}
 			}
 		}
@@ -58,5 +76,16 @@ export default class TileGroup extends GameObject {
 			tile.destroy()
 		}
 		this.tileOutlines = new Set()
+	}
+
+	set color(color: RGBColor) {
+		this._color = color
+		for(let tile of this.tileOutlines) {
+			tile.tint = color
+		}
+	}
+
+	get color(): RGBColor {
+		return this._color
 	}
 }
