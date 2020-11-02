@@ -7,11 +7,26 @@ from PIL import Image
 sprite_size = (64, 128)
 sprite_trim = 1
 
+sprite_index_map = {}
+sprite_index = 0
+try:
+	egg = json.load(open("spritesheet.json"))
+	for sprite_name in egg["frames"].keys():
+		sprite_index_map[sprite_name] = sprite_index
+		sprite_index = sprite_index + 1
+except:
+	pass
+
 sprites = []
 for (path, directory_names, file_names) in os.walk("./textures/"):
-	sprites = file_names
+	for file_name in file_names:
+		index = sprite_index + 100
+		if file_name in sprite_index_map:
+			index = sprite_index_map[file_name]
+		sprites.append((file_name, index))
 
-sprites = sorted(sprites, key=str.lower)
+sprites = sorted(sprites, key=lambda item: item[1])
+sprites = [item[0] for item in sprites]
 
 # we place sprites into the sprite sheet left to right, top to bottom
 max_sprites_x = 16

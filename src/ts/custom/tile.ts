@@ -47,18 +47,18 @@ interface SpriteDefinition {
 	}
 }
 
-enum TILE_ADJACENT {
+export enum TILE_ADJACENT {
 	NORTH = 0,
 	EAST = 1,
 	SOUTH = 2,
 	WEST = 3,
 }
 
-enum TILE_DIAGONAL {
-	NORTH_WEST = 0,
-	NORTH_EAST = 1,
-	SOUTH_EAST = 2,
-	SOUTH_WEST = 3,
+export enum TILE_DIAGONAL {
+	NORTH_WEST = 4,
+	NORTH_EAST = 5,
+	SOUTH_EAST = 6,
+	SOUTH_WEST = 7,
 }
 
 export enum TileSprites {
@@ -70,6 +70,8 @@ export enum TileSprites {
 	OUTLINE_WEST = "outline2.png",
 	OUTLINE_SOUTH = "outline3.png",
 	OUTLINE_EAST = "outline4.png",
+	FULL_OUTLINE = "full_outline.png",
+	DOT = "dot.png",
 }
 
 export default class Tile extends GameObject implements Serializable {
@@ -166,6 +168,23 @@ export default class Tile extends GameObject implements Serializable {
 		return Tile.metadata[this.typeName].isWall
 	}
 
+	get isWallCorner(): boolean {
+		return Tile.metadata[this.typeName].isWallCorner
+	}
+
+	get isRotatable(): boolean {
+		return Tile.metadata[this.typeName].isRotateable
+	}
+
+	get rotation(): number {
+		if(this.isRotatable) {
+			return parseInt(this.typeName.match(/[1-4](?=\.png$)/g)[0])
+		}
+		else {
+			return null
+		}
+	}
+
 	set blendMode(blend: PIXI.BLEND_MODES) {
 		this.sprite.blendMode = blend
 	}
@@ -185,9 +204,8 @@ export default class Tile extends GameObject implements Serializable {
 	}
 
 	public updateRotation() {
-		if(Tile.metadata[this.typeName].isRotateable) {
-			let rotation = parseInt(this.typeName.match(/[1-4](?=\.png$)/g)[0])
-			let nextRotation = ((rotation - 1) + this.stage.rotation) % 4 + 1
+		if(this.isRotatable) {
+			let nextRotation = ((this.rotation - 1) + this.stage.rotation) % 4 + 1
 			this.sprite.sheetName = this.typeName.replace(/[1-4](?=\.png$)/, `${nextRotation}`)
 		}
 		else {
@@ -229,11 +247,10 @@ export default class Tile extends GameObject implements Serializable {
 		this.sprite.setPosition(this.stage.tileToWorldSpace(this.position))
 		this.sprite.zIndex = -this.position.x * xZIndex + this.position.y * yZIndex + this.position.z + this.layer / Tile.TILE_LAYER_RESOLUTION
 
-		if(Tile.metadata[this.typeName].isWall) {
-			let rotation = parseInt(this.sprite.sheetName.match(/[1-4](?=\.png$)/g)[0])
+		if(this.isWall) {
 			if(
-				Tile.metadata[this.typeName].isWallCorner && rotation != 4
-				|| (!Tile.metadata[this.typeName].isWallCorner && rotation != 1 && rotation != 4)
+				this.isWallCorner && this.rotation != 4
+				|| (!this.isWallCorner && this.rotation != 1 && this.rotation != 4)
 			) {
 				this.sprite.zIndex += (1 / Tile.TILE_LAYER_RESOLUTION) / 2
 			}

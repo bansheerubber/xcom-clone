@@ -25,35 +25,12 @@ interface TileSelectionState {
 		radius: string | number,
 	}
 	tileList: JSX.Element[]
-	/*frames: {
-		[name: string]: {
-			frame: {
-				x: number,
-				y: number,
-				w: number,
-				h: number,
-			}
-			rotated: boolean
-			trimmed: boolean
-			spriteSourceSize: {
-				x: number,
-				y: number,
-				w: number,
-				h: number,
-			}
-			sourceSize: {
-				w: number,
-				h: number,
-			}
-		}
-	}*/
 }
 
 export default class TileSelection extends React.Component<TileSelectionProps, TileSelectionState> {
 	private ghostTile: GhostTile
 	private spaceHeldDown: boolean = false
 	private deleteHeldDown: boolean = false
-	private tilesList: JSX.Element[] = []
 	
 	
 	

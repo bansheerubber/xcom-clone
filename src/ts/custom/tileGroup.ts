@@ -1,3 +1,4 @@
+import { runInThisContext } from "vm";
 import GameObject from "../game/gameObject";
 import { RGBColor } from "../helpers/color";
 import Stage, { StageLayer } from "./stage";
@@ -6,12 +7,26 @@ import Tile, { TileSprites } from "./tile";
 export default class TileGroup extends GameObject {
 	private tiles: Set<Tile> = new Set()
 	private tileOutlines: Set<Tile> = new Set()
+	private tileDots: Set<Tile> = new Set()
 	private stage: Stage
 	private _color: RGBColor
 
-	constructor(game, stage: Stage) {
+	constructor(game, stage: Stage, tiles?: IterableIterator<Tile> | Tile[]) {
 		super(game)
 		this.stage = stage
+
+		if(tiles) {
+			for(let tile of tiles) {
+				this.add(tile)
+			}
+		}
+	}
+
+	public set(tiles: IterableIterator<Tile> | Tile[]) {
+		this.clear()
+		for(let tile of tiles) {
+			this.add(tile)
+		}
 	}
 
 	public add(tile: Tile) {
@@ -20,6 +35,11 @@ export default class TileGroup extends GameObject {
 		// keep updating the outlines as we add tiles
 		if(this.tileOutlines.size > 0) {
 			this.drawOutline()
+		}
+
+		// keep updating the dots as we remove tiles
+		if(this.tileDots.size > 0) {
+			this.drawDots()
 		}
 	}
 
@@ -30,6 +50,11 @@ export default class TileGroup extends GameObject {
 		if(this.tileOutlines.size > 0) {
 			this.drawOutline()
 		}
+
+		// keep updating the dots as we remove tiles
+		if(this.tileDots.size > 0) {
+			this.drawDots()
+		}
 	}
 
 	public clear() {
@@ -39,6 +64,10 @@ export default class TileGroup extends GameObject {
 	
 	public has(tile: Tile): boolean {
 		return this.tiles.has(tile)
+	}
+
+	public allTiles(): IterableIterator<Tile> {
+		return this.tiles.values()
 	}
 
 	/**
@@ -78,9 +107,38 @@ export default class TileGroup extends GameObject {
 		this.tileOutlines = new Set()
 	}
 
+	/**
+	 * draw dots on every single tile
+	 */
+	public drawDots() {
+		this.clearDots()
+		
+		// iterate through the enum
+		for(let tile of this.tiles.values()) {
+			let dot = this.stage.createTile(tile.position, TileSprites.DOT, StageLayer.DOT_LAYER)
+			dot.tint = this.color
+			this.tileOutlines.add(dot)
+		}
+	}
+
+	/**
+	 * clear previously drawn dots
+	 */
+	public clearDots() {
+		for(let tile of this.tileDots.values()) {
+			tile.destroy()
+		}
+		this.tileDots = new Set()
+	}
+
 	set color(color: RGBColor) {
 		this._color = color
 		for(let tile of this.tileOutlines) {
+			tile.tint = color
+		}
+
+		this._color = color
+		for(let tile of this.tileDots) {
 			tile.tint = color
 		}
 	}

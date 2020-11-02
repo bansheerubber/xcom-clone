@@ -9,10 +9,18 @@ export default class Unit extends Tile {
 	set position(position: Vector3d) {
 		super.position = position
 		this.movement.calculateRange()
+
+		if(this == this.stage.selectedUnit) {
+			this.stage.selectUnit(this)
+		}
 	}
 
 	get position(): Vector3d {
 		return this._position
+	}
+
+	public unselect() {
+		this.movement.clearPath()
 	}
 
 	protected updateSpritePosition() {

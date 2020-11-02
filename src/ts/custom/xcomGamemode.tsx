@@ -1,13 +1,17 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import Gamemode from "../game/gamemode";
+import { Keybind, KeybindModifier } from "../game/keybinds";
+import { RGBColor } from "../helpers/color";
 import Vector3d from "../helpers/vector3d";
 import ControllableCamera from "./controllableCamera";
 import Stage from "./stage";
+import TileGroup from "./tileGroup";
 import GeoscapeCountry from "./ui/geoscape/geoscapeCountry";
 import GeoscapeIncident from "./ui/geoscape/geoscapeIncident";
 import GeoscapeScene from "./ui/geoscape/geoscapeScene";
 import MainUI from "./ui/main";
+import Unit from "./units/unit";
 
 export default class XCOMGamemode extends Gamemode {
 	private stage: Stage
@@ -51,6 +55,45 @@ export default class XCOMGamemode extends Gamemode {
 			let unit = this.stage.createUnit(new Vector3d(14, 22, 1), "person1.png")
 			unit.movement.moves = 10
 			unit.movement.showMoves()
+		})
+
+		let selectedUnit: Unit
+		let tileGroup = new TileGroup(this.game, this.stage)
+		tileGroup.color = new RGBColor(0, 0, 1)
+		new Keybind("mouse0", KeybindModifier.NONE, "Select Unit").down((event: MouseEvent) => {
+			// let clickPosition = this.stage.mouseToTileSpace(event.x, event.y)
+			// if(clickPosition) {
+			// 	clickPosition.z = 1
+			// 	tileGroup.clear()
+			// 	for(let position of this.stage.getPathfindingNeighbors(clickPosition)) {
+			// 		tileGroup.add(this.stage.getMapTile(position.$add(0, 0, -1)))
+			// 	}
+			// 	tileGroup.drawDots()
+			// }
+
+			let position = this.stage.mouseToTileSpace(event.x, event.y)
+			if(position) {
+				position.z = 1
+				selectedUnit = this.stage.getUnit(position)
+				this.stage.selectUnit(selectedUnit)
+			}
+		})
+
+		let hoverPosition
+		new Keybind("mouse2", KeybindModifier.NONE, "Move Unit").down((event: MouseEvent) => {
+			if(selectedUnit && hoverPosition) {
+				selectedUnit.movement.move(hoverPosition)
+			}
+		})
+
+		document.addEventListener("mousemove", (event) => {
+			if(selectedUnit) {
+				hoverPosition = this.stage.mouseToTileSpace(event.x, event.y)
+				if(hoverPosition && selectedUnit) {
+					hoverPosition.z = 1
+					selectedUnit.movement.showPath(hoverPosition)
+				}
+			}
 		})
 
 		/*setTimeout(() => {

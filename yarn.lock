@@ -1389,6 +1389,11 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
 
+"@types/priorityqueuejs@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/priorityqueuejs/-/priorityqueuejs-1.0.1.tgz#6eaac3247a4c5cefc94482e5d87c3730b35f5053"
+  integrity sha1-bqrDJHpMXO/JRILl2Hw3MLNfUFM=
+
 "@types/prop-types@*":
   version "15.7.3"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.3.tgz#2ab0d5da2e5815f94b0b9d4b95d1e5f243ab2ca7"
@@ -6304,40 +6309,40 @@ pirates@^4.0.0:
 "pixi.js@file:../../pixi.js/bundles/pixi.js":
   version "5.3.3"
   dependencies:
-    "@pixi/accessibility" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/accessibility"
-    "@pixi/app" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/app"
-    "@pixi/constants" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/constants"
-    "@pixi/core" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/core"
-    "@pixi/display" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/display"
-    "@pixi/extract" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/extract"
-    "@pixi/filter-alpha" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/filters/filter-alpha"
-    "@pixi/filter-blur" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/filters/filter-blur"
-    "@pixi/filter-color-matrix" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/filters/filter-color-matrix"
-    "@pixi/filter-displacement" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/filters/filter-displacement"
-    "@pixi/filter-fxaa" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/filters/filter-fxaa"
-    "@pixi/filter-noise" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/filters/filter-noise"
-    "@pixi/graphics" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/graphics"
-    "@pixi/interaction" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/interaction"
-    "@pixi/loaders" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/loaders"
-    "@pixi/math" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/math"
-    "@pixi/mesh" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/mesh"
-    "@pixi/mesh-extras" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/mesh-extras"
-    "@pixi/mixin-cache-as-bitmap" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/mixin-cache-as-bitmap"
-    "@pixi/mixin-get-child-by-name" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/mixin-get-child-by-name"
-    "@pixi/mixin-get-global-position" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/mixin-get-global-position"
-    "@pixi/particles" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/particles"
-    "@pixi/polyfill" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/polyfill"
-    "@pixi/prepare" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/prepare"
-    "@pixi/runner" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/runner"
-    "@pixi/settings" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/settings"
-    "@pixi/sprite" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/sprite"
-    "@pixi/sprite-animated" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/sprite-animated"
-    "@pixi/sprite-tiling" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/sprite-tiling"
-    "@pixi/spritesheet" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/spritesheet"
-    "@pixi/text" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/text"
-    "@pixi/text-bitmap" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/text-bitmap"
-    "@pixi/ticker" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/ticker"
-    "@pixi/utils" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-bf6ef8dc-5318-4101-99f8-c0101a14eca9-1603498769741/packages/utils"
+    "@pixi/accessibility" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/accessibility"
+    "@pixi/app" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/app"
+    "@pixi/constants" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/constants"
+    "@pixi/core" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/core"
+    "@pixi/display" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/display"
+    "@pixi/extract" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/extract"
+    "@pixi/filter-alpha" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/filters/filter-alpha"
+    "@pixi/filter-blur" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/filters/filter-blur"
+    "@pixi/filter-color-matrix" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/filters/filter-color-matrix"
+    "@pixi/filter-displacement" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/filters/filter-displacement"
+    "@pixi/filter-fxaa" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/filters/filter-fxaa"
+    "@pixi/filter-noise" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/filters/filter-noise"
+    "@pixi/graphics" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/graphics"
+    "@pixi/interaction" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/interaction"
+    "@pixi/loaders" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/loaders"
+    "@pixi/math" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/math"
+    "@pixi/mesh" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/mesh"
+    "@pixi/mesh-extras" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/mesh-extras"
+    "@pixi/mixin-cache-as-bitmap" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/mixin-cache-as-bitmap"
+    "@pixi/mixin-get-child-by-name" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/mixin-get-child-by-name"
+    "@pixi/mixin-get-global-position" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/mixin-get-global-position"
+    "@pixi/particles" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/particles"
+    "@pixi/polyfill" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/polyfill"
+    "@pixi/prepare" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/prepare"
+    "@pixi/runner" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/runner"
+    "@pixi/settings" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/settings"
+    "@pixi/sprite" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/sprite"
+    "@pixi/sprite-animated" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/sprite-animated"
+    "@pixi/sprite-tiling" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/sprite-tiling"
+    "@pixi/spritesheet" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/spritesheet"
+    "@pixi/text" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/text"
+    "@pixi/text-bitmap" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/text-bitmap"
+    "@pixi/ticker" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/ticker"
+    "@pixi/utils" "file:../../../.cache/yarn/v6/npm-pixi-js-5.3.3-0be7ced0-92d8-4196-a6a9-58986e957d3e-1604287649809/packages/utils"
 
 pkg-dir@^3.0.0:
   version "3.0.0"
@@ -6454,6 +6459,11 @@ prettyjson@^1.2.1:
   dependencies:
     colors "^1.1.2"
     minimist "^1.2.0"
+
+priorityqueuejs@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/priorityqueuejs/-/priorityqueuejs-2.0.0.tgz#96064040edd847ee9dd3013d8e16297399a6bd4f"
+  integrity sha512-19BMarhgpq3x4ccvVi8k2QpJZcymo/iFUcrhPd4V96kYGovOdTsWwy7fxChYi4QY+m2EnGBWSX9Buakz+tWNQQ==
 
 private@^0.1.8:
   version "0.1.8"
