@@ -6,6 +6,7 @@ import { RGBColor } from "../helpers/color";
 import Vector from "../helpers/vector";
 import Vector3d from "../helpers/vector3d";
 import ControllableCamera from "./controllableCamera";
+import Team from "./team";
 import Tile, { TileSprites, TILE_ADJACENT, TILE_DIAGONAL } from "./tile";
 import TileChunk from "./tileChunk";
 import TileLight from "./tileLight";
@@ -174,9 +175,11 @@ export default class Stage extends GameObject {
 	public createUnit(
 		position: Vector3d,
 		spriteIndex: number | string = TileSprites.DEFAULT_TILE,
+		team: Team,
 		unitClass: typeof Unit = Unit
 	): Unit {
 		let unit = this.createTile(position, spriteIndex, StageLayer.UNIT_LAYER, unitClass) as Unit
+		unit.team = team
 		this.units.add(unit)
 		return unit
 	}

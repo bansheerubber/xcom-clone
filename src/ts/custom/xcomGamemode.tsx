@@ -6,6 +6,7 @@ import { RGBColor } from "../helpers/color";
 import Vector3d from "../helpers/vector3d";
 import ControllableCamera from "./controllableCamera";
 import Stage from "./stage";
+import Team from "./team";
 import TileGroup from "./tileGroup";
 import GeoscapeCountry from "./ui/geoscape/geoscapeCountry";
 import GeoscapeIncident from "./ui/geoscape/geoscapeIncident";
@@ -40,12 +41,13 @@ export default class XCOMGamemode extends Gamemode {
 		this.mainUI = ReactDOM.render(<MainUI game={game} geoscapeScene={this.geoscape} />, document.getElementById("reactContainer")) as any as MainUI
 
 		// this.focusGeoscape()
-		game.renderer.camera = new ControllableCamera(game, null)
-		game.renderer.camera.zoom = 1.5
+		this.game.renderer.camera = new ControllableCamera(game, null)
+		this.game.renderer.camera.zoom = 1.5
 
-		this.loadStage("./data/stage.egg").then(() => {
-			let unit = this.stage.createUnit(new Vector3d(14, 22, 1), "person1.png")
-			unit.movement.moves = 10
+		let defaultTeam = new Team(this.game)
+		this.loadStage("./data/stage2.egg").then(() => {
+			let unit = this.stage.createUnit(new Vector3d(14, 22, 1), "person1.png", defaultTeam)
+			unit.maxAP = 10
 		})
 
 		let selectedUnit: Unit
@@ -80,6 +82,12 @@ export default class XCOMGamemode extends Gamemode {
 		/*setTimeout(() => {
 			this.geoscape.displayDatacus("Choose Commission Name", commissionNamePicker(this.geoscape), true)
 		}, 1000)*/
+	}
+
+	public async startTurn(team: Team) {
+		for(let unit of team.units) {
+			unit.refillAP()
+		}
 	}
 	
 	public async loadStage(filename: string) {

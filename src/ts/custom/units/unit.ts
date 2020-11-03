@@ -1,10 +1,36 @@
 import Vector3d from "../../helpers/vector3d"
 import { StageLayer, StageRotation } from "../stage"
+import Team from "../team"
 import Tile from "../tile"
 import UnitMovement from "./unitMovement"
 
 export default class Unit extends Tile {
 	public movement: UnitMovement = new UnitMovement(this.game, this.stage, this)
+	public team: Team
+	private _ap: number
+	private _maxAP: number
+
+	public refillAP() {
+		this.ap = this.maxAP
+	}
+
+	set ap(value: number) {
+		this._ap = Math.min(Math.max(value, 0), this.maxAP)
+		this.movement.calculateRange()
+	}
+
+	get ap(): number {
+		return this._ap
+	}
+
+	set maxAP(value: number) {
+		this._maxAP = value
+		this.ap = value
+	}
+
+	get maxAP(): number {
+		return this._maxAP
+	}
 
 	set position(position: Vector3d) {
 		super.position = position
@@ -72,5 +98,8 @@ export default class Unit extends Tile {
 		super.destroy()
 
 		this.stage?.removeUnit(this)
+		this.movement?.destroy()
+		delete this.team
+		delete this.movement
 	}
 }

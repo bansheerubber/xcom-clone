@@ -45,14 +45,23 @@ export default class UnitMovement extends GameObject {
 		this.moveScoreMap.clear()
 		this.rangePositions.clear()
 		this.rangePositionsUnique.clear()
-		this.isInRange(this.unit.position.clone(), this.moves)
 
-		for(let position of this.rangePositions) {
-			this.range.add(this.stage.getMapTile(position.$add(0, 0, -1)))
+		this.isInRange(this.unit.position.clone(), Math.floor(this.unit.ap + 1))
+
+		if(this.rangePositions.size > 1) {
+			for(let position of this.rangePositions) {
+				this.range.add(this.stage.getMapTile(position.$add(0, 0, -1)))
+			}
+	
+			if(this.movesShown) {
+				this.showMoves()
+			}
 		}
-
-		if(this.movesShown) {
-			this.showMoves()
+		else {
+			this.range.clear()
+			this.moveScoreMap.clear()
+			this.rangePositions.clear()
+			this.rangePositionsUnique.clear()
 		}
 
 		return this.range
@@ -97,6 +106,7 @@ export default class UnitMovement extends GameObject {
 
 	public move(position: Vector3d) {
 		if(this.rangePositionsUnique.has(position.unique())) {
+			this.unit.ap -= this.unit.ap - (this.moveScoreMap.get(position.unique()) - 1)
 			this.unit.position = position
 		}
 	}
@@ -120,8 +130,15 @@ export default class UnitMovement extends GameObject {
 			this.moveScoreMap.set(position.unique(), moves)
 
 			for(let adjacent of this.stage.getPathfindingNeighbors(position)) {
-				this.isInRange(adjacent, moves - 1)
+				this.isInRange(adjacent, moves - position.dist(adjacent))
 			}
 		}
+	}
+
+	public destroy() {
+		super.destroy()
+
+		this.tempPath?.destroy()
+		this.range?.destroy()
 	}
 }
