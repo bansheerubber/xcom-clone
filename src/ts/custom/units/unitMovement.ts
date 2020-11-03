@@ -63,6 +63,12 @@ export default class UnitMovement extends GameObject {
 		this.movesShown = true
 	}
 
+	public hideMoves() {
+		this.range.clearOutline()
+		this.range.clearDots()
+		this.movesShown = false
+	}
+
 	public showPath(goal: Vector3d) {
 		if(this.startPath != this.unit.position.unique() || this.endPath != goal.unique()) {
 			let positions = this.stage.pathfind(this.unit.position, goal, this.rangePositionsUnique)

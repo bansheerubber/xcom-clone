@@ -43,34 +43,15 @@ export default class XCOMGamemode extends Gamemode {
 		game.renderer.camera = new ControllableCamera(game, null)
 		game.renderer.camera.zoom = 1.5
 
-		/*let stage = new Stage(this.game)
-		for(let x = 0; x < 100; x++) {
-			for(let y = 0; y < 100; y++) {
-				stage.createTile(new Vector3d(x, y, 0), 0)
-			}
-		}
-		this.focusStage(stage)*/
-
 		this.loadStage("./data/stage.egg").then(() => {
 			let unit = this.stage.createUnit(new Vector3d(14, 22, 1), "person1.png")
 			unit.movement.moves = 10
-			unit.movement.showMoves()
 		})
 
 		let selectedUnit: Unit
 		let tileGroup = new TileGroup(this.game, this.stage)
 		tileGroup.color = new RGBColor(0, 0, 1)
 		new Keybind("mouse0", KeybindModifier.NONE, "Select Unit").down((event: MouseEvent) => {
-			// let clickPosition = this.stage.mouseToTileSpace(event.x, event.y)
-			// if(clickPosition) {
-			// 	clickPosition.z = 1
-			// 	tileGroup.clear()
-			// 	for(let position of this.stage.getPathfindingNeighbors(clickPosition)) {
-			// 		tileGroup.add(this.stage.getMapTile(position.$add(0, 0, -1)))
-			// 	}
-			// 	tileGroup.drawDots()
-			// }
-
 			let position = this.stage.mouseToTileSpace(event.x, event.y)
 			if(position) {
 				position.z = 1

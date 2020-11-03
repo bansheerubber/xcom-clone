@@ -2,7 +2,7 @@ import { runInThisContext } from "vm";
 import GameObject from "../game/gameObject";
 import { RGBColor } from "../helpers/color";
 import Stage, { StageLayer } from "./stage";
-import Tile, { TileSprites } from "./tile";
+import Tile, { TileSprites, TILE_ADJACENT } from "./tile";
 
 export default class TileGroup extends GameObject {
 	private tiles: Set<Tile> = new Set()
@@ -82,6 +82,34 @@ export default class TileGroup extends GameObject {
 			TileSprites.OUTLINE_SOUTH,
 			TileSprites.OUTLINE_WEST,
 		]
+
+		const rotationToOutline = {
+			1: TileSprites.OUTLINE_SOUTH,
+			2: TileSprites.OUTLINE_EAST,
+			3: TileSprites.OUTLINE_NORTH,
+			4: TileSprites.OUTLINE_WEST,
+		}
+
+		const cornerToOutline = {
+			1: [TileSprites.OUTLINE_SOUTH, TileSprites.OUTLINE_EAST],
+			2: [TileSprites.OUTLINE_NORTH, TileSprites.OUTLINE_EAST],
+			3: [TileSprites.OUTLINE_NORTH, TileSprites.OUTLINE_WEST],
+			4: [TileSprites.OUTLINE_SOUTH, TileSprites.OUTLINE_WEST],
+		}
+
+		const rotationToDirection = {
+			1: TILE_ADJACENT.NORTH,
+			2: TILE_ADJACENT.WEST,
+			3: TILE_ADJACENT.SOUTH,
+			4: TILE_ADJACENT.EAST,
+		}
+
+		const cornerToDirection = {
+			1: [TILE_ADJACENT.NORTH, TILE_ADJACENT.WEST],
+			2: [TILE_ADJACENT.SOUTH, TILE_ADJACENT.WEST],
+			3: [TILE_ADJACENT.SOUTH, TILE_ADJACENT.EAST],
+			4: [TILE_ADJACENT.NORTH, TILE_ADJACENT.EAST],
+		}
 		
 		// iterate through the enum
 		for(let tile of this.tiles.values()) {
@@ -92,6 +120,30 @@ export default class TileGroup extends GameObject {
 					let outline = this.stage.createTile(tile.position, outlines[i], StageLayer.OUTLINE_LAYER1 + i)
 					outline.tint = this.color
 					this.tileOutlines.add(outline)
+				}
+
+				if(tile.getTop() && tile.getTop().isWall) {
+					if(tile.getTop().isWallCorner) {
+						for(let i = 0; i < cornerToDirection[tile.getTop().rotation].length; i++) {
+							let direction = cornerToDirection[tile.getTop().rotation][i]
+							let adjacent = tile.getAdjacent(direction)
+							if(adjacent && this.tiles.has(adjacent)) {
+								let index = outlines.indexOf(cornerToOutline[tile.getTop().rotation][i])
+								let outline = this.stage.createTile(adjacent.position, cornerToOutline[tile.getTop().rotation][i], StageLayer.OUTLINE_LAYER1 + index)
+								outline.tint = this.color
+								this.tileOutlines.add(outline)
+							}
+						}
+					}
+					else {
+						let adjacent = tile.getAdjacent(rotationToDirection[tile.getTop().rotation])
+						if(adjacent && this.tiles.has(adjacent)) {
+							let index = outlines.indexOf(rotationToOutline[tile.getTop().rotation])
+							let outline = this.stage.createTile(adjacent.position, rotationToOutline[tile.getTop().rotation], StageLayer.OUTLINE_LAYER1 + index)
+							outline.tint = this.color
+							this.tileOutlines.add(outline)
+						}
+					}
 				}
 			}
 		}

@@ -19,8 +19,13 @@ export default class Unit extends Tile {
 		return this._position
 	}
 
+	public select() {
+		this.movement.showMoves()
+	}
+
 	public unselect() {
 		this.movement.clearPath()
+		this.movement.hideMoves()
 	}
 
 	protected updateSpritePosition() {
