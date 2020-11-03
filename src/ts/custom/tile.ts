@@ -176,9 +176,24 @@ export default class Tile extends GameObject implements Serializable {
 		return Tile.metadata[this.typeName].isRotateable
 	}
 
+	/**
+	 * gets the rotation of the sprite based off of the type the tile was placed with. does not change as the camera rotates
+	 */
 	get rotation(): number {
 		if(this.isRotatable) {
 			return parseInt(this.typeName.match(/[1-4](?=\.png$)/g)[0])
+		}
+		else {
+			return null
+		}
+	}
+
+	/**
+	 * gets the real rotation of the sprite as it is currently being rendered. changes as the camera rotates
+	 */
+	get spriteRotation(): number {
+		if(this.isRotatable) {
+			return parseInt(this.sprite.sheetName.match(/[1-4](?=\.png$)/g)[0])
 		}
 		else {
 			return null
@@ -249,8 +264,8 @@ export default class Tile extends GameObject implements Serializable {
 
 		if(this.isWall) {
 			if(
-				this.isWallCorner && this.rotation != 4
-				|| (!this.isWallCorner && this.rotation != 1 && this.rotation != 4)
+				this.isWallCorner && this.spriteRotation != 4
+				|| (!this.isWallCorner && this.spriteRotation != 1 && this.spriteRotation != 4)
 			) {
 				this.sprite.zIndex += (1 / Tile.TILE_LAYER_RESOLUTION) / 2
 			}
