@@ -122,7 +122,7 @@ export default class UnitMovement extends GameObject {
 
 	private isInRange(position: Vector3d, moves: number) {
 		if(
-			moves > 0
+			moves >= 1
 			&& (this.moveScoreMap.get(position.unique()) == undefined || this.moveScoreMap.get(position.unique()) < moves)
 		) {
 			this.rangePositions.add(position)
