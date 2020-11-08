@@ -3,6 +3,7 @@ import Vector from "../helpers/vector";
 import Game from "../game/game";
 import { Keybind, KeybindModifier } from "../game/keybinds";
 import Stage from "./stage";
+import Vector3d from "../helpers/vector3d";
 
 interface CameraMove {
 	up: number,
@@ -80,6 +81,13 @@ export default class ControllableCamera extends Camera {
 				this.stage.rotation = number
 			}
 		})
+	}
+
+	/**
+	 * move the camera to a tile position
+	 */
+	set stagePosition(vector: Vector3d) {
+		this.position = this.stage.tileToWorldSpace(vector).clone().add(new Vector(32, -32))
 	}
 	
 	public tick(deltaTime: number): void {

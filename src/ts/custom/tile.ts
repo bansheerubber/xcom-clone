@@ -72,6 +72,7 @@ export enum TileSprites {
 	OUTLINE_EAST = "outline4.png",
 	FULL_OUTLINE = "full_outline.png",
 	DOT = "dot.png",
+	TARGET = "target.png",
 }
 
 export default class Tile extends GameObject implements Serializable {
@@ -433,6 +434,28 @@ export default class Tile extends GameObject implements Serializable {
 		}
 		return false
 	}
+	
+	/**
+	 * figures out which direciton the input tile goes in, -1 if it wasn't found
+	 * @param tile 
+	 */
+	public getAdjacentDirection(tile: Tile): TILE_ADJACENT | -1 {
+		if(this.getAdjacent(TILE_ADJACENT.NORTH) == tile) {
+			return TILE_ADJACENT.NORTH
+		}
+		else if(this.getAdjacent(TILE_ADJACENT.WEST) == tile) {
+			return TILE_ADJACENT.WEST
+		}
+		else if(this.getAdjacent(TILE_ADJACENT.SOUTH) == tile) {
+			return TILE_ADJACENT.SOUTH
+		}
+		else if(this.getAdjacent(TILE_ADJACENT.EAST) == tile) {
+			return TILE_ADJACENT.EAST
+		}
+		else {
+			return -1
+		}
+	}
 
 	public getDiagonal(index: TILE_DIAGONAL): Tile {
 		if(this.isDestroyed) {
@@ -509,6 +532,28 @@ export default class Tile extends GameObject implements Serializable {
 			}
 		}
 		return false
+	}
+
+	/**
+	 * figures out which direciton the input tile goes in, -1 if it wasn't found
+	 * @param tile 
+	 */
+	public getDiagonalDirection(tile: Tile): TILE_DIAGONAL | -1 {
+		if(this.getDiagonal(TILE_DIAGONAL.NORTH_WEST) == tile) {
+			return TILE_DIAGONAL.NORTH_WEST
+		}
+		else if(this.getDiagonal(TILE_DIAGONAL.SOUTH_WEST) == tile) {
+			return TILE_DIAGONAL.SOUTH_WEST
+		}
+		else if(this.getDiagonal(TILE_DIAGONAL.SOUTH_EAST) == tile) {
+			return TILE_DIAGONAL.SOUTH_EAST
+		}
+		else if(this.getDiagonal(TILE_DIAGONAL.NORTH_EAST) == tile) {
+			return TILE_DIAGONAL.NORTH_EAST
+		}
+		else {
+			return -1
+		}
 	}
 
 	public getTop(): Tile {

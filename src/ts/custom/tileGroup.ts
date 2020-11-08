@@ -65,6 +65,10 @@ export default class TileGroup extends GameObject {
 	public has(tile: Tile): boolean {
 		return this.tiles.has(tile)
 	}
+	
+	public size(): number {
+		return this.tiles.size
+	}
 
 	public allTiles(): IterableIterator<Tile> {
 		return this.tiles.values()

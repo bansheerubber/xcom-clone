@@ -3,20 +3,40 @@ import { StageLayer, StageRotation } from "../stage"
 import Team from "../team"
 import Tile from "../tile"
 import UnitMovement from "./unitMovement"
+import UnitTargeting from "./unitTargeting"
 
 export default class Unit extends Tile {
 	public movement: UnitMovement = new UnitMovement(this.game, this.stage, this)
+	public targeting: UnitTargeting = new UnitTargeting(this.game, this.stage, this)
 	public team: Team
+	public baseSprite: string
 	private _ap: number
 	private _maxAP: number
+	private _unit45DegreeRotation: boolean = false
+	private _unitRotation: number = 1
 
 	public refillAP() {
 		this.ap = this.maxAP
 	}
 
+	set unitRotation(rotation: number) {
+		this._unitRotation = rotation
+		this.updateUnitRotation()
+	}
+
+	set unit45DegreeRotation(value: boolean) {
+		this._unit45DegreeRotation = value
+		this.updateUnitRotation()
+	}
+
+	private updateUnitRotation() {
+		this.typeName = `${this.baseSprite}${this._unit45DegreeRotation ? "_r" : ""}${this._unitRotation}.png`
+	}
+
 	set ap(value: number) {
 		this._ap = Math.min(Math.max(value, 0), this.maxAP)
 		this.movement.calculateRange()
+		this.targeting.calculateTargets()
 	}
 
 	get ap(): number {
@@ -35,6 +55,7 @@ export default class Unit extends Tile {
 	set position(position: Vector3d) {
 		super.position = position
 		this.movement.calculateRange()
+		this.targeting.calculateTargets()
 
 		if(this == this.stage.selectedUnit) {
 			this.stage.selectUnit(this)
@@ -52,6 +73,24 @@ export default class Unit extends Tile {
 	public unselect() {
 		this.movement.clearPath()
 		this.movement.hideMoves()
+	}
+
+	public setUnitRotationFromPosition(position: Vector3d) {
+		let angle = -Math.atan2(position.y - this.position.y, position.x - this.position.x)
+		if(angle < 0) {
+			angle += Math.PI * 2
+		}
+		let rotation = Math.round(angle / (Math.PI / 4))
+		let is45Deg = rotation % 2 == 1
+		if(is45Deg) {
+			rotation = Math.floor((rotation - 1) / 2) % 4
+		}
+		else {
+			rotation = Math.floor(rotation / 2)  % 4
+		}
+		rotation += 1
+		this.unit45DegreeRotation = is45Deg
+		this.unitRotation = rotation
 	}
 
 	protected updateSpritePosition() {

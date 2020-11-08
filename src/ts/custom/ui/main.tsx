@@ -5,6 +5,8 @@ import Stage from "../stage"
 import TileSelection from "./tileSelection"
 import GeoscapeScene from "./geoscape/geoscapeScene"
 import GeoscapeDatacus from "./geoscape/geoscapeDatacus"
+import UnitActionsUI from "./unitActions"
+import type XCOMGamemode from "../xcomGamemode"
 
 interface MainUIProps {
 	game: Game
@@ -26,7 +28,7 @@ export default class MainUI extends React.Component<MainUIProps, MainUIState> {
 		}
 	}
 
-	public loadTileSelection(stage: Stage) {
+	public setStage(stage: Stage) {
 		this.setState({
 			stage
 		})
@@ -36,6 +38,7 @@ export default class MainUI extends React.Component<MainUIProps, MainUIState> {
 		return <>
 			{/* {this.state.stage ? <TileSelection game={this.props.game} stage={this.state.stage} /> : null} */}
 			<GeoscapeUI scene={this.props.geoscapeScene} display={this.state.displayGeoscape} />
+			<UnitActionsUI stage={this.state.stage} gamemode={this.props.game.gamemode as XCOMGamemode} />
 		</>
 	}
 }

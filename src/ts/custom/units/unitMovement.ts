@@ -2,7 +2,8 @@ import GameObject from "../../game/gameObject";
 import { RGBColor } from "../../helpers/color";
 import Vector3d from "../../helpers/vector3d";
 import Stage from "../stage";
-import Tile from "../tile";
+import type Tile from "../tile";
+import { TILE_ADJACENT, TILE_DIAGONAL } from "../tile";
 import TileGroup from "../tileGroup";
 import Unit from "./unit";
 
@@ -83,7 +84,8 @@ export default class UnitMovement extends GameObject {
 			let positions = this.stage.pathfind(this.unit.position, goal, this.rangePositionsUnique)
 			this.tempPath.clear()
 			if(positions) {
-				for(let position of positions) {
+				for(let i = 0; i < positions.length; i++) {
+					let position = positions[i]
 					let tile = this.stage.getMapTile(position.$add(0, 0, -1))
 					this.tempPath.add(tile)
 				}
@@ -106,6 +108,9 @@ export default class UnitMovement extends GameObject {
 
 	public move(position: Vector3d) {
 		if(this.rangePositionsUnique.has(position.unique())) {
+			// calculate the direction the unit should be facing
+			this.unit.setUnitRotationFromPosition(position)
+
 			this.unit.ap -= this.unit.ap - (this.moveScoreMap.get(position.unique()) - 1)
 			this.unit.position = position
 		}
@@ -140,5 +145,19 @@ export default class UnitMovement extends GameObject {
 
 		this.tempPath?.destroy()
 		this.range?.destroy()
+		this.range.clear()
+		this.moveScoreMap.clear()
+		this.rangePositions.clear()
+		this.rangePositionsUnique.clear()
+
+		delete this.stage
+		delete this.range
+		delete this.rangePositions
+		delete this.rangePositionsUnique
+		delete this.tempPath
+		delete this.moveScoreMap
+		delete this.startPath
+		delete this.endPath
+		delete this.movesShown
 	}
 }

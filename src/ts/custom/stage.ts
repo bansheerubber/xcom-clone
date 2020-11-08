@@ -10,6 +10,7 @@ import Team from "./team";
 import Tile, { TileSprites, TILE_ADJACENT, TILE_DIAGONAL } from "./tile";
 import TileChunk from "./tileChunk";
 import TileLight from "./tileLight";
+import type UnitActionsUI from "./ui/unitActions";
 import Unit from "./units/unit";
 
 type Vector3dUnique = number
@@ -77,6 +78,7 @@ export default class Stage extends GameObject {
 	private _selectedUnit: Unit
 	private selectedUnitOutline: Tile
 	private maxPosition: Vector3d = new Vector3d(0, 0, 0)
+	private unitUI: UnitActionsUI
 
 	public destroy() {
 		// destroy lights
@@ -170,17 +172,31 @@ export default class Stage extends GameObject {
 		if(newPosition.z + 1 > this.maxPosition.z) {
 			this.maxPosition.z = tile.position.z + 1
 		}
+
+		if(tile instanceof Unit) {
+			this.calculateAllUnits()
+		}
+	}
+
+	private calculateAllUnits() {
+		for(let unit of this.units) {
+			unit.movement.calculateRange()
+			unit.targeting.calculateTargets()
+		}
 	}
 
 	public createUnit(
 		position: Vector3d,
-		spriteIndex: number | string = TileSprites.DEFAULT_TILE,
+		unitSprite: string,
 		team: Team,
 		unitClass: typeof Unit = Unit
 	): Unit {
+		let spriteIndex = `${unitSprite}1.png`
 		let unit = this.createTile(position, spriteIndex, StageLayer.UNIT_LAYER, unitClass) as Unit
 		unit.team = team
+		unit.baseSprite = unitSprite
 		this.units.add(unit)
+		this.calculateAllUnits()
 		return unit
 	}
 
@@ -221,6 +237,10 @@ export default class Stage extends GameObject {
 		return this.tileMap[StageLayer.UNIT_LAYER].get(vector.unique()) as Unit
 	}
 
+	public getUnits(): IterableIterator<Unit> {
+		return this.units.values()
+	}
+
 	public getLight(position: Vector3d): TileLight {
 		return this.lightMap.get(position.unique())
 	}
@@ -250,6 +270,10 @@ export default class Stage extends GameObject {
 		}
 	}
 
+	public setUnitUI(unitUI: UnitActionsUI) {
+		this.unitUI = unitUI
+	}
+
 	public selectUnit(unit: Unit) {
 		if(this._selectedUnit) {
 			this._selectedUnit.unselect()
@@ -264,6 +288,8 @@ export default class Stage extends GameObject {
 			this._selectedUnit.select()
 			this.selectedUnitOutline = this.createTile(this._selectedUnit.position.clone().$add(0, 0, -1), TileSprites.FULL_OUTLINE, StageLayer.OUTLINE_LAYER0)
 		}
+
+		this.unitUI?.setUnit(this._selectedUnit)
 	}
 
 	get selectedUnit(): Unit {
