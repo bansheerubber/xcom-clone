@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://code.highcharts.com/highcharts.js"></script>
+		<script src="https://code.highcharts.com/modules/histogram-bellcurve.js"></script>
+		<script src="https://code.highcharts.com/modules/exporting.js"></script>
+		<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+	</head>
+
+	<body>
+		<div id="graph" style="width: 800px; height: 500px;"></div>
+	</body>
+
+	<script>
+		let data = []
+		let accuracy = 0.5
+
+		for(let i = 0; i < 500000; i++) {
+			// we hit the target
+			if(Math.random() <= accuracy) {
+				// data.push(0)
+			}
+			// we don't hit the target, but we hit close by
+			else {
+				let randomRadius = Math.random() * (5 - Math.SQRT2) + Math.SQRT2
+				data.push(randomRadius)
+			}
+		}
+		
+		Highcharts.chart('graph', {
+			title: {
+				text: 'Highcharts Histogram'
+			},
+
+			xAxis: [{
+				title: { text: 'Histogram' },
+				alignTicks: false,
+			}],
+
+			yAxis: [{
+				title: { text: 'Histogram' },
+			}],
+
+			series: [{
+				name: 'Histogram',
+				type: 'histogram',
+				baseSeries: 's1',
+			}, {
+				name: 'Data',
+				type: 'scatter',
+				data: data,
+				id: 's1',
+				visible: false,
+				marker: {
+					radius: 1.5
+				}
+			}]
+		});
+	</script>
+</html>

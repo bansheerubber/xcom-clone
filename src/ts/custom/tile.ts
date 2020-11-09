@@ -124,6 +124,7 @@ export default class Tile extends GameObject implements Serializable {
 
 	set tint(tint: RGBColor) {
 		this.sprite.tint = tint
+		this.chunk.update()
 	}
 
 	get tint(): RGBColor {

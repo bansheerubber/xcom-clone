@@ -5,6 +5,7 @@ import { Keybind, KeybindModifier } from "../game/keybinds";
 import { RGBColor } from "../helpers/color";
 import Vector3d from "../helpers/vector3d";
 import ControllableCamera from "./controllableCamera";
+import MachineGun from "./items/guns/machineGun";
 import Stage from "./stage";
 import Team from "./team";
 import TileGroup from "./tileGroup";
@@ -52,6 +53,7 @@ export default class XCOMGamemode extends Gamemode {
 			let unit = this.stage.createUnit(new Vector3d(14, 22, 1), "person", this.xcomTeam)
 			unit.maxAP = 10
 			unit.targeting.range = 25
+			unit.equippedWeapon = new MachineGun(this.game, unit)
 
 			let alien = this.stage.createUnit(new Vector3d(20, 22, 1), "alien", this.alienTeam)
 			alien.maxAP = 20

@@ -1,4 +1,5 @@
 import Vector3d from "../../helpers/vector3d"
+import Gun from "../items/guns/gun"
 import { StageLayer, StageRotation } from "../stage"
 import Team from "../team"
 import Tile from "../tile"
@@ -10,6 +11,7 @@ export default class Unit extends Tile {
 	public targeting: UnitTargeting = new UnitTargeting(this.game, this.stage, this)
 	public team: Team
 	public baseSprite: string
+	public equippedWeapon: Gun
 	private _ap: number
 	private _maxAP: number
 	private _unit45DegreeRotation: boolean = false

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Keybind, KeybindModifier } from "../../game/keybinds";
 import type ControllableCamera from "../controllableCamera";
+import { SHOT_TYPE, SHOT_UI_NAME } from "../items/guns/gun";
 import type Stage from "../stage";
 import type Unit from "../units/unit";
 import { UNIT_ATTACK } from "../units/unitTargeting";
@@ -112,6 +113,10 @@ export default class UnitActionsUI extends React.Component<UnitActionsProps, Uni
 		}
 	}
 
+	public attack(index: SHOT_TYPE) {
+		this.state.unit.targeting.shootTarget(index)
+	}
+
 	public render(): JSX.Element {
 		if(this.props.stage) {
 			this.props.stage?.setUnitUI(this)
@@ -125,27 +130,29 @@ export default class UnitActionsUI extends React.Component<UnitActionsProps, Uni
 			for(let i = 0; i < this.state.unit.targeting.targetCount; i++) {
 				aliens.push(<div className="alien" key={i} onMouseDown={() => this.setTarget(i)}></div>)
 			}
+
+			let attackButtons = []
+			if(this.state.unit.equippedWeapon) {
+				for(let value in SHOT_TYPE) {
+					if(!isNaN(Number(value))) {
+						let index = value as any as SHOT_TYPE
+						attackButtons.push(
+							<div className="attack-button" onClick={() => this.attack(index)}>
+								<b>{SHOT_UI_NAME[index]}</b>
+								<span>{Math.floor(this.state.unit.equippedWeapon.getAccuracy(index) * 100)}% Chance</span>
+								<span>{this.state.unit.equippedWeapon.aps[index]} AP</span>
+							</div>
+						)
+					}
+				}
+			}
 			
 			return <div className="unit-actions">
 				{
 					this.state.targeting == UNIT_ACTIONS_TARGETING.SELECT_ATTACK
 					?	(
 						<>
-							<div className="attack-button">
-								<b>Accurate Shot</b>
-								<span>45% Chance</span>
-								<span>20 AP</span>
-							</div>
-							<div className="attack-button">
-								<b>Snapshot</b>
-								<span>25% Chance</span>
-								<span>10 AP</span>
-							</div>
-							<div className="attack-button">
-								<b>3 Automatic Shots</b>
-								<span>15% Chance Per Shot</span>
-								<span>10 AP</span>
-							</div>
+							{attackButtons}
 							<div className="line-break" />
 						</>
 					): null

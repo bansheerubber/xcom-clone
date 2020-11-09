@@ -1,4 +1,7 @@
 import GameObject from "../../game/gameObject";
+import { RGBColor } from "../../helpers/color";
+import Vector3d from "../../helpers/vector3d";
+import { SHOT_TYPE } from "../items/guns/gun";
 import Stage, { StageLayer } from "../stage";
 import type Tile from "../tile";
 import { TileSprites } from "../tile";
@@ -57,6 +60,34 @@ export default class UnitTargeting extends GameObject {
 
 		if(this.target) {
 			this.reticleTile = this.stage.createTile(this.target.position, TileSprites.TARGET, StageLayer.DOT_LAYER)
+		}
+	}
+
+	/**
+	 * shoots the current target
+	 */
+	public shootTarget(shotType: SHOT_TYPE) {
+		if(this.unit.equippedWeapon) {
+			let accuracy = this.unit.equippedWeapon.getAccuracy(shotType)
+
+			// we hit the target
+			if(Math.random() <= accuracy) {
+				console.log("hit the target")
+			}
+			// we don't hit the target, but we hit close by
+			else {
+				let randomRadius = Math.random() * (this.unit.equippedWeapon.missRadius - Math.SQRT2) + Math.SQRT2
+				let randomAngle = Math.random() * Math.PI * 2
+				let position = new Vector3d(
+					Math.round(Math.cos(randomAngle) * randomRadius) + this.target.position.x,
+					Math.round(Math.sin(randomAngle) * randomRadius) + this.target.position.y,
+					this.target.position.z - 1
+				)
+				let missedTile = this.stage.getMapTile(position)
+				if(missedTile) {
+					missedTile.tint = new RGBColor(1, 0, 0)
+				}
+			}
 		}
 	}
 
